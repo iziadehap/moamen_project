@@ -23,7 +23,7 @@ class AuthNotifier extends Notifier<AppAuthState> {
       final response = await _supabase
           .from(SupabaseTables.accounts)
           .select()
-          .eq(SupabaseCulomns.phone, phone)
+          .eq(SupabaseAccountsCulomns.phone, phone)
           .maybeSingle();
 
       if (response == null) {
@@ -32,7 +32,7 @@ class AuthNotifier extends Notifier<AppAuthState> {
       }
 
       // Verify password
-      final passwordHash = response[SupabaseCulomns.password] as String;
+      final passwordHash = response[SupabaseAccountsCulomns.password] as String;
       final isValid = BCrypt.checkpw(password, passwordHash);
 
       if (!isValid) {
@@ -52,41 +52,44 @@ class AuthNotifier extends Notifier<AppAuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // Check if phone already exists
-      final existing = await _supabase
-          .from(SupabaseTables.accounts)
-          .select()
-          .eq(SupabaseCulomns.phone, phone)
-          .maybeSingle();
-
-      if (existing != null) {
-        state = AppAuthState(error: 'رقم الهاتف مسجل بالفعل');
-        return;
-      }
-
       // Hash password
       final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
 
-      // Insert new user
-      final response = await _supabase
+      // Insert + return the new row (now safe because of the SELECT policy above)
+      final inserted = await _supabase
           .from(SupabaseTables.accounts)
           .insert({
-            SupabaseCulomns.phone: phone,
-            SupabaseCulomns.password: passwordHash,
-            SupabaseCulomns.name: name,
-            SupabaseCulomns.role: SupabaseAccountTyps.user,
-            SupabaseCulomns.maxOrders: 5,
-            SupabaseCulomns.createdAt: DateTime.now(),
-            SupabaseCulomns.isActive: true,
+            SupabaseAccountsCulomns.phone: phone,
+            SupabaseAccountsCulomns.password: passwordHash,
+            SupabaseAccountsCulomns.name: name,
+            SupabaseAccountsCulomns.role: 'user',
+            SupabaseAccountsCulomns.isActive: false,
           })
           .select()
           .single();
 
+      print('✅ Account created: $inserted');
+
       // Create user model
-      final user = UserModel.fromMap(response);
-      state = AppAuthState(user: user);
+      final user = UserModel.fromMap(inserted);
+
+      // Success → put the user in state
+      state = state.copyWith(user: user, error: null);
+    } on PostgrestException catch (error) {
+      print('❌ Postgrest error: ${error.message} (code: ${error.code})');
+
+      if (error.code == '23505') {
+        state = state.copyWith(error: 'رقم الهاتف مسجل بالفعل');
+      } else if (error.code == '42501') {
+        state = state.copyWith(error: 'خطأ في الصلاحيات، حاول مرة أخرى');
+      } else {
+        state = state.copyWith(error: 'فشل إنشاء الحساب: ${error.message}');
+      }
     } catch (e) {
-      state = AppAuthState(error: 'فشل إنشاء الحساب: ${e.toString()}');
+      print('Unexpected error: $e');
+      state = state.copyWith(error: 'فشل إنشاء الحساب: ${e.toString()}');
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 

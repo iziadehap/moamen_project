@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class DashboardButton extends StatefulWidget {
@@ -33,7 +34,7 @@ class _DashboardButtonState extends State<DashboardButton>
     );
     _scaleAnimation = Tween<double>(
       begin: 1.0,
-      end: 1.05,
+      end: 0.95, // Shifting to a press-in effect which feels more premium
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -45,6 +46,8 @@ class _DashboardButtonState extends State<DashboardButton>
 
   @override
   Widget build(BuildContext context) {
+    final themeColor = widget.color ?? AppColors.primaryBlue;
+
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) {
@@ -57,31 +60,78 @@ class _DashboardButtonState extends State<DashboardButton>
         child: Container(
           decoration: BoxDecoration(
             color: AppColors.darkCard,
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: AppColors.glowShadow,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
+              topRight: Radius.circular(15),
+              bottomLeft: Radius.circular(15),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: themeColor.withOpacity(0.15),
+                blurRadius: 25,
+                offset: const Offset(0, 12),
+              ),
+            ],
+            border: Border.all(
+              color: Colors.white.withOpacity(0.08),
+              width: 1.5,
+            ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: (widget.color ?? Theme.of(context).primaryColor)
-                      .withOpacity(0.1),
-                ),
-                child: Icon(
-                  widget.icon,
-                  size: 40,
-                  color: widget.color ?? Theme.of(context).primaryColor,
+              // Bottom Right Accent Glow
+              Positioned(
+                bottom: -10,
+                right: -10,
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: themeColor.withOpacity(0.1),
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                widget.title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [themeColor, themeColor.withOpacity(0.8)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(25),
+                          bottomRight: Radius.circular(25),
+                          topRight: Radius.circular(10),
+                          bottomLeft: Radius.circular(10),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: themeColor.withOpacity(0.4),
+                            blurRadius: 15,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Icon(widget.icon, size: 32, color: Colors.white),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      widget.title,
+                      style: GoogleFonts.cairo(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.95),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

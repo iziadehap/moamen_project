@@ -21,26 +21,26 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> data) {
     return UserModel(
-      id: data[SupabaseCulomns.id]?.toString() ?? '',
-      phone: data[SupabaseCulomns.phone] ?? '',
-      name: data[SupabaseCulomns.name],
-      role: data[SupabaseCulomns.role] ?? 'user',
-      maxOrders: data[SupabaseCulomns.maxOrders] ?? 5,
-      createdAt: data[SupabaseCulomns.createdAt] != null
-          ? DateTime.parse(data[SupabaseCulomns.createdAt])
+      id: data[SupabaseAccountsCulomns.id]?.toString() ?? '',
+      phone: data[SupabaseAccountsCulomns.phone] ?? '',
+      name: data[SupabaseAccountsCulomns.name],
+      role: data[SupabaseAccountsCulomns.role] ?? 'user',
+      maxOrders: data[SupabaseAccountsCulomns.maxOrders] ?? 5,
+      createdAt: data[SupabaseAccountsCulomns.createdAt] != null
+          ? DateTime.parse(data[SupabaseAccountsCulomns.createdAt])
           : DateTime.now(),
-      isActive: data[SupabaseCulomns.isActive] ?? true,
+      isActive: data[SupabaseAccountsCulomns.isActive] ?? true,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      SupabaseCulomns.phone: phone,
-      SupabaseCulomns.name: name,
-      SupabaseCulomns.role: role,
-      SupabaseCulomns.maxOrders: maxOrders,
-      SupabaseCulomns.createdAt: createdAt,
-      SupabaseCulomns.isActive: isActive,
+      SupabaseAccountsCulomns.phone: phone,
+      SupabaseAccountsCulomns.name: name,
+      SupabaseAccountsCulomns.role: role,
+      SupabaseAccountsCulomns.maxOrders: maxOrders,
+      SupabaseAccountsCulomns.createdAt: createdAt,
+      SupabaseAccountsCulomns.isActive: isActive,
     };
   }
 }
