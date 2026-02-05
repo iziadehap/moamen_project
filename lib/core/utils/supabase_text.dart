@@ -1,4 +1,4 @@
-class SupabaseCulomns {
+class SupabaseAccountsCulomns {
   static const String id = "id";
   static const String phone = "phone";
   static const String password = "password";
@@ -9,8 +9,18 @@ class SupabaseCulomns {
   static const String createdAt = "created_at";
 }
 
+class SupabasePricelistCulomns {
+  static const String id = "id";
+  static const String title = "title";
+  static const String price = "price";
+  static const String description = "description";
+  static const String isActive = "is_active";
+  static const String createdAt = "created_at";
+}
+
 class SupabaseTables {
   static const String accounts = "accounts";
+  static const String pricelist = "price_list";
 }
 
 class SupabaseAccountTyps {

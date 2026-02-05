@@ -23,6 +23,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      locale: const Locale('ar'),
+      fallbackLocale: const Locale('ar'),
       title: 'Futuristic App 2026',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
