@@ -6,8 +6,8 @@ import 'package:moamen_project/features/auth/presentation/controller/auth_provid
 import 'package:moamen_project/features/auth/presentation/login_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../pricelist/presentation/price_list_screen.dart';
-import '../../admin/presentation/add_order_screen.dart';
-import 'widgets/dashboard_button.dart';
+import '../../admin/addOrder/add_order_screen.dart';
+import 'widgets/dashboard_card.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -120,67 +120,71 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Responsive Grid
+                // Premium Vertical List
                 Expanded(
-                  child: GridView.count(
-                    crossAxisCount: MediaQuery.of(context).size.width > 600
-                        ? 4
-                        : 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    children: [
-                      DashboardButton(
-                        title: 'الطلبات',
-                        icon: Icons.list_alt_rounded,
-                        color: AppColors.primaryBlue,
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('قريباً: شاشة الطلبات'),
-                            ),
-                          );
-                        },
-                      ),
-                      DashboardButton(
-                        title: 'الخريطة',
-                        icon: Icons.map_rounded,
-                        color: AppColors.statusCyan,
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('قريباً: شاشة الخريطة'),
-                            ),
-                          );
-                        },
-                      ),
-                      DashboardButton(
-                        title: 'قائمة الأسعار',
-                        icon: Icons.attach_money_rounded,
-                        color: Colors.orangeAccent,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PriceListScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      if (isAdmin)
-                        DashboardButton(
-                          title: 'إضافة طلب',
-                          icon: Icons.add_location_alt_rounded,
-                          color: AppColors.primaryPurple,
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        DashboardCard(
+                          title: 'الطلبات',
+                          subtitle: 'مشاهدة وإدارة جميع طلبات التوصيل',
+                          icon: Icons.list_alt_rounded,
+                          color: AppColors.primaryBlue,
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AddOrderScreen(),
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('قريباً: شاشة الطلبات'),
                               ),
                             );
                           },
                         ),
-                    ],
+                        DashboardCard(
+                          title: 'الخريطة',
+                          subtitle: 'تتبع الشحنات والمواقع المباشرة',
+                          icon: Icons.map_rounded,
+                          color: AppColors.statusCyan,
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('قريباً: شاشة الخريطة'),
+                              ),
+                            );
+                          },
+                        ),
+                        DashboardCard(
+                          title: 'قائمة الأسعار',
+                          subtitle: 'أسعار خدمات التوصيل والطرود',
+                          icon: Icons.attach_money_rounded,
+                          color: Colors.orangeAccent,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const PriceListScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        if (isAdmin)
+                          DashboardCard(
+                            title: 'إضافة طلب',
+                            subtitle: 'إنشاء طلب توصيل جديد للنظام',
+                            icon: Icons.add_location_alt_rounded,
+                            color: AppColors.primaryPurple,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddOrderScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ],

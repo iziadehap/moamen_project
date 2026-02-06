@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moamen_project/core/utils/supabase_text.dart';
+import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/pricelist/presentation/controller/priceList_provider.dart';
+import 'package:moamen_project/features/pricelist/presentation/screens/add_price_list_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class PriceListScreen extends ConsumerStatefulWidget {
@@ -25,6 +28,8 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(priceProvider);
+    final authState = ref.watch(authProvider);
+    final isAdmin = authState.user?.role == SupabaseAccountTyps.admin;
 
     return Scaffold(
       backgroundColor: AppColors.midnightNavy,
@@ -36,6 +41,20 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          if (isAdmin)
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddPriceListScreen()),
+                );
+              },
+              icon: const Icon(
+                Icons.add_circle_outline,
+                color: AppColors.primaryBlue,
+              ),
+              tooltip: 'إضافة خدمة',
+            ),
           IconButton(
             onPressed: _fetchData,
             icon: const Icon(Icons.refresh, color: Colors.white),
@@ -84,7 +103,7 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
               )
             : RefreshIndicator(
                 onRefresh: () async {
-                  ref.read(priceProvider.notifier).getPricelist();
+                  await ref.read(priceProvider.notifier).getPricelist();
                 },
                 color: AppColors.primaryBlue,
                 backgroundColor: AppColors.darkCard,
@@ -109,7 +128,17 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            onTap: () {}, // For future details view
+                            onTap: isAdmin
+                                ? () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            AddPriceListScreen(service: item),
+                                      ),
+                                    );
+                                  }
+                                : null,
                             child: Padding(
                               padding: const EdgeInsets.all(20),
                               child: Column(

@@ -41,11 +41,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     if (mounted) {
       final authState = ref.read(authProvider);
-      if (authState.error != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(authState.error!)));
-      } else if (authState.isAuthenticated) {
+      if (authState.isAuthenticated) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const DashboardScreen()),
         );
@@ -82,6 +78,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    });
+
     final authState = ref.watch(authProvider);
 
     return Scaffold(
@@ -149,7 +156,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         label: 'رقم الهاتف',
                         controller: _phoneController,
                         icon: Icons.phone_android,
-                        hint: '+966 5x xxx xxxx',
+                        hint: '01xxxxxxxx',
+                        // prefixText: '+20 ',
                         keyboardType: TextInputType.phone,
                         validator: _validatePhone,
                       ),
@@ -251,6 +259,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     required TextEditingController controller,
     required IconData icon,
     required String hint,
+    String? prefixText,
     bool obscureText = false,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
@@ -270,6 +279,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+              prefixText: prefixText,
+              prefixStyle: const TextStyle(color: Colors.white, fontSize: 16),
               filled: true,
               fillColor: AppColors.darkCard,
               prefixIcon: Icon(icon, color: AppColors.textGrey),

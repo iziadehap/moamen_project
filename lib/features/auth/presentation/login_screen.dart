@@ -34,11 +34,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (mounted) {
       final authState = ref.read(authProvider);
-      if (authState.error != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(authState.error!)));
-      } else if (authState.isAuthenticated) {
+      if (authState.isAuthenticated) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const DashboardScreen()),
         );
@@ -68,6 +64,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    });
+
     final authState = ref.watch(authProvider);
 
     return Scaffold(
@@ -76,18 +83,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: Stack(
           children: [
             // Close Button
-            Positioned(
-              top: 50,
-              right: 20,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.close, color: Colors.white),
-              ),
-            ),
+            // Positioned(
+            //   top: 50,
+            //   right: 20,
+            //   child: Container(
+            //     padding: const EdgeInsets.all(8),
+            //     decoration: BoxDecoration(
+            //       color: Colors.white.withValues(alpha: 0.1),
+            //       shape: BoxShape.circle,
+            //     ),
+            //     child: const Icon(Icons.close, color: Colors.white),
+            //   ),
+            // ),
 
             Center(
               child: SingleChildScrollView(
@@ -146,16 +153,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               style: const TextStyle(color: Colors.white),
                               keyboardType: TextInputType.phone,
                               decoration: InputDecoration(
-                                hintText: '+966 5x xxx xxxx',
+                                hintText: '01xxxxxxxx',
+                                prefixIcon: const Icon(
+                                  Icons.phone_android,
+                                  color: AppColors.textGrey,
+                                ),
+                                // prefixText: '+20 ',
+                                prefixStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
                                 hintStyle: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.3),
                                 ),
                                 filled: true,
                                 fillColor: AppColors.darkCard,
-                                prefixIcon: const Icon(
-                                  Icons.phone_android,
-                                  color: AppColors.textGrey,
-                                ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
                                   borderSide: BorderSide.none,

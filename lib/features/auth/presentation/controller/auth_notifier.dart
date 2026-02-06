@@ -72,6 +72,12 @@ class AuthNotifier extends Notifier<AppAuthState> {
 
       // Create user model
       final user = UserModel.fromMap(inserted);
+      print('✅ User created: $user');
+      print('user id = ${user.id}');
+      print('user name = ${user.name}');
+      print('user phone = ${user.phone}');
+      print('user role = ${user.role}');
+      print('user is active = ${user.isActive}');
 
       // Success → put the user in state
       state = state.copyWith(user: user, error: null);

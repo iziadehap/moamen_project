@@ -6,6 +6,7 @@ import '../../../core/services/permission_service.dart';
 import '../../../core/services/location_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../auth/presentation/login_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 /// ==================== STATE ====================
 class SplashState {
@@ -48,39 +49,49 @@ class SplashNotifier extends Notifier<SplashState> {
   }
 
   Future<void> _startSystemCheck() async {
-    state = state.copyWith(progress: 0.1);
-    await Future.delayed(const Duration(seconds: 1));
-    state = state.copyWith(progress: 0.3);
+    state = state.copyWith(progress: 0.1, error: null);
+    await Future.delayed(const Duration(milliseconds: 500));
 
-    // Internet check - wait for connectivity check to complete
+    // 1. Internet check
+    state = state.copyWith(progress: 0.2);
     final connectivityState = ref.read(connectivityProvider);
-
-    // If still checking, wait a bit more
     if (connectivityState.isChecking) {
-      await Future.delayed(const Duration(milliseconds: 1500));
+      await Future.delayed(const Duration(milliseconds: 1000));
     }
 
-    final finalConnectivityState = ref.read(connectivityProvider);
-    if (!finalConnectivityState.isConnected) {
-      state = state.copyWith(error: 'Internet Connection Required');
+    if (!ref.read(connectivityProvider).isConnected) {
+      state = state.copyWith(
+        error: 'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة.',
+      );
       return;
     }
-    state = state.copyWith(internetChecked: true, progress: 0.6);
-    await Future.delayed(const Duration(milliseconds: 800));
+    state = state.copyWith(internetChecked: true, progress: 0.5);
+    await Future.delayed(const Duration(milliseconds: 500));
 
-    // GPS permission check
-    final hasLocation = await permissionService
+    // 2. Location Permission check
+    state = state.copyWith(progress: 0.6);
+    final hasPermission = await permissionService
         .checkAndRequestLocationPermission();
-    if (!hasLocation) {
-      state = state.copyWith(error: 'Location Permission Required');
+    if (!hasPermission) {
+      state = state.copyWith(error: 'صلاحية الوصول للموقع مطلوبة للمتابعة.');
       return;
     }
+
+    // 3. GPS Service check
+    state = state.copyWith(progress: 0.8);
+    final isGpsEnabled = await permissionService.isLocationServiceEnabled();
+    if (!isGpsEnabled) {
+      state = state.copyWith(
+        error: 'خدمات الموقع (GPS) معطلة. يرجى تفعيلها من الإعدادات.',
+      );
+      return;
+    }
+
     state = state.copyWith(gpsChecked: true, progress: 1.0);
     await Future.delayed(const Duration(milliseconds: 800));
   }
 
   void retry() {
-    state = const SplashState();
     _startSystemCheck();
   }
 
@@ -104,15 +115,8 @@ class SplashScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(splashProvider);
 
-    // Listen for errors and navigation
+    // Listen for navigation only
     ref.listen<SplashState>(splashProvider, (previous, next) {
-      if (next.error != null) {
-        _showErrorDialog(context, next.error!, () {
-          Navigator.of(context).pop();
-          ref.read(splashProvider.notifier).retry();
-        });
-      }
-
       if (next.progress == 1.0 && next.error == null) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -125,6 +129,7 @@ class SplashScreen extends ConsumerWidget {
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: Stack(
           children: [
+            // Background Pattern
             Positioned.fill(
               child: Opacity(
                 opacity: 0.05,
@@ -138,114 +143,203 @@ class SplashScreen extends ConsumerWidget {
                 ),
               ),
             ),
+
+            // Content
             Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Logo
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryBlue.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                      boxShadow: AppColors.glowShadow,
-                    ),
-                    child: const Icon(
-                      Icons.local_shipping_rounded,
-                      size: 64,
-                      color: AppColors.primaryBlue,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Text(
-                    'نظام التوصيل الذكي',
-                    style: GoogleFonts.cairo(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    'SMART LOGISTICS 2026',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      letterSpacing: 4,
-                      color: AppColors.textGrey,
-                    ),
-                  ),
-                  const SizedBox(height: 60),
-                  // Status Cards
-                  Container(
-                    height: 220,
-                    width: double.infinity,
-                    margin: const EdgeInsets.symmetric(horizontal: 24),
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.darkCard.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.05),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        _buildStatusRow(
-                          'الاتصال بالإنترنت',
-                          'Network Check...',
-                          Icons.wifi,
-                          state.internetChecked,
-                          AppColors.statusGreen,
-                        ),
-                        const Divider(color: Colors.white10, height: 32),
-                        _buildStatusRow(
-                          'صلاحية الموقع (GPS)',
-                          'Location Access...',
-                          Icons.navigation,
-                          state.gpsChecked,
-                          AppColors.primaryBlue,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  // Progress Bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 50),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '${(state.progress * 100).toInt()}%',
-                              style: const TextStyle(
-                                color: AppColors.primaryBlue,
-                              ),
-                            ),
-                            Text(
-                              'جاري التحقق...',
-                              style: GoogleFonts.cairo(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: LinearProgressIndicator(
-                            value: state.progress,
-                            backgroundColor: AppColors.darkCard,
-                            color: AppColors.primaryBlue,
-                            minHeight: 6,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              child: state.error != null
+                  ? _buildErrorState(ref, state.error!)
+                  : _buildLoadingState(state),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState(SplashState state) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Logo
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.primaryBlue.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+            boxShadow: AppColors.glowShadow,
+          ),
+          child: const Icon(
+            Icons.local_shipping_rounded,
+            size: 64,
+            color: AppColors.primaryBlue,
+          ),
+        ),
+        const SizedBox(height: 32),
+        Text(
+          'نظام التوصيل الذكي',
+          style: GoogleFonts.cairo(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        Text(
+          'SMART LOGISTICS 2026',
+          style: GoogleFonts.montserrat(
+            fontSize: 14,
+            letterSpacing: 4,
+            color: AppColors.textGrey,
+          ),
+        ),
+        const SizedBox(height: 60),
+        // Status Cards
+        Container(
+          height: 220,
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.darkCard.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          child: Column(
+            children: [
+              _buildStatusRow(
+                'الاتصال بالإنترنت',
+                'Network Check...',
+                Icons.wifi,
+                state.internetChecked,
+                AppColors.statusGreen,
+              ),
+              const Divider(color: Colors.white10, height: 32),
+              _buildStatusRow(
+                'صلاحية الموقع (GPS)',
+                'Location Access...',
+                Icons.navigation,
+                state.gpsChecked,
+                AppColors.primaryBlue,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 40),
+        // Progress Bar
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 50),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${(state.progress * 100).toInt()}%',
+                    style: const TextStyle(color: AppColors.primaryBlue),
+                  ),
+                  Text(
+                    'جاري التحقق...',
+                    style: GoogleFonts.cairo(color: Colors.white),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  tween: Tween<double>(begin: 0, end: state.progress),
+                  builder: (context, value, child) {
+                    return LinearProgressIndicator(
+                      value: value,
+                      backgroundColor: AppColors.darkCard,
+                      color: AppColors.primaryBlue,
+                      minHeight: 6,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorState(WidgetRef ref, String error) {
+    return Padding(
+      padding: const EdgeInsets.all(32.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.redAccent.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.error_outline_rounded,
+              color: Colors.redAccent,
+              size: 80,
+            ),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            'عذراً، هناك مشكلة',
+            style: GoogleFonts.cairo(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            error,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.cairo(fontSize: 16, color: AppColors.textGrey),
+          ),
+          const SizedBox(height: 48),
+
+          // Retry Button
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: () => ref.read(splashProvider.notifier).retry(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                'إعادة المحاولة',
+                style: GoogleFonts.cairo(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Secondary button for settings if it's location related
+          if (error.contains('الموقع') || error.contains('GPS'))
+            TextButton(
+              onPressed: () => openAppSettings(),
+              child: Text(
+                'فتح الإعدادات',
+                style: GoogleFonts.cairo(
+                  color: AppColors.primaryBlue,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -304,47 +398,6 @@ class SplashScreen extends ConsumerWidget {
           child: Icon(icon, color: Colors.white, size: 20),
         ),
       ],
-    );
-  }
-
-  void _showErrorDialog(
-    BuildContext context,
-    String message,
-    VoidCallback onRetry,
-  ) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => Dialog(
-        backgroundColor: AppColors.darkCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 48),
-              const SizedBox(height: 16),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: onRetry,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
