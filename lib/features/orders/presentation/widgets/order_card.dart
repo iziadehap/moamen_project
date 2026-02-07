@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../data/models/order_model.dart';
 
 class OrderCard extends StatelessWidget {
-  final OrderModel order;
+  final Order order;
   final bool isSelected;
   final VoidCallback onToggle;
 
@@ -57,7 +57,7 @@ class OrderCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    order.address,
+                    order.publicArea,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -74,7 +74,7 @@ class OrderCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${(order.distanceInMeters ?? 0) ~/ 1000} km away', // Approx km
+                        '0 km away', // Approx km - distance not in new model yet
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[400],
                         ),

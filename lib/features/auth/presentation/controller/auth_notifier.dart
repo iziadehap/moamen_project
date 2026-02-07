@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:moamen_project/core/utils/privcy_cash.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:bcrypt/bcrypt.dart';
@@ -15,7 +16,11 @@ class AuthNotifier extends Notifier<AppAuthState> {
     return const AppAuthState();
   }
 
-  Future<void> login(String phone, String password) async {
+  Future<void> login(
+    String phone,
+    String password, {
+    bool isFromCash = false,
+  }) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
@@ -33,11 +38,19 @@ class AuthNotifier extends Notifier<AppAuthState> {
 
       // Verify password
       final passwordHash = response[SupabaseAccountsCulomns.password] as String;
-      final isValid = BCrypt.checkpw(password, passwordHash);
+      // if isFromCash is true then compare the password with the passwordHash
+      final isValid = isFromCash
+          ? passwordHash == password
+          : BCrypt.checkpw(password, passwordHash);
 
       if (!isValid) {
         state = AppAuthState(error: 'كلمة المرور غير صحيحة');
         return;
+      }
+
+      // save user in cash
+      if (!isFromCash) {
+        await PrivcyCash.saveCredentials(phone: phone, password: passwordHash);
       }
 
       // Create user model

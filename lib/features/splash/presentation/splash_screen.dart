@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moamen_project/core/utils/app_text.dart';
+import 'package:moamen_project/core/utils/privcy_cash.dart';
+import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import '../../../core/services/connectivity_service.dart';
 import '../../../core/services/permission_service.dart';
 import '../../../core/services/location_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../auth/presentation/login_screen.dart';
+import '../../dashboard/presentation/dashboard_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 /// ==================== STATE ====================
@@ -87,6 +91,32 @@ class SplashNotifier extends Notifier<SplashState> {
       return;
     }
 
+    // 4. Login check
+    state = state.copyWith(progress: 0.9);
+    try {
+      final credentials = await PrivcyCash.readCredentials();
+      if (credentials[CashHelper.phoneKey] != null &&
+          credentials[CashHelper.passwordKey] != null) {
+        await ref
+            .read(authProvider.notifier)
+            .login(
+              credentials[CashHelper.phoneKey]!,
+              credentials[CashHelper.passwordKey]!,
+              isFromCash: true,
+            );
+
+        // Check if login failed
+        final authResult = ref.read(authProvider);
+        if (authResult.error != null) {
+          state = state.copyWith(error: authResult.error);
+          return;
+        }
+      }
+    } catch (e) {
+      state = state.copyWith(error: 'فشل تسجيل الدخول: ${e.toString()}');
+      return;
+    }
+
     state = state.copyWith(gpsChecked: true, progress: 1.0);
     await Future.delayed(const Duration(milliseconds: 800));
   }
@@ -118,8 +148,13 @@ class SplashScreen extends ConsumerWidget {
     // Listen for navigation only
     ref.listen<SplashState>(splashProvider, (previous, next) {
       if (next.progress == 1.0 && next.error == null) {
+        final user = ref.read(authProvider).user;
+
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          MaterialPageRoute(
+            builder: (_) =>
+                user != null ? const DashboardScreen() : const LoginScreen(),
+          ),
         );
       }
     });
