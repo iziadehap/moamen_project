@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moamen_project/core/utils/app_text.dart';
+import 'package:moamen_project/core/utils/privcy_cash.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/auth/presentation/login_screen.dart';
+import 'package:moamen_project/features/orders/presentation/orders_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../pricelist/presentation/price_list_screen.dart';
-import '../../admin/addOrder/add_order_screen.dart';
+import '../../orders/presentation/add_order_screen.dart';
 import 'widgets/dashboard_card.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -17,8 +20,9 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  void _logout() {
+  void _logout() async {
     ref.read(authProvider.notifier).logout();
+    await PrivcyCash.deleteCredentials();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -134,9 +138,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           icon: Icons.list_alt_rounded,
                           color: AppColors.primaryBlue,
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('قريباً: شاشة الطلبات'),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OrdersScreen(),
                               ),
                             );
                           },

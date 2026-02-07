@@ -1,56 +1,127 @@
-import 'package:latlong2/latlong.dart';
+// order_model.dart
 
-class OrderModel {
+enum WeekDay { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
+
+enum OrderStatus { pending, accepted, inProgress, completed, cancelled }
+
+enum OrderPriority { low, medium, high, urgent }
+
+enum OrderType { pickup, delivery, pickupAndReturn }
+
+class Order {
   final String id;
-  final String address;
-  final LatLng location; // Using LatLng for easier map integration
-  final String status; // 'pending' or 'delivered'
+  final String title;
+  final String description;
+  final OrderStatus status;
+  final OrderPriority priority;
+  final OrderType orderType;
+  final String? workerId; // nullable
+  final String publicArea;
+  final String? publicLandmark;
+  final List<Map<String, dynamic>> availability; // JSONB → List of maps
+  final String? fullAddress;
+  final double? latitude;
+  final double? longitude;
+  final String? contactName;
+  final String? contactPhone;
   final DateTime createdAt;
+  final DateTime? updatedAt;
+  final DateTime? acceptedAt;
 
-  // Transient property for distance calculation
-  double? distanceInMeters;
-
-  OrderModel({
+  Order({
     required this.id,
-    required this.address,
-    required this.location,
+    required this.title,
+    required this.description,
     required this.status,
+    required this.priority,
+    required this.orderType,
+    this.workerId,
+    required this.publicArea,
+    this.publicLandmark,
+    required this.availability,
+    this.fullAddress,
+    this.latitude,
+    this.longitude,
+    this.contactName,
+    this.contactPhone,
     required this.createdAt,
-    this.distanceInMeters,
+    this.updatedAt,
+    this.acceptedAt,
   });
 
-  factory OrderModel.fromMap(Map<String, dynamic> data) {
-    // Supabase returns standard JSON types
-    // Assuming location is stored as {lat: ..., lng: ...} jsonb or two columns
-    // If it's a PostGIS point, parsing might be different.
-    // For simplicity, let's assume 'lat' and 'lng' double columns or keys.
-
-    double lat = (data['lat'] ?? 0.0).toDouble();
-    double lng = (data['lng'] ?? 0.0).toDouble();
-
-    // If using a json column named 'location'
-    if (data['location'] != null && data['location'] is Map) {
-      lat = (data['location']['lat'] ?? 0.0).toDouble();
-      lng = (data['location']['lng'] ?? 0.0).toDouble();
-    }
-
-    return OrderModel(
-      id: data['id'].toString(), // Supabase IDs can be int or UUID
-      address: data['address'] ?? '',
-      location: LatLng(lat, lng),
-      status: data['status'] ?? 'pending',
-      createdAt:
-          DateTime.tryParse(data['created_at'].toString()) ?? DateTime.now(),
+  // ===================== fromJson =====================
+  factory Order.fromJson(Map<String, dynamic> json) {
+    return Order(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      description: json['description'] as String,
+      status: _statusFromString(json['status'] as String),
+      priority: _priorityFromString(json['priority'] as String),
+      orderType: _typeFromString(json['order_type'] as String),
+      workerId: json['worker_id'] as String?,
+      publicArea: json['public_area'] as String,
+      publicLandmark: json['public_landmark'] as String?,
+      availability: (json['availability'] as List<dynamic>)
+          .map((e) => e as Map<String, dynamic>)
+          .toList(),
+      fullAddress: json['full_address'] as String?,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      contactName: json['contact_name'] as String?,
+      contactPhone: json['contact_phone'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
+      acceptedAt: json['accepted_at'] != null
+          ? DateTime.parse(json['accepted_at'] as String)
+          : null,
     );
   }
 
-  Map<String, dynamic> toMap() {
+  // ===================== toJson (لو احتجتها) =====================
+  Map<String, dynamic> toJson() {
     return {
-      'address': address,
-      'lat': location.latitude,
-      'lng': location.longitude,
-      'status': status,
-      // created_at usually handled by DB default
+      'id': id,
+      'title': title,
+      'description': description,
+      'status': status.name,
+      'priority': priority.name,
+      'order_type': orderType.name,
+      'worker_id': workerId,
+      'public_area': publicArea,
+      'public_landmark': publicLandmark,
+      'availability': availability,
+      'full_address': fullAddress,
+      'latitude': latitude,
+      'longitude': longitude,
+      'contact_name': contactName,
+      'contact_phone': contactPhone,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'accepted_at': acceptedAt?.toIso8601String(),
     };
   }
+}
+
+// ===================== Helper Functions =====================
+OrderStatus _statusFromString(String value) {
+  return OrderStatus.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => OrderStatus.pending,
+  );
+}
+
+OrderPriority _priorityFromString(String value) {
+  return OrderPriority.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => OrderPriority.medium,
+  );
+}
+
+OrderType _typeFromString(String value) {
+  return OrderType.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => OrderType.pickup,
+  );
 }
