@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/utils/app_text.dart';
 import 'package:moamen_project/core/utils/privcy_cash.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
+import 'package:moamen_project/features/adminDashbord/presentation/admin_dash.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/auth/presentation/login_screen.dart';
+import 'package:moamen_project/features/map/presentation/map_screen.dart';
 import 'package:moamen_project/features/orders/presentation/orders_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../pricelist/presentation/price_list_screen.dart';
@@ -152,9 +154,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           icon: Icons.map_rounded,
                           color: AppColors.statusCyan,
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('قريباً: شاشة الخريطة'),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MapScreen(),
                               ),
                             );
                           },
@@ -184,6 +187,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const AddOrderScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                        if (isAdmin)
+                          DashboardCard(
+                            title: 'اداره الحسابات ',
+                            subtitle: 'اداره الحسابات',
+                            icon: Icons.admin_panel_settings_rounded,
+                            color: AppColors.primaryPurple,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AdminDash(),
                                 ),
                               );
                             },

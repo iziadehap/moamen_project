@@ -39,7 +39,7 @@ class UserModel {
       SupabaseAccountsCulomns.name: name,
       SupabaseAccountsCulomns.role: role,
       SupabaseAccountsCulomns.maxOrders: maxOrders,
-      SupabaseAccountsCulomns.createdAt: createdAt,
+      SupabaseAccountsCulomns.createdAt: createdAt.toIso8601String(),
       SupabaseAccountsCulomns.isActive: isActive,
     };
   }

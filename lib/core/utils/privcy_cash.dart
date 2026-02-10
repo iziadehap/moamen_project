@@ -1,3 +1,4 @@
+import 'package:bcrypt/bcrypt.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:moamen_project/core/utils/app_text.dart';
 
@@ -28,5 +29,21 @@ class PrivcyCash {
     await storage.delete(key: CashHelper.phoneKey);
     await storage.delete(key: CashHelper.passwordKey);
     print('privecy deleted');
+  }
+
+  static Future<bool> comparePassword(String password) async {
+    String? storedPassword = await storage.read(key: CashHelper.passwordKey);
+    if (storedPassword == null) {
+      return false;
+    }
+    if (BCrypt.checkpw(password, storedPassword)) {
+      return true;
+    }
+    return false;
+  }
+
+  static Future<String> hashPassword(String password) async {
+    final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+    return passwordHash;
   }
 }

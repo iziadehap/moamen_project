@@ -66,7 +66,7 @@ class AuthNotifier extends Notifier<AppAuthState> {
 
     try {
       // Hash password
-      final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+      final passwordHash = await PrivcyCash.hashPassword(password);
 
       // Insert + return the new row (now safe because of the SELECT policy above)
       final inserted = await _supabase
