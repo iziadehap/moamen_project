@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:moamen_project/core/utils/app_text.dart';
 import 'package:moamen_project/core/utils/privcy_cash.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/admin_dash.dart';
@@ -10,8 +9,8 @@ import 'package:moamen_project/features/auth/presentation/login_screen.dart';
 import 'package:moamen_project/features/map/presentation/map_screen.dart';
 import 'package:moamen_project/features/orders/presentation/orders_screen.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../pricelist/presentation/price_list_screen.dart';
 import '../../orders/presentation/add_order_screen.dart';
+import '../../pricelist/presentation/screens/price_list_screen.dart';
 import 'widgets/dashboard_card.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {

@@ -24,6 +24,7 @@ class AuthNotifier extends Notifier<AppAuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      phone = normalizeEgyptianPhone(phone);
       // Query user by phone
       final response = await _supabase
           .from(SupabaseTables.accounts)
@@ -61,12 +62,20 @@ class AuthNotifier extends Notifier<AppAuthState> {
     }
   }
 
-  Future<void> register(String phone, String password, String name) async {
+  Future<void> register(
+    String phone,
+    String password,
+    String name,
+    String name2,
+  ) async {
+    phone = normalizeEgyptianPhone(phone);
     state = state.copyWith(isLoading: true, error: null);
 
     try {
       // Hash password
       final passwordHash = await PrivcyCash.hashPassword(password);
+
+      final fullName = name + ' ' + name2;
 
       // Insert + return the new row (now safe because of the SELECT policy above)
       final inserted = await _supabase
@@ -74,7 +83,7 @@ class AuthNotifier extends Notifier<AppAuthState> {
           .insert({
             SupabaseAccountsCulomns.phone: phone,
             SupabaseAccountsCulomns.password: passwordHash,
-            SupabaseAccountsCulomns.name: name,
+            SupabaseAccountsCulomns.name: fullName,
             SupabaseAccountsCulomns.role: 'user',
             SupabaseAccountsCulomns.isActive: false,
           })
@@ -91,6 +100,9 @@ class AuthNotifier extends Notifier<AppAuthState> {
       print('user phone = ${user.phone}');
       print('user role = ${user.role}');
       print('user is active = ${user.isActive}');
+
+      // save user in cash
+      await PrivcyCash.saveCredentials(phone: phone, password: passwordHash);
 
       // Success → put the user in state
       state = state.copyWith(user: user, error: null);
@@ -110,6 +122,31 @@ class AuthNotifier extends Notifier<AppAuthState> {
     } finally {
       state = state.copyWith(isLoading: false);
     }
+  }
+
+  String normalizeEgyptianPhone(String input) {
+    // remove anything except digits
+    String phone = input.replaceAll(RegExp(r'\D'), '');
+
+    // Case 1: 01xxxxxxxxx
+    if (phone.startsWith('01') && phone.length == 11) {
+      return '+20${phone.substring(1)}';
+    }
+
+    // Case 2: 201xxxxxxxxx
+    if (phone.startsWith('201') && phone.length == 12) {
+      print('✅ Phone normalized: $phone');
+      return '+$phone';
+    }
+
+    // Case 3: already correct but without +
+    if (phone.startsWith('20') && phone.length == 12) {
+      print('✅ Phone normalized: $phone');
+      return '+$phone';
+    }
+
+    // Case 4: wrong format
+    throw Exception('Invalid Egyptian mobile number');
   }
 
   void logout() {
