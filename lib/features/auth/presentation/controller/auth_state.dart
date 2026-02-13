@@ -8,6 +8,7 @@ class AppAuthState {
   const AppAuthState({this.user, this.isLoading = false, this.error});
 
   bool get isAuthenticated => user != null;
+  bool get isActive => user?.isActive == true;
 
   AppAuthState copyWith({UserModel? user, bool? isLoading, String? error}) {
     return AppAuthState(

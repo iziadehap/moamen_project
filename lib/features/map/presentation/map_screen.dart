@@ -7,7 +7,13 @@ import 'package:moamen_project/core/theme/app_colors.dart';
 import 'package:moamen_project/features/map/data/map_model.dart';
 import 'package:moamen_project/features/map/presentation/controller/map_provider.dart';
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
-import 'package:intl/intl.dart' as intl;
+import 'package:moamen_project/features/map/presentation/widgets/draggable_orders_sheet.dart';
+import 'package:moamen_project/features/map/presentation/widgets/glass_bottom_sheet.dart';
+import 'package:moamen_project/features/map/presentation/widgets/map_header.dart';
+import 'package:moamen_project/features/map/presentation/widgets/order_details_card.dart';
+import 'package:moamen_project/features/map/presentation/widgets/toggle_public_circles_button.dart';
+import 'package:moamen_project/features/map/presentation/widgets/user_location_button.dart';
+import 'package:moamen_project/features/orders/presentation/orders_screen.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -22,99 +28,123 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(mapProvider.notifier).getOrders());
+    Future.microtask(() {
+      ref.read(mapProvider.notifier).getOrders();
+      ref.read(mapProvider.notifier).initLocationService();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final mapState = ref.watch(mapProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.midnightNavy,
-      body: Stack(
-        children: [
-          _buildMap(mapState.mapModel),
-          _buildHeader(),
-          if (mapState.isLoding)
-            Container(
-              color: Colors.black54,
-              child: const Center(
-                child: CircularProgressIndicator(color: AppColors.primaryBlue),
-              ),
-            ),
-          if (mapState.errorMassage.isNotEmpty)
-            Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.redAccent,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  mapState.errorMassage,
-                  style: GoogleFonts.cairo(color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        backgroundColor: AppColors.midnightNavy,
+        body: Stack(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.darkCard.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
-              ),
-              child: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
-                  size: 20,
+            _buildMap(
+              mapState.mapModel,
+              mapState.userLocation,
+              mapState.showPublicCircles,
+            ),
+            const MapHeader(),
+            Align(
+              alignment: AlignmentGeometry.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    UserLocationButton(
+                      onTap: () => _goToUserLocation(mapState.userLocation),
+                    ),
+                    const SizedBox(height: 12),
+                    TogglePublicCirclesButton(
+                      showPublicCircles: mapState.showPublicCircles,
+                      onToggle: () {
+                        ref.read(mapProvider.notifier).togglePublicCircles();
+                      },
+                    ),
+
+                    DraggableOrdersSheet(
+                      userOrdersCount: mapState.mapModel.userPoints.length,
+                      onTap: () => _navigateToOrdersScreen(),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(width: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.darkCard.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
-              ),
-              child: Text(
-                'خريطة التوصيل',
-                style: GoogleFonts.cairo(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+            // Buttons (User Location & Toggle Public Circles)
+            if (mapState.isLoding)
+              Container(
+                color: Colors.black54,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryBlue,
+                  ),
                 ),
               ),
-            ),
+            if (mapState.errorMassage.isNotEmpty)
+              Positioned(
+                bottom: 20,
+                left: 20,
+                right: 20,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    mapState.errorMassage,
+                    style: GoogleFonts.cairo(color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMap(MapModel mapModel) {
-    // Determine center
+  void _goToUserLocation(LatLng? userLocation) {
+    if (userLocation != null) {
+      if (!_mapController.mapEventStream.isBroadcast) {
+        // This is a proxy check, but flutter_map controller doesn't have "isReady".
+        // However, since this is triggered by UI tap, the map should be built.
+        // A safer way is to wrap in try-catch just in case.
+        try {
+          final currentZoom = _mapController.camera.zoom;
+          _mapController.move(userLocation, currentZoom);
+        } catch (e) {
+          debugPrint("Map move error: $e");
+        }
+      } else {
+        try {
+          final currentZoom = _mapController.camera.zoom;
+          _mapController.move(userLocation, currentZoom);
+        } catch (e) {
+          debugPrint("Map move error: $e");
+        }
+      }
+    }
+  }
+
+  Widget _buildMap(
+    MapModel mapModel,
+    LatLng? userLocation,
+    bool showPublicCircles,
+  ) {
     // Determine center
     LatLng center = const LatLng(30.0444, 31.2357); // Cairo default
 
-    if (mapModel.userPoints.isNotEmpty &&
+    if (userLocation != null) {
+      center = userLocation;
+    } else if (mapModel.userPoints.isNotEmpty &&
         mapModel.userPoints.first.latitude != null) {
       center = LatLng(
         mapModel.userPoints.first.latitude!,
@@ -139,56 +169,86 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           userAgentPackageName: 'com.moamen.project',
         ),
         // Public Points Circles (1km Radius)
-        CircleLayer(
-          circles: mapModel.publicPoints.map((circleOrder) {
-            return CircleMarker(
-              point: circleOrder.points,
-              color: AppColors.primaryPurple.withOpacity(0.2),
-              borderColor: AppColors.primaryPurple,
-              borderStrokeWidth: 2,
-              useRadiusInMeter: true,
-              radius: 1000, // 1km
-            );
-          }).toList(),
-        ),
+        if (showPublicCircles)
+          CircleLayer(
+            circles: mapModel.publicPoints.map((circleOrder) {
+              return CircleMarker(
+                point: circleOrder.points,
+                color: AppColors.primaryPurple.withOpacity(0.2),
+                borderColor: AppColors.primaryPurple,
+                borderStrokeWidth: 2,
+                useRadiusInMeter: true,
+                radius: 1000, // 1km
+              );
+            }).toList(),
+          ),
         // Markers for User Points & Public Counts
         MarkerLayer(
           markers: [
-            // Public Cluster Counts
-            ...mapModel.publicPoints.map((circleOrder) {
-              return Marker(
-                point: circleOrder.points,
-                width: 60,
-                height: 60,
-                child: GestureDetector(
-                  onTap: () => _showPublicOrdersSheet(circleOrder),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryPurple,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primaryPurple.withOpacity(0.5),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+            // User Location Marker
+            if (userLocation != null)
+              Marker(
+                point: userLocation,
+                width: 50,
+                height: 50,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.statusGreen,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.statusGreen.withOpacity(0.5),
+                        blurRadius: 15,
+                        spreadRadius: 3,
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.my_location_rounded,
+                      color: Colors.white,
+                      size: 24,
                     ),
-                    child: Center(
-                      child: Text(
-                        '${circleOrder.orders.length}',
-                        style: GoogleFonts.cairo(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                  ),
+                ),
+              ),
+            // Public Cluster Counts
+            if (showPublicCircles)
+              ...mapModel.publicPoints.map((circleOrder) {
+                return Marker(
+                  point: circleOrder.points,
+                  width: 60,
+                  height: 60,
+                  child: GestureDetector(
+                    onTap: () => _showPublicOrdersSheet(circleOrder),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryPurple,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primaryPurple.withOpacity(0.5),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${circleOrder.orders.length}',
+                          style: GoogleFonts.cairo(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
             // User Points (Numbered)
             ...mapModel.userPoints.asMap().entries.map((entry) {
               final index = entry.key;
@@ -203,10 +263,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 point: LatLng(order.latitude!, order.longitude!),
                 width: 60,
                 height: 60,
-                // Alignment.topCenter means the top center of the widget is placed at the point.
-                // We want the BOTTOM of our graphical pin to be at the point.
-                // However, without being sure of standard Marker alignment behavior compatibility,
-                // we'll center it for now and it will look like a pin over the area.
                 child: GestureDetector(
                   onTap: () => _showOrderDetailsSheet(order),
                   child: Center(
@@ -230,7 +286,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           ),
                         ],
                       ),
-                      // Rotate -45 degrees (in radians) to make the sharp corner point down
+                      // Rotate -45 degrees (in radians)
                       transform: Matrix4.rotationZ(-0.785398163),
                       alignment: Alignment.center,
                       child: Transform.rotate(
@@ -263,9 +319,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => _buildGlassBottomSheet(
+      builder: (context) => GlassBottomSheet(
         title: 'تفاصيل الطلب',
-        content: Column(children: [_buildOrderDetailsCard(order)]),
+        content: Column(children: [OrderDetailsCard(order: order)]),
       ),
     );
   }
@@ -275,14 +331,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => _buildGlassBottomSheet(
+      builder: (context) => GlassBottomSheet(
         title: 'الطلبات المتاحة (${circleOrder.orders.length})',
         content: Column(
           children: circleOrder.orders
               .map(
                 (order) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildOrderDetailsCard(order),
+                  child: OrderDetailsCard(order: order),
                 ),
               )
               .toList(),
@@ -291,265 +347,31 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  Widget _buildGlassBottomSheet({
-    required String title,
-    required Widget content,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.midnightNavy,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-        boxShadow: [
-          BoxShadow(color: Colors.black26, blurRadius: 20, spreadRadius: 5),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            title,
-            style: GoogleFonts.cairo(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Flexible(child: SingleChildScrollView(child: content)),
-        ],
+  Future<void> _navigateToOrdersScreen() async {
+    final selectedOrder = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const OrdersScreen(isSelectionMode: true),
       ),
     );
-  }
 
-  Widget _buildOrderDetailsCard(Order order) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.darkCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header: Status & Priority
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildStatusChip(order.status),
-              _buildPriorityBadge(order.priority),
-            ],
-          ),
-          const SizedBox(height: 12),
+    if (selectedOrder is Order &&
+        selectedOrder.latitude != null &&
+        selectedOrder.longitude != null) {
+      // Delay slightly to allow the map to render if needed
+      await Future.delayed(const Duration(milliseconds: 300));
 
-          // Description
-          Text(
-            'التفاصيل:',
-            style: GoogleFonts.cairo(
-              color: AppColors.textGrey,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            order.description,
-            style: GoogleFonts.cairo(
-              color: Colors.white,
-              fontSize: 14,
-              height: 1.4,
-            ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 16),
+      final location = LatLng(
+        selectedOrder.latitude!,
+        selectedOrder.longitude!,
+      );
 
-          // Info Grid (Order Type, Worker, Location)
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.03),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                _buildInfoRow(
-                  Icons.category_rounded,
-                  'نوع الطلب:',
-                  order.orderType.name,
-                  color: AppColors.primaryBlue,
-                ),
-                if (order.workerId != null) ...[
-                  const Divider(color: Colors.white10, height: 16),
-                  _buildInfoRow(
-                    Icons.badge_rounded,
-                    'معرف المندوب:',
-                    order.workerId!,
-                    color: Colors.orange,
-                  ),
-                ],
-                const Divider(color: Colors.white10, height: 16),
-                _buildInfoRow(
-                  Icons.location_city_rounded,
-                  'المنطقة:',
-                  order.publicArea,
-                  color: AppColors.statusCyan,
-                ),
-                if (order.publicLandmark != null &&
-                    order.publicLandmark!.isNotEmpty) ...[
-                  const Divider(color: Colors.white10, height: 16),
-                  _buildInfoRow(
-                    Icons.flag_rounded,
-                    'علامة مميزة:',
-                    order.publicLandmark!,
-                    color: AppColors.statusGreen,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(
-    IconData icon,
-    String label,
-    String value, {
-    Color? color,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: color ?? AppColors.textGrey),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: GoogleFonts.cairo(color: AppColors.textGrey, fontSize: 12),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            value,
-            style: GoogleFonts.cairo(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.end,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatusChip(OrderStatus status) {
-    Color color;
-    String text;
-
-    switch (status) {
-      case OrderStatus.pending:
-        color = Colors.orange;
-        text = 'قيد الانتظار';
-        break;
-      case OrderStatus.accepted:
-        color = AppColors.statusCyan;
-        text = 'مقبول';
-        break;
-      case OrderStatus.inProgress: // Assuming inProgress exists
-        color = AppColors.primaryBlue;
-        text = 'جاري التنفيذ';
-        break;
-      case OrderStatus.completed:
-        color = AppColors.statusGreen;
-        text = 'مكتمل';
-        break;
-      case OrderStatus.cancelled:
-        color = Colors.redAccent;
-        text = 'ملغي';
-        break;
-      default:
-        color = AppColors.textGrey;
-        text = status.name;
+      try {
+        _mapController.move(location, 16.0);
+        _showOrderDetailsSheet(selectedOrder);
+      } catch (e) {
+        debugPrint("Navigation map move error: $e");
+      }
     }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Text(
-        text,
-        style: GoogleFonts.cairo(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPriorityBadge(OrderPriority priority) {
-    Color color;
-    String text;
-
-    switch (priority) {
-      case OrderPriority.urgent:
-        color = Colors.redAccent;
-        text = 'عاجل جداً';
-        break;
-      case OrderPriority.high:
-        color = Colors.orange;
-        text = 'مرتفع';
-        break;
-      case OrderPriority.medium:
-        color = AppColors.statusCyan;
-        text = 'متوسط';
-        break;
-      case OrderPriority.low:
-        color = AppColors.statusGreen;
-        text = 'منخفض';
-        break;
-      default:
-        color = AppColors.textGrey;
-        text = 'عادي';
-    }
-
-    return Row(
-      children: [
-        Icon(Icons.flag_rounded, size: 14, color: color),
-        const SizedBox(width: 4),
-        Text(
-          text,
-          style: GoogleFonts.cairo(
-            color: color,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
   }
 }

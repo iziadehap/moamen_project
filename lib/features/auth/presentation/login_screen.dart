@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moamen_project/features/auth/presentation/AccountNotActiveScreen.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'controller/auth_provider.dart';
 import 'register_screen.dart';
@@ -35,9 +36,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (mounted) {
       final authState = ref.read(authProvider);
       if (authState.isAuthenticated) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const DashboardScreen()),
-        );
+        if (authState.isActive) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const NotActiveScreen()),
+          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text('حسابك غير مفعل'),
+          //     backgroundColor: Colors.redAccent,
+          //   ),
+          // );
+        }
       }
     }
   }
@@ -95,7 +108,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             //     child: const Icon(Icons.close, color: Colors.white),
             //   ),
             // ),
-
             Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24.0),

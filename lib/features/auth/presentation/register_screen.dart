@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moamen_project/features/auth/presentation/AccountNotActiveScreen.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'controller/auth_provider.dart';
 import '../../dashboard/presentation/dashboard_screen.dart';
@@ -18,6 +19,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
+  final _name2Controller = TextEditingController();
 
   @override
   void dispose() {
@@ -25,6 +27,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _nameController.dispose();
+    _name2Controller.dispose();
     super.dispose();
   }
 
@@ -37,24 +40,40 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           _phoneController.text,
           _passwordController.text,
           _nameController.text,
+          _name2Controller.text,
         );
 
     if (mounted) {
       final authState = ref.read(authProvider);
       if (authState.isAuthenticated) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const DashboardScreen()),
-        );
+        if (authState.isActive) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const NotActiveScreen()),
+          );
+        }
       }
     }
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'الاسم مطلوب';
+    }
+    return null;
   }
 
   String? _validatePhone(String? value) {
     if (value == null || value.isEmpty) {
       return 'رقم الهاتف مطلوب';
     }
-    if (value.length < 9) {
-      return 'رقم الهاتف قصير جداً';
+    try {
+      ref.read(authProvider.notifier).normalizeEgyptianPhone(value);
+    } catch (_) {
+      return 'رقم الهاتف غير صحيح';
     }
     return null;
   }
@@ -144,10 +163,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                       // Name Field
                       _buildField(
-                        label: 'الاسم (اختياري)',
+                        label: 'الاسم',
                         controller: _nameController,
                         icon: Icons.person_outline,
                         hint: 'أدخل اسمك',
+                        validator: _validateName,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildField(
+                        label: 'الاسم الثاني',
+                        controller: _name2Controller,
+                        icon: Icons.person_outline,
+                        hint: 'أدخل اسمك الثاني',
+                        validator: _validateName,
                       ),
                       const SizedBox(height: 20),
 

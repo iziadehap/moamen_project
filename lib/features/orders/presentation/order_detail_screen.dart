@@ -8,6 +8,7 @@ import 'package:moamen_project/features/auth/presentation/controller/auth_provid
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/orders/presentation/add_order_screen.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
+import 'package:moamen_project/core/utils/order_status_helper.dart';
 import 'location_picker_screen.dart';
 
 class OrderDetailScreen extends ConsumerWidget {
@@ -464,30 +465,8 @@ class OrderDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildStatusBatch(OrderStatus status) {
-    Color color;
-    String text;
-    switch (status) {
-      case OrderStatus.pending:
-        color = Colors.orange;
-        text = 'قيد الانتظار';
-        break;
-      case OrderStatus.accepted:
-        color = AppColors.primaryBlue;
-        text = 'تم القبول';
-        break;
-      case OrderStatus.inProgress:
-        color = Colors.purple;
-        text = 'قيد التنفيذ';
-        break;
-      case OrderStatus.completed:
-        color = AppColors.statusGreen;
-        text = 'مكتمل';
-        break;
-      case OrderStatus.cancelled:
-        color = Colors.red;
-        text = 'ملغي';
-        break;
-    }
+    Color color = OrderStatusHelper.getStatusColor(status);
+    String text = OrderStatusHelper.getStatusLabel(status);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -585,7 +564,9 @@ class OrderDetailScreen extends ConsumerWidget {
       ),
       child: Column(
         children: availability.map((avail) {
-          final range = avail['timeRange'] as Map<String, dynamic>;
+          final range = avail['timeRange'];
+          if (range == null || range is! Map) return const SizedBox.shrink();
+
           final fromHour = range['fromHour'].toString().padLeft(2, '0');
           final fromMin = range['fromMinute'].toString().padLeft(2, '0');
           final toHour = range['toHour'].toString().padLeft(2, '0');
