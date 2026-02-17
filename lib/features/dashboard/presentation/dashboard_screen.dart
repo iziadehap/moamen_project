@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:moamen_project/core/utils/privcy_cash.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/admin_dash.dart';
-import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
-import 'package:moamen_project/features/auth/presentation/login_screen.dart';
 import 'package:moamen_project/features/map/presentation/map_screen.dart';
 import 'package:moamen_project/features/orders/presentation/orders_screen.dart';
+import 'package:moamen_project/features/settings/presentation/settings_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../orders/presentation/add_order_screen.dart';
 import '../../pricelist/presentation/screens/price_list_screen.dart';
+import '../../../features/auth/presentation/controller/auth_provider.dart';
 import 'widgets/dashboard_card.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -21,20 +20,18 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  void _logout() async {
-    ref.read(authProvider.notifier).logout();
-    await PrivcyCash.deleteCredentials();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final user = authState.user;
     final isAdmin = user?.role == SupabaseAccountTyps.admin;
+    print('user: $user');
+    print('isAdmin: $isAdmin');
+    print('isAdmin: ${user?.role}');
+    print('isAdmin: ${user?.id}');
+    print('isAdmin: ${user?.name}');
+    print('isAdmin: ${user?.maxOrders}');
+    print('isAdmin: ${user?.phone}');
 
     return Scaffold(
       backgroundColor: AppColors.midnightNavy,
@@ -103,12 +100,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        // Logout Action
-                        IconButton(
-                          onPressed: _logout,
-                          icon: const Icon(
-                            Icons.logout_rounded,
-                            color: Colors.redAccent,
+                        // max order
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBlue.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.primaryBlue.withOpacity(0.3),
+                            ),
+                          ),
+                          child: Text(
+                            // fix text
+                            '${user?.maxOrders} اوردرات',
+                            style: GoogleFonts.cairo(
+                              fontSize: 12,
+                              color: AppColors.primaryBlue,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -134,8 +146,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       physics: const BouncingScrollPhysics(),
                       children: [
                         DashboardCard(
-                          title: 'الطلبات',
-                          subtitle: 'مشاهدة وإدارة جميع طلبات التوصيل',
+                          title: 'الاوردرات',
+                          subtitle: 'مشاهدة وإدارة جميع اوردر التوصيل',
                           icon: Icons.list_alt_rounded,
                           color: AppColors.primaryBlue,
                           onTap: () {
@@ -175,26 +187,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             );
                           },
                         ),
-                        if (isAdmin)
-                          DashboardCard(
-                            title: 'إضافة طلب',
-                            subtitle: 'إنشاء طلب توصيل جديد للنظام',
-                            icon: Icons.add_location_alt_rounded,
-                            color: AppColors.primaryPurple,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const AddOrderScreen(),
-                                ),
-                              );
-                            },
-                          ),
+                        // if (isAdmin)
+                        //   DashboardCard(
+                        //     title: 'إضافة طلب',
+                        //     subtitle: 'إنشاء اوردر توصيل جديد للنظام',
+                        //     icon: Icons.add_location_alt_rounded,
+                        //     color: AppColors.primaryPurple,
+                        //     onTap: () {
+                        //       Navigator.push(
+                        //         context,
+                        //         MaterialPageRoute(
+                        //           builder: (context) => const AddOrderScreen(),
+                        //         ),
+                        //       );
+                        //     },
+                        //   ),
                         if (isAdmin)
                           DashboardCard(
                             title: 'اداره الحسابات ',
                             subtitle: 'اداره الحسابات',
-                            icon: Icons.admin_panel_settings_rounded,
+                            icon: Icons.settings_rounded,
                             color: AppColors.primaryPurple,
                             onTap: () {
                               Navigator.push(
@@ -205,6 +217,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               );
                             },
                           ),
+                        DashboardCard(
+                          title: 'الاعدادات ',
+                          subtitle: 'الاعدادات',
+                          icon: Icons.settings,
+                          color: AppColors.primaryPurple,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SettingsScreen(),
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),

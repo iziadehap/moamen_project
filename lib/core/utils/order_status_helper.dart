@@ -9,8 +9,6 @@ class OrderStatusHelper {
         return 'جاهز';
       case OrderStatus.accepted:
         return 'مقبول';
-      case OrderStatus.inProgress:
-        return 'قيد التنفيذ';
       case OrderStatus.completed:
         return 'مكتمل';
       case OrderStatus.cancelled:
@@ -24,8 +22,6 @@ class OrderStatusHelper {
         return Colors.green;
       case OrderStatus.accepted:
         return AppColors.primaryBlue;
-      case OrderStatus.inProgress:
-        return AppColors.primaryPurple;
       case OrderStatus.completed:
         return Colors.brown;
       case OrderStatus.cancelled:
@@ -36,15 +32,13 @@ class OrderStatusHelper {
   static String getStatusDescription(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending:
-        return 'الطلب جاهز في المتجر وبانتظار استلام المندوب';
+        return 'الاوردر جاهز في المتجر وبانتظار استلام المندوب';
       case OrderStatus.accepted:
-        return 'قام المندوب بقبول الطلب وهو في الطريق للمتجر';
-      case OrderStatus.inProgress:
-        return 'قام المندوب باستلام الطلب وهو في الطريق إليك';
+        return 'قام المندوب بقبول الاوردر وهو في الطريق للمكان ';
       case OrderStatus.completed:
-        return 'تم توصيل الطلب بنجاح';
+        return 'تم توصيل الاوردر بنجاح';
       case OrderStatus.cancelled:
-        return 'تم إلغاء الطلب ولن يتم توصيله';
+        return 'تم إلغاء الاوردر ولن يتم توصيله';
     }
   }
 }

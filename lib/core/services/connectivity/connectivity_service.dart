@@ -6,23 +6,27 @@ class ConnectivityState {
   final ConnectivityResult status;
   final bool showNoInternetMessage;
   final bool isChecking;
+  final bool isEnabled;
 
   const ConnectivityState({
     required this.status,
     this.showNoInternetMessage = false,
-    this.isChecking = true,
+    this.isChecking = false,
+    this.isEnabled = false,
   });
 
   ConnectivityState copyWith({
     ConnectivityResult? status,
     bool? showNoInternetMessage,
     bool? isChecking,
+    bool? isEnabled,
   }) {
     return ConnectivityState(
       status: status ?? this.status,
       showNoInternetMessage:
           showNoInternetMessage ?? this.showNoInternetMessage,
       isChecking: isChecking ?? this.isChecking,
+      isEnabled: isEnabled ?? this.isEnabled,
     );
   }
 
@@ -35,11 +39,12 @@ class ConnectivityNotifier extends Notifier<ConnectivityState> {
 
   @override
   ConnectivityState build() {
-    // Start with wifi as default to avoid false "no internet" message
-    // The actual status will be updated immediately by _initConnectivity
     _initConnectivity();
     _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-    return const ConnectivityState(status: ConnectivityResult.wifi);
+    return const ConnectivityState(
+      status: ConnectivityResult.none,
+      isEnabled: false,
+    );
   }
 
   Future<void> _initConnectivity() async {
@@ -52,15 +57,19 @@ class ConnectivityNotifier extends Notifier<ConnectivityState> {
   }
 
   void _updateConnectionStatus(ConnectivityResult result) {
-    state = ConnectivityState(
+    state = state.copyWith(
+      isChecking: false,
       status: result,
       showNoInternetMessage: result == ConnectivityResult.none,
-      isChecking: false,
     );
   }
 
   void dismissNoInternetMessage() {
     state = state.copyWith(showNoInternetMessage: false);
+  }
+
+  void enable() {
+    state = state.copyWith(isEnabled: true, status: ConnectivityResult.wifi);
   }
 }
 

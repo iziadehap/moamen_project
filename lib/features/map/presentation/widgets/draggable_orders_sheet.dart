@@ -66,7 +66,7 @@ class DraggableOrdersSheet extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'طلباتي',
+                        'اوردري',
                         style: GoogleFonts.cairo(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -74,7 +74,7 @@ class DraggableOrdersSheet extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '$userOrdersCount طلبات نشطة',
+                        '$userOrdersCount اوردر نشطة',
                         style: GoogleFonts.cairo(
                           fontSize: 12,
                           color: AppColors.textGrey,

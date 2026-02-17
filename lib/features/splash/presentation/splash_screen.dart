@@ -1,141 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:moamen_project/core/utils/app_text.dart';
-import 'package:moamen_project/core/utils/privcy_cash.dart';
-import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
-import '../../../core/services/connectivity_service.dart';
-import '../../../core/services/permission_service.dart';
-import '../../../core/services/location_service.dart';
+import 'package:geolocator/geolocator.dart'; // Added import for openLocationSettings
+import 'package:moamen_project/core/services/connectivity/connectivity_service.dart';
+import 'package:moamen_project/core/services/location/location_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../auth/presentation/login_screen.dart';
 import '../../dashboard/presentation/dashboard_screen.dart';
-import 'package:permission_handler/permission_handler.dart';
-
-/// ==================== STATE ====================
-class SplashState {
-  final bool internetChecked;
-  final bool gpsChecked;
-  final double progress;
-  final String? error;
-
-  const SplashState({
-    this.internetChecked = false,
-    this.gpsChecked = false,
-    this.progress = 0.0,
-    this.error,
-  });
-
-  SplashState copyWith({
-    bool? internetChecked,
-    bool? gpsChecked,
-    double? progress,
-    String? error,
-  }) {
-    return SplashState(
-      internetChecked: internetChecked ?? this.internetChecked,
-      gpsChecked: gpsChecked ?? this.gpsChecked,
-      progress: progress ?? this.progress,
-      error: error,
-    );
-  }
-}
-
-/// ==================== NOTIFIER ====================
-class SplashNotifier extends Notifier<SplashState> {
-  late final PermissionService permissionService;
-
-  @override
-  SplashState build() {
-    permissionService = ref.read(permissionServiceProvider);
-    Future.microtask(() => _startSystemCheck());
-    return const SplashState();
-  }
-
-  Future<void> _startSystemCheck() async {
-    state = state.copyWith(progress: 0.1, error: null);
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    // 1. Internet check
-    state = state.copyWith(progress: 0.2);
-    final connectivityState = ref.read(connectivityProvider);
-    if (connectivityState.isChecking) {
-      await Future.delayed(const Duration(milliseconds: 1000));
-    }
-
-    if (!ref.read(connectivityProvider).isConnected) {
-      state = state.copyWith(
-        error: 'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة.',
-      );
-      return;
-    }
-    state = state.copyWith(internetChecked: true, progress: 0.5);
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    // 2. Location Permission check
-    state = state.copyWith(progress: 0.6);
-    final hasPermission = await permissionService
-        .checkAndRequestLocationPermission();
-    if (!hasPermission) {
-      state = state.copyWith(error: 'صلاحية الوصول للموقع مطلوبة للمتابعة.');
-      return;
-    }
-
-    // 3. GPS Service check
-    state = state.copyWith(progress: 0.8);
-    final isGpsEnabled = await permissionService.isLocationServiceEnabled();
-    if (!isGpsEnabled) {
-      state = state.copyWith(
-        error: 'خدمات الموقع (GPS) معطلة. يرجى تفعيلها من الإعدادات.',
-      );
-      return;
-    }
-
-    // 4. Login check
-    state = state.copyWith(progress: 0.9);
-    try {
-      final credentials = await PrivcyCash.readCredentials();
-      if (credentials[CashHelper.phoneKey] != null &&
-          credentials[CashHelper.passwordKey] != null) {
-        await ref
-            .read(authProvider.notifier)
-            .login(
-              credentials[CashHelper.phoneKey]!,
-              credentials[CashHelper.passwordKey]!,
-              isFromCash: true,
-            );
-
-        // Check if login failed
-        final authResult = ref.read(authProvider);
-        if (authResult.error != null) {
-          state = state.copyWith(error: authResult.error);
-          return;
-        }
-      }
-    } catch (e) {
-      state = state.copyWith(error: 'فشل تسجيل الدخول: ${e.toString()}');
-      return;
-    }
-
-    state = state.copyWith(gpsChecked: true, progress: 1.0);
-    await Future.delayed(const Duration(milliseconds: 800));
-  }
-
-  void retry() {
-    _startSystemCheck();
-  }
-
-  void clearError() {
-    state = state.copyWith(error: null);
-  }
-}
-
-/// ==================== PROVIDER ====================
-// Import service providers from their respective files
-// These are now defined in the service files themselves
-final splashProvider = NotifierProvider<SplashNotifier, SplashState>(
-  SplashNotifier.new,
-);
+import 'riverpod/splash_state.dart';
+import 'riverpod/splash_notifier.dart';
 
 /// ==================== UI ====================
 class SplashScreen extends ConsumerWidget {
@@ -148,14 +22,31 @@ class SplashScreen extends ConsumerWidget {
     // Listen for navigation only
     ref.listen<SplashState>(splashProvider, (previous, next) {
       if (next.progress == 1.0 && next.error == null) {
-        final user = ref.read(authProvider).user;
+        final session = Supabase.instance.client.auth.currentSession;
 
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) =>
-                user != null ? const DashboardScreen() : const LoginScreen(),
-          ),
-        );
+        if (session != null) {
+          // Enable connectivity and location services
+          ref.read(connectivityProvider.notifier).enable();
+          ref.read(locationProvider.notifier).enable();
+
+          // get user profile from supabase
+          ref.read(splashProvider.notifier).getUserProfile().then((value) {
+            // User is logged in
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            );
+          });
+        } else {
+          // Enable connectivity and location services for Login Screen
+          ref.read(connectivityProvider.notifier).enable();
+          ref.read(locationProvider.notifier).enable();
+          // Not logged in
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          );
+        }
       }
     });
 
@@ -179,10 +70,9 @@ class SplashScreen extends ConsumerWidget {
               ),
             ),
 
-            // Content
             Center(
               child: state.error != null
-                  ? _buildErrorState(ref, state.error!)
+                  ? _buildErrorState(ref, state)
                   : _buildLoadingState(state),
             ),
           ],
@@ -301,7 +191,8 @@ class SplashScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(WidgetRef ref, String error) {
+  Widget _buildErrorState(WidgetRef ref, SplashState state) {
+    final error = state.error ?? '';
     return Padding(
       padding: const EdgeInsets.all(32.0),
       child: Column(
@@ -360,20 +251,128 @@ class SplashScreen extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
-
-          // Secondary button for settings if it's location related
-          if (error.contains('الموقع') || error.contains('GPS'))
-            TextButton(
-              onPressed: () => openAppSettings(),
-              child: Text(
-                'فتح الإعدادات',
-                style: GoogleFonts.cairo(
-                  color: AppColors.primaryBlue,
-                  fontWeight: FontWeight.bold,
+          // Solve Error Button (Open Settings)
+          if (state.solveError != null) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  if (state.solveError == 'permission') {
+                    Geolocator.openAppSettings();
+                  } else if (state.solveError == 'gps') {
+                    Geolocator.openLocationSettings();
+                  }
+                },
+                icon: const Icon(Icons.settings_outlined),
+                label: Text(
+                  state.solveError == 'permission'
+                      ? 'فتح إعدادات التطبيق'
+                      : 'فتح إعدادات الموقع',
+                  style: GoogleFonts.cairo(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primaryBlue,
+                  side: const BorderSide(color: AppColors.primaryBlue),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
             ),
+
+            if (state.solveError == 'permission') ...[
+              const SizedBox(height: 24),
+              _buildPermissionGuide(),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPermissionGuide() {
+    final steps = [
+      'اضغط على زر (فتح إعدادات التطبيق) أعلاه',
+      'اختر قسم (الأذونات / Permissions)',
+      'ابحث عن (الموقع / Location)',
+      'قم بتفعيل الخيار إلى (عند استخدام التطبيق فقط)',
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                'كيفية تفعيل الصلاحية؟',
+                style: GoogleFonts.cairo(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.info_outline,
+                color: AppColors.primaryBlue,
+                size: 20,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...steps.asMap().entries.map((entry) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      entry.value,
+                      textAlign: TextAlign.right,
+                      style: GoogleFonts.cairo(
+                        color: AppColors.textGrey,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryBlue,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${entry.key + 1}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );

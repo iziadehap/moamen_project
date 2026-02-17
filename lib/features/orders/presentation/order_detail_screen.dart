@@ -62,11 +62,11 @@ class OrderDetailScreen extends ConsumerWidget {
                         _buildSectionTitle('المعلومات العامة'),
                         const SizedBox(height: 16),
                         _buildInfoCard([
-                          _buildInfoRow(
-                            Icons.category_rounded,
-                            'نوع الطلب',
-                            _orderTypeArabic(order.orderType),
-                          ),
+                          // _buildInfoRow(
+                          //   Icons.category_rounded,
+                          //   'نوع الاوردر',
+                          //   _orderTypeArabic(order.orderType),
+                          // ),
                           _buildInfoRow(
                             Icons.priority_high_rounded,
                             'الأولوية',
@@ -77,12 +77,12 @@ class OrderDetailScreen extends ConsumerWidget {
                             'المنطقة',
                             order.publicArea,
                           ),
-                          if (order.publicLandmark != null)
-                            _buildInfoRow(
-                              Icons.assistant_navigation,
-                              'معلم شهير',
-                              order.publicLandmark!,
-                            ),
+                          // if (order.publicLandmark != null)
+                          //   _buildInfoRow(
+                          //     Icons.assistant_navigation,
+                          //     'معلم شهير',
+                          //     order.publicLandmark!,
+                          //   ),
                         ]),
 
                         const SizedBox(height: 32),
@@ -204,6 +204,10 @@ class OrderDetailScreen extends ConsumerWidget {
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.example.moamen_project',
+                  errorTileCallback: (tile, error, stackTrace) {
+                    debugPrint('فشل تحميل مربع الخريطة: $error');
+                  },
+                  tileDisplay: const TileDisplay.fadeIn(),
                 ),
                 MarkerLayer(
                   markers: [
@@ -309,7 +313,7 @@ class OrderDetailScreen extends ConsumerWidget {
                 const Icon(Icons.edit_note_rounded, color: Colors.white),
                 const SizedBox(width: 12),
                 Text(
-                  'تعديل تفاصيل الطلب',
+                  'تعديل تفاصيل الاوردر',
                   style: GoogleFonts.cairo(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -348,7 +352,7 @@ class OrderDetailScreen extends ConsumerWidget {
               ),
               const SizedBox(width: 16),
               Text(
-                'تفاصيل الطلب',
+                'تفاصيل الاوردر',
                 style: GoogleFonts.cairo(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -389,14 +393,14 @@ class OrderDetailScreen extends ConsumerWidget {
             side: const BorderSide(color: Colors.white10),
           ),
           title: Text(
-            'حذف الطلب',
+            'حذف الاوردر',
             style: GoogleFonts.cairo(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
-            'هل أنت متأكد من رغبتك في حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.',
+            'هل أنت متأكد من رغبتك في حذف هذا الاوردر؟ لا يمكن التراجع عن هذا الإجراء.',
             style: GoogleFonts.cairo(color: AppColors.textGrey),
           ),
           actions: [
@@ -424,7 +428,7 @@ class OrderDetailScreen extends ConsumerWidget {
                   scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text(
-                        'تم حذف الطلب بنجاح',
+                        'تم حذف الاوردر بنجاح',
                         style: GoogleFonts.cairo(),
                       ),
                       backgroundColor: Colors.green,
@@ -436,7 +440,7 @@ class OrderDetailScreen extends ConsumerWidget {
                   scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text(
-                        'فشل حذف الطلب',
+                        'فشل حذف الاوردر',
                         style: GoogleFonts.cairo(),
                       ),
                       backgroundColor: Colors.redAccent,
@@ -555,37 +559,143 @@ class OrderDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildAvailabilityCard(List<Map<String, dynamic>> availability) {
+    if (availability.isEmpty) return const SizedBox.shrink();
+
+    // 1. Sort days logically (Saturday to Friday)
+    final dayOrder = [
+      'saturday',
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+    ];
+    final sortedAvail = List<Map<String, dynamic>>.from(availability)
+      ..sort((a, b) {
+        final indexA = dayOrder.indexOf(a['day'].toString().toLowerCase());
+        final indexB = dayOrder.indexOf(b['day'].toString().toLowerCase());
+        return indexA.compareTo(indexB);
+      });
+
+    // 2. Group identical time ranges
+    final grouped = <List<String>, String>{};
+    for (var avail in sortedAvail) {
+      final range = avail['timeRange'];
+      if (range == null) continue;
+
+      final fromH = range['fromHour'].toString().padLeft(2, '0');
+      final fromM = range['fromMinute'].toString().padLeft(2, '0');
+      final toH = range['toHour'].toString().padLeft(2, '0');
+      final toM = range['toMinute'].toString().padLeft(2, '0');
+      final timeStr = '$fromH:$fromM - $toH:$toM';
+
+      final day = _dayArabic(avail['day']);
+      bool foundGroup = false;
+      for (var entry in grouped.entries) {
+        if (entry.value == timeStr) {
+          entry.key.add(day);
+          foundGroup = true;
+          break;
+        }
+      }
+      if (!foundGroup) {
+        grouped[[day]] = timeStr;
+      }
+    }
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.darkCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
-        children: availability.map((avail) {
-          final range = avail['timeRange'];
-          if (range == null || range is! Map) return const SizedBox.shrink();
+        children: grouped.entries.map((group) {
+          final days = group.key;
+          final time = group.value;
 
-          final fromHour = range['fromHour'].toString().padLeft(2, '0');
-          final fromMin = range['fromMinute'].toString().padLeft(2, '0');
-          final toHour = range['toHour'].toString().padLeft(2, '0');
-          final toMin = range['toMinute'].toString().padLeft(2, '0');
+          String dayString;
+          if (days.length == 7) {
+            dayString = 'طوال أيام الأسبوع';
+          } else if (days.length > 2) {
+            dayString = '${days.first} - ${days.last}';
+          } else {
+            dayString = days.join('، ');
+          }
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.03),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.05)),
+            ),
             child: Row(
               children: [
-                Text(
-                  _dayArabic(avail['day']),
-                  style: GoogleFonts.cairo(color: Colors.white, fontSize: 13),
-                ),
-                const Spacer(),
-                Text(
-                  '$fromHour:$fromMin - $toHour:$toMin',
-                  style: GoogleFonts.cairo(
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.calendar_today_rounded,
                     color: AppColors.primaryBlue,
-                    fontSize: 13,
+                    size: 14,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        dayString,
+                        style: GoogleFonts.cairo(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'متاح خلال هذه الأوقات',
+                        style: GoogleFonts.cairo(
+                          color: AppColors.textGrey,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: AppColors.primaryBlue.withOpacity(0.2),
+                    ),
+                  ),
+                  child: Text(
+                    time,
+                    style: GoogleFonts.cairo(
+                      color: AppColors.primaryBlue,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],
@@ -617,16 +727,16 @@ class OrderDetailScreen extends ConsumerWidget {
     }
   }
 
-  String _orderTypeArabic(OrderType type) {
-    switch (type) {
-      case OrderType.pickup:
-        return 'استلام';
-      case OrderType.delivery:
-        return 'توصيل';
-      case OrderType.pickupAndReturn:
-        return 'استلام وعودة';
-    }
-  }
+  // String _orderTypeArabic(OrderType type) {
+  //   switch (type) {
+  //     case OrderType.pickup:
+  //       return 'استلام';
+  //     case OrderType.delivery:
+  //       return 'توصيل';
+  //     case OrderType.pickupAndReturn:
+  //       return 'استلام وعودة';
+  //   }
+  // }
 
   String _priorityArabic(OrderPriority priority) {
     switch (priority) {

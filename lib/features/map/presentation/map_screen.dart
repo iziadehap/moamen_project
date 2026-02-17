@@ -320,7 +320,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => GlassBottomSheet(
-        title: 'تفاصيل الطلب',
+        title: 'تفاصيل الاوردر‏',
         content: Column(children: [OrderDetailsCard(order: order)]),
       ),
     );
@@ -332,7 +332,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => GlassBottomSheet(
-        title: 'الطلبات المتاحة (${circleOrder.orders.length})',
+        title: 'الاوردر‏ات المتاحة (${circleOrder.orders.length})',
         content: Column(
           children: circleOrder.orders
               .map(

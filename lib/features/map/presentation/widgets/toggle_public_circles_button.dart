@@ -48,7 +48,7 @@ class TogglePublicCirclesButton extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'الطلبات العامة',
+                'الاوردر‏ات العامة',
                 style: GoogleFonts.cairo(
                   color: showPublicCircles ? Colors.white : AppColors.textGrey,
                   fontSize: 14,

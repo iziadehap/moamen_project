@@ -53,6 +53,10 @@ dependencies:
   flutter_secure_storage: ^10.0.0
   http: ^1.6.0
   dartz: ^0.10.1
+  shared_preferences: ^2.2.2
+  hive_ce_flutter: ^2.3.4
+  image_picker: ^1.2.1
+  flutter_image_compress: ^2.4.0
 
 dev_dependencies:
   flutter_test:

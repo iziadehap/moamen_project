@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
 import 'package:moamen_project/features/auth/presentation/AccountNotActiveScreen.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'controller/auth_provider.dart';
@@ -71,7 +72,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return 'رقم الهاتف مطلوب';
     }
     try {
-      ref.read(authProvider.notifier).normalizeEgyptianPhone(value);
+      normalizeEgyptianPhone(value);
     } catch (_) {
       return 'رقم الهاتف غير صحيح';
     }
@@ -111,172 +112,176 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: Stack(
-          children: [
-            // Back Button
-            Positioned(
-              top: 50,
-              left: 20,
-              child: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+      body: SafeArea(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: AppColors.backgroundGradient,
+          ),
+          child: Stack(
+            children: [
+              // Back Button
+              Positioned(
+                top: 50,
+                left: 20,
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_forward, color: Colors.white),
                   ),
-                  child: const Icon(Icons.arrow_forward, color: Colors.white),
                 ),
               ),
-            ),
 
-            Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Header
-                      Text(
-                        'إنشاء حساب جديد',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.cairo(
-                          fontSize: 48,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'انضم إلى نظام التوصيل الذكي',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.cairo(
-                          fontSize: 16,
-                          color: AppColors.textGrey,
-                        ),
-                      ),
-                      const SizedBox(height: 60),
-
-                      // Name Field
-                      _buildField(
-                        label: 'الاسم',
-                        controller: _nameController,
-                        icon: Icons.person_outline,
-                        hint: 'أدخل اسمك',
-                        validator: _validateName,
-                      ),
-                      const SizedBox(height: 20),
-                      _buildField(
-                        label: 'الاسم الثاني',
-                        controller: _name2Controller,
-                        icon: Icons.person_outline,
-                        hint: 'أدخل اسمك الثاني',
-                        validator: _validateName,
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Phone Field
-                      _buildField(
-                        label: 'رقم الهاتف',
-                        controller: _phoneController,
-                        icon: Icons.phone_android,
-                        hint: '01xxxxxxxx',
-                        // prefixText: '+20 ',
-                        keyboardType: TextInputType.phone,
-                        validator: _validatePhone,
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Password Field
-                      _buildField(
-                        label: 'كلمة المرور',
-                        controller: _passwordController,
-                        icon: Icons.lock_outline,
-                        hint: '••••••••',
-                        obscureText: true,
-                        validator: _validatePassword,
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Confirm Password Field
-                      _buildField(
-                        label: 'تأكيد كلمة المرور',
-                        controller: _confirmPasswordController,
-                        icon: Icons.lock_outline,
-                        hint: '••••••••',
-                        obscureText: true,
-                        validator: _validateConfirmPassword,
-                      ),
-                      const SizedBox(height: 40),
-
-                      // Register Button
-                      Container(
-                        height: 56,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF2E66F6), Color(0xFF8B47FA)],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
+              Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Header
+                        Text(
+                          'إنشاء حساب جديد',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.cairo(
+                            fontSize: 48,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xFF2E66F6,
-                              ).withValues(alpha: 0.4),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
                         ),
-                        child: ElevatedButton(
-                          onPressed: authState.isLoading ? null : _register,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
+                        Text(
+                          'انضم إلى نظام التوصيل الذكي',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.cairo(
+                            fontSize: 16,
+                            color: AppColors.textGrey,
                           ),
-                          child: authState.isLoading
-                              ? const SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.arrow_back,
+                        ),
+                        const SizedBox(height: 60),
+
+                        // Name Field
+                        _buildField(
+                          label: 'الاسم',
+                          controller: _nameController,
+                          icon: Icons.person_outline,
+                          hint: 'أدخل اسمك',
+                          validator: _validateName,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildField(
+                          label: 'الاسم الثاني',
+                          controller: _name2Controller,
+                          icon: Icons.person_outline,
+                          hint: 'أدخل اسمك الثاني',
+                          validator: _validateName,
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Phone Field
+                        _buildField(
+                          label: 'رقم الهاتف',
+                          controller: _phoneController,
+                          icon: Icons.phone_android,
+                          hint: '01xxxxxxxx',
+                          // prefixText: '+20 ',
+                          keyboardType: TextInputType.phone,
+                          validator: _validatePhone,
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Password Field
+                        _buildField(
+                          label: 'كلمة المرور',
+                          controller: _passwordController,
+                          icon: Icons.lock_outline,
+                          hint: '••••••••',
+                          obscureText: true,
+                          validator: _validatePassword,
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Confirm Password Field
+                        _buildField(
+                          label: 'تأكيد كلمة المرور',
+                          controller: _confirmPasswordController,
+                          icon: Icons.lock_outline,
+                          hint: '••••••••',
+                          obscureText: true,
+                          validator: _validateConfirmPassword,
+                        ),
+                        const SizedBox(height: 40),
+
+                        // Register Button
+                        Container(
+                          height: 56,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF2E66F6), Color(0xFF8B47FA)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF2E66F6,
+                                ).withValues(alpha: 0.4),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: authState.isLoading ? null : _register,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: authState.isLoading
+                                ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
                                       color: Colors.white,
+                                      strokeWidth: 2,
                                     ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      'إنشاء الحساب',
-                                      style: GoogleFonts.cairo(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.arrow_back,
                                         color: Colors.white,
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        'إنشاء الحساب',
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

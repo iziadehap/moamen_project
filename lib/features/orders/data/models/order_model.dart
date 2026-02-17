@@ -2,11 +2,11 @@
 
 enum WeekDay { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
 
-enum OrderStatus { pending, accepted, inProgress, completed, cancelled }
+enum OrderStatus { pending, accepted, completed, cancelled }
 
 enum OrderPriority { low, medium, high, urgent }
 
-enum OrderType { pickup, delivery, pickupAndReturn }
+// enum OrderType { pickup, delivery, pickupAndReturn }
 
 class Order {
   final String id;
@@ -14,19 +14,22 @@ class Order {
   final String description;
   final OrderStatus status;
   final OrderPriority priority;
-  final OrderType orderType;
+  // final OrderType orderType;
   final String? workerId; // nullable
+  // final String? workerName;
   final String publicArea;
-  final String? publicLandmark;
+  // final String? publicLandmark;
   final List<Map<String, dynamic>> availability; // JSONB → List of maps
   final String? fullAddress;
   final double? latitude;
   final double? longitude;
   final String? contactName;
   final String? contactPhone;
-  final DateTime createdAt;
+  final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? acceptedAt;
+
+  final List<String> photoUrls;
 
   Order({
     required this.id,
@@ -34,19 +37,21 @@ class Order {
     required this.description,
     required this.status,
     required this.priority,
-    required this.orderType,
+    // required this.orderType,
     this.workerId,
+    // this.workerName,
     required this.publicArea,
-    this.publicLandmark,
+    // this.publicLandmark,
     required this.availability,
     this.fullAddress,
     this.latitude,
     this.longitude,
     this.contactName,
     this.contactPhone,
-    required this.createdAt,
+    this.createdAt,
     this.updatedAt,
     this.acceptedAt,
+    this.photoUrls = const [],
   });
 
   // ===================== fromJson =====================
@@ -57,10 +62,11 @@ class Order {
       description: json['description'] as String,
       status: _statusFromString(json['status'] as String),
       priority: _priorityFromString(json['priority'] as String),
-      orderType: _typeFromString(json['order_type'] as String),
+      // orderType: _typeFromString(json['order_type'] as String),
       workerId: json['worker_id'] as String?,
+      // workerName: json['worker_name'] as String?,
       publicArea: json['public_area'] as String,
-      publicLandmark: json['public_landmark'] as String?,
+      //   publicLandmark: json['public_landmark'] as String?,
       availability: (json['availability'] as List<dynamic>)
           .map((e) => e as Map<String, dynamic>)
           .toList(),
@@ -69,38 +75,51 @@ class Order {
       longitude: (json['longitude'] as num?)?.toDouble(),
       contactName: json['contact_name'] as String?,
       contactPhone: json['contact_phone'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : null,
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+          ? DateTime.parse(json['updated_at'])
           : null,
       acceptedAt: json['accepted_at'] != null
-          ? DateTime.parse(json['accepted_at'] as String)
+          ? DateTime.parse(json['accepted_at'])
           : null,
+     photoUrls: (json['photo_urls'] as List<dynamic>?)
+        ?.map((e) => e.toString())
+        .toList() ?? [],
+
     );
   }
 
   // ===================== toJson (لو احتجتها) =====================
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    final Map<String, dynamic> data = {
       'title': title,
       'description': description,
       'status': status.name,
       'priority': priority.name,
-      'order_type': orderType.name,
-      'worker_id': workerId,
       'public_area': publicArea,
-      'public_landmark': publicLandmark,
       'availability': availability,
       'full_address': fullAddress,
       'latitude': latitude,
       'longitude': longitude,
       'contact_name': contactName,
       'contact_phone': contactPhone,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
-      'accepted_at': acceptedAt?.toIso8601String(),
+      'photo_urls': photoUrls,
     };
+    if (id.isNotEmpty) {
+      data['id'] = id;
+    }
+
+    if (workerId != null && workerId!.isNotEmpty) {
+      data['worker_id'] = workerId;
+    }
+
+    if (createdAt != null) {
+      data['created_at'] = createdAt!.toIso8601String();
+    }
+
+    return data;
   }
 }
 
@@ -119,9 +138,9 @@ OrderPriority _priorityFromString(String value) {
   );
 }
 
-OrderType _typeFromString(String value) {
-  return OrderType.values.firstWhere(
-    (e) => e.name == value,
-    orElse: () => OrderType.pickup,
-  );
-}
+// OrderType _typeFromString(String value) {
+//   return OrderType.values.firstWhere(
+//     (e) => e.name == value,
+//     orElse: () => OrderType.pickup,
+//   );
+// }

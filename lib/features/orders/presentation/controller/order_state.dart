@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
 
 class OrderState {
@@ -5,7 +7,9 @@ class OrderState {
   final bool isLoading;
   final bool isError;
   final String errorMessage;
-  final bool hasFetched; // Added to prevent infinite refresh
+  final bool hasFetched;
+  final List<String> photoUrls;
+  final List<File> localPhotos;
 
   OrderState({
     this.orders = const [],
@@ -13,6 +17,8 @@ class OrderState {
     this.isError = false,
     this.errorMessage = '',
     this.hasFetched = false,
+    this.photoUrls = const [],
+    this.localPhotos = const [],
   });
 
   OrderState copyWith({
@@ -21,6 +27,8 @@ class OrderState {
     bool? isError,
     String? errorMessage,
     bool? hasFetched,
+    List<String>? photoUrls,
+    List<File>? localPhotos,
   }) {
     return OrderState(
       orders: orders ?? this.orders,
@@ -28,6 +36,8 @@ class OrderState {
       isError: isError ?? this.isError,
       errorMessage: errorMessage ?? this.errorMessage,
       hasFetched: hasFetched ?? this.hasFetched,
+      photoUrls: photoUrls ?? this.photoUrls,
+      localPhotos: localPhotos ?? this.localPhotos,
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/theme/app_colors.dart';
-import 'package:moamen_project/core/utils/privcy_cash.dart';
+import 'package:moamen_project/core/utils/cash.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/controller/admin_provider.dart';
 import 'package:moamen_project/features/auth/data/models/user_model.dart';
@@ -421,7 +421,7 @@ class _UserCard extends ConsumerWidget {
                     ),
                     // Max Orders Badge
                     _buildInfoBadge(
-                      label: 'طلبات: ${user.maxOrders}',
+                      label: 'اوردر: ${user.maxOrders}',
                       color: AppColors.textGrey,
                       icon: Icons.shopping_bag_outlined,
                     ),
@@ -597,7 +597,7 @@ class _UserCard extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _buildTextField(
                   maxOrdersController,
-                  'أقصى عدد للطلبات',
+                  'أقصى عدد للاوردر',
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),

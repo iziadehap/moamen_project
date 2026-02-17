@@ -68,12 +68,12 @@ class OrderDetailsCard extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _buildInfoRow(
-                  Icons.category_rounded,
-                  'نوع الطلب:',
-                  order.orderType.name,
-                  color: AppColors.primaryBlue,
-                ),
+                // _buildInfoRow(
+                //   Icons.category_rounded,
+                //   'نوع الاوردر‏:',
+                //   order.orderType.name,
+                //   color: AppColors.primaryBlue,
+                // ),
                 // if (order.workerId != null) ...[
                 //   const Divider(color: Colors.white10, height: 16),
                 //   _buildInfoRow(
@@ -90,16 +90,16 @@ class OrderDetailsCard extends StatelessWidget {
                   order.publicArea,
                   color: AppColors.statusCyan,
                 ),
-                if (order.publicLandmark != null &&
-                    order.publicLandmark!.isNotEmpty) ...[
-                  const Divider(color: Colors.white10, height: 16),
-                  _buildInfoRow(
-                    Icons.flag_rounded,
-                    'علامة مميزة:',
-                    order.publicLandmark!,
-                    color: AppColors.primaryPurple,
-                  ),
-                ],
+                // if (order.publicLandmark != null &&
+                //     order.publicLandmark!.isNotEmpty) ...[
+                //   const Divider(color: Colors.white10, height: 16),
+                //   _buildInfoRow(
+                //     Icons.flag_rounded,
+                //     'علامة مميزة:',
+                //     order.publicLandmark!,
+                //     color: AppColors.primaryPurple,
+                //   ),
+                // ],
               ],
             ),
           ),
@@ -120,10 +120,6 @@ class OrderDetailsCard extends StatelessWidget {
       case OrderStatus.accepted:
         color = AppColors.primaryBlue;
         text = 'تم القبول';
-        break;
-      case OrderStatus.inProgress:
-        color = AppColors.primaryBlue;
-        text = 'جاري التنفيذ';
         break;
       case OrderStatus.completed:
         color = AppColors.statusGreen;
