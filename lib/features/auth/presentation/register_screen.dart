@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
+import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/features/auth/presentation/AccountNotActiveScreen.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import 'controller/auth_provider.dart';
 import '../../dashboard/presentation/dashboard_screen.dart';
 
@@ -98,12 +99,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
+
     ref.listen(authProvider, (previous, next) {
       if (next.error != null && next.error != previous?.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.error!),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: customTheme.errorColor,
           ),
         );
       }
@@ -114,9 +117,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          decoration: const BoxDecoration(
-            gradient: AppColors.backgroundGradient,
-          ),
+          decoration: BoxDecoration(gradient: customTheme.scaffoldGradient),
           child: Stack(
             children: [
               // Back Button
@@ -128,10 +129,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   icon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: customTheme.textPrimary.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.arrow_forward, color: Colors.white),
+                    child: Icon(
+                      Icons.arrow_forward,
+                      color: customTheme.textPrimary,
+                    ),
                   ),
                 ),
               ),
@@ -147,20 +151,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       children: [
                         // Header
                         Text(
-                          'إنشاء حساب جديد',
+                          'Scrapekia',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.cairo(
+                          style: GoogleFonts.outfit(
                             fontSize: 48,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                            color: customTheme.textPrimary,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
                         Text(
-                          'انضم إلى نظام التوصيل الذكي',
+                          'انضم إلى مستقبل التوصيل',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.cairo(
                             fontSize: 16,
-                            color: AppColors.textGrey,
+                            color: customTheme.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 60),
@@ -172,6 +176,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           icon: Icons.person_outline,
                           hint: 'أدخل اسمك',
                           validator: _validateName,
+                          customTheme: customTheme,
                         ),
                         const SizedBox(height: 20),
                         _buildField(
@@ -180,6 +185,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           icon: Icons.person_outline,
                           hint: 'أدخل اسمك الثاني',
                           validator: _validateName,
+                          customTheme: customTheme,
                         ),
                         const SizedBox(height: 20),
 
@@ -189,9 +195,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           controller: _phoneController,
                           icon: Icons.phone_android,
                           hint: '01xxxxxxxx',
-                          // prefixText: '+20 ',
                           keyboardType: TextInputType.phone,
                           validator: _validatePhone,
+                          customTheme: customTheme,
                         ),
                         const SizedBox(height: 20),
 
@@ -203,6 +209,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           hint: '••••••••',
                           obscureText: true,
                           validator: _validatePassword,
+                          customTheme: customTheme,
                         ),
                         const SizedBox(height: 20),
 
@@ -214,6 +221,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           hint: '••••••••',
                           obscureText: true,
                           validator: _validateConfirmPassword,
+                          customTheme: customTheme,
                         ),
                         const SizedBox(height: 40),
 
@@ -221,17 +229,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         Container(
                           height: 56,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2E66F6), Color(0xFF8B47FA)],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
+                            gradient: customTheme.primaryGradient,
                             borderRadius: BorderRadius.circular(30),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(
-                                  0xFF2E66F6,
-                                ).withValues(alpha: 0.4),
+                                color: customTheme.primaryGradient.colors[0]
+                                    .withOpacity(0.4),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -247,13 +250,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               ),
                             ),
                             child: authState.isLoading
-                                ? const SizedBox(
+                                ?  SizedBox(
                                     height: 24,
                                     width: 24,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
+                                    child: AnimationWidget.loadingAnimation(24),
                                   )
                                 : Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -292,6 +292,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     required TextEditingController controller,
     required IconData icon,
     required String hint,
+    required CustomThemeExtension customTheme,
     String? prefixText,
     bool obscureText = false,
     TextInputType? keyboardType,
@@ -302,24 +303,45 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: GoogleFonts.cairo(color: AppColors.textGrey)),
+          Text(
+            label,
+            style: GoogleFonts.cairo(color: customTheme.textSecondary),
+          ),
           const SizedBox(height: 8),
           TextFormField(
             controller: controller,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: customTheme.textPrimary),
             obscureText: obscureText,
             keyboardType: keyboardType,
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+              hintStyle: TextStyle(
+                color: customTheme.textSecondary.withOpacity(0.3),
+              ),
               prefixText: prefixText,
-              prefixStyle: const TextStyle(color: Colors.white, fontSize: 16),
+              prefixStyle: TextStyle(
+                color: customTheme.textPrimary,
+                fontSize: 16,
+              ),
               filled: true,
-              fillColor: AppColors.darkCard,
-              prefixIcon: Icon(icon, color: AppColors.textGrey),
+              fillColor: customTheme.cardBackground,
+              prefixIcon: Icon(icon, color: customTheme.textSecondary),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: customTheme.textPrimary.withOpacity(0.05),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: customTheme.primaryBlue,
+                  width: 2,
+                ),
               ),
             ),
             validator: validator,

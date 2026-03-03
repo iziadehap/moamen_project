@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:moamen_project/core/theme/app_colors.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
+import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/orders/presentation/location_picker_screen.dart';
 import 'package:moamen_project/features/orders/presentation/widgets/add_order_widgets.dart';
+import 'package:moamen_project/core/utils/alx_places.dart';
+import 'package:moamen_project/core/utils/availability_utils.dart';
+import 'package:moamen_project/features/orders/presentation/availability_settings_screen.dart';
 
 class AddOrderScreen extends ConsumerStatefulWidget {
   final Order? order;
@@ -33,7 +37,15 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
 
   // State
   OrderPriority _priority = OrderPriority.medium;
+  OrderStatus _status = OrderStatus.pending;
+  String? _workerId;
   bool _isAllWeek = true;
+  bool _isManualArea = false;
+  AlexPlace? _selectedPlace;
+  AvailabilityConfig _availabilityConfig = const AvailabilityConfig(
+    weeklyRules: [],
+    overrides: [],
+  );
   TimeOfDay _allWeekFromTime = const TimeOfDay(hour: 0, minute: 0);
   TimeOfDay _allWeekToTime = const TimeOfDay(hour: 23, minute: 59);
 
@@ -61,26 +73,51 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
     _contactNameController.text = order.contactName ?? '';
     _contactPhoneController.text = order.contactPhone ?? '';
     _priority = order.priority;
+    _status = order.status;
+    _workerId = order.workerId;
+
+    // Check if it's a predefined place
+    final matchingPlace = alexPlaces
+        .where((p) => p.name == order.publicArea)
+        .firstOrNull;
+    if (matchingPlace != null) {
+      _selectedPlace = matchingPlace;
+      _isManualArea = false;
+    } else {
+      _isManualArea = true;
+    }
 
     if (order.availability.isNotEmpty) {
       _initAvailability(order.availability);
+      _availabilityConfig = AvailabilityConfig.fromModelAvailability(
+        order.availability,
+      );
     }
 
     if (order.photoUrls.isNotEmpty) {
       // Set initial photos if editing
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(orderProvider.notifier).setPhotoUrls(order.photoUrls);
+        if (mounted) {
+          ref.read(orderProvider.notifier).setPhotoUrls(order.photoUrls);
+        }
       });
     }
   }
 
   void _initAvailability(List<Map<String, dynamic>> availability) {
-    final firstRange = availability.first['timeRange'] as Map<String, dynamic>;
+    if (availability.isEmpty) return;
+
+    final firstAvail = availability.first;
+    final firstRange = firstAvail['timeRange'] as Map<String, dynamic>?;
+
+    if (firstRange == null) return;
+
     bool allSame = availability.length == 7;
 
     for (var avail in availability) {
-      final range = avail['timeRange'] as Map<String, dynamic>;
-      if (range['fromHour'] != firstRange['fromHour'] ||
+      final range = avail['timeRange'] as Map<String, dynamic>?;
+      if (range == null ||
+          range['fromHour'] != firstRange['fromHour'] ||
           range['fromMinute'] != firstRange['fromMinute'] ||
           range['toHour'] != firstRange['toHour'] ||
           range['toMinute'] != firstRange['toMinute']) {
@@ -92,22 +129,37 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
     if (allSame) {
       _isAllWeek = true;
       _allWeekFromTime = TimeOfDay(
-        hour: firstRange['fromHour'],
-        minute: firstRange['fromMinute'],
+        hour: firstRange['fromHour'] ?? 0,
+        minute: firstRange['fromMinute'] ?? 0,
       );
       _allWeekToTime = TimeOfDay(
-        hour: firstRange['toHour'],
-        minute: firstRange['toMinute'],
+        hour: firstRange['toHour'] ?? 23,
+        minute: firstRange['toMinute'] ?? 59,
       );
     } else {
       _isAllWeek = false;
       for (var avail in availability) {
-        final day = WeekDay.values.firstWhere((d) => d.name == avail['day']);
-        final range = avail['timeRange'] as Map<String, dynamic>;
-        _dailyTimes[day] = (
-          TimeOfDay(hour: range['fromHour'], minute: range['fromMinute']),
-          TimeOfDay(hour: range['toHour'], minute: range['toMinute']),
+        final dayName = avail['day'] as String?;
+        if (dayName == null) continue;
+
+        final day = WeekDay.values.firstWhere(
+          (d) => d.name == dayName,
+          orElse: () => WeekDay.monday,
         );
+        final range = avail['timeRange'] as Map<String, dynamic>?;
+
+        if (range != null) {
+          _dailyTimes[day] = (
+            TimeOfDay(
+              hour: range['fromHour'] ?? 0,
+              minute: range['fromMinute'] ?? 0,
+            ),
+            TimeOfDay(
+              hour: range['toHour'] ?? 23,
+              minute: range['toMinute'] ?? 59,
+            ),
+          );
+        }
       }
     }
   }
@@ -151,6 +203,22 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Check if location is selected
+    if (_latController.text.isEmpty || _lngController.text.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'يرجى تحديد الموقع على الخريطة أولاً',
+              style: GoogleFonts.cairo(),
+            ),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+      return;
+    }
+
     final notifier = ref.read(orderProvider.notifier);
 
     // 1. Upload new local photos first
@@ -158,6 +226,7 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
 
     // 3. Check for errors (e.g. upload failed)
     if (ref.read(orderProvider).isError) {
+      print('AddOrderScreen._submit: Error during photo upload');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -197,7 +266,8 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
           : _contactPhoneController.text,
       photoUrls: totalPhotoUrls,
       id: widget.order?.id ?? '',
-      status: widget.order?.status ?? OrderStatus.pending,
+      status: widget.order != null ? _status : OrderStatus.pending,
+      workerId: _workerId,
       createdAt: widget.order?.createdAt,
       updatedAt: widget.order?.updatedAt,
     );
@@ -212,6 +282,12 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
             orderData: orderData,
           );
 
+    if (success == null || success == false) {
+      print(
+        'AddOrderScreen._submit: Failed to ${widget.order != null ? 'update' : 'create'} order',
+      );
+    }
+
     if (success != null && success != false && mounted) {
       // Clear photos on success
       ref.read(orderProvider.notifier).resetPhotos();
@@ -224,7 +300,9 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
                 : 'تم إضافة الاوردر بنجاح',
             style: GoogleFonts.cairo(),
           ),
-          backgroundColor: AppColors.statusGreen,
+          backgroundColor: Theme.of(
+            context,
+          ).extension<CustomThemeExtension>()!.statusGreen,
         ),
       );
       Navigator.pop(context);
@@ -232,6 +310,31 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
   }
 
   List<Map<String, dynamic>> _buildAvailabilityJson() {
+    // If user used the advanced settings, prefer those
+    if (_availabilityConfig.weeklyRules.isNotEmpty ||
+        _availabilityConfig.overrides.isNotEmpty) {
+      final list = <Map<String, dynamic>>[];
+      for (final rule in _availabilityConfig.weeklyRules) {
+        for (final day in rule.days) {
+          for (final range in rule.ranges) {
+            list.add({
+              'day': day.name,
+              'timeRange': {
+                'fromHour': range.startMin ~/ 60,
+                'fromMinute': range.startMin % 60,
+                'toHour': range.endMin ~/ 60,
+                'toMinute': range.endMin % 60,
+              },
+            });
+          }
+        }
+      }
+      // Note: Overrides are stored in the same 'availability' field for now,
+      // but the model might need an update to fully support them.
+      // For now, we map weekly rules to the existing structure.
+      if (list.isNotEmpty) return list;
+    }
+
     if (_isAllWeek) {
       return WeekDay.values
           .map(
@@ -265,17 +368,18 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
     final isLoading = ref.watch(orderProvider).isLoading;
 
     return Scaffold(
-      backgroundColor: AppColors.midnightNavy,
+      backgroundColor: customTheme.background,
       body: Container(
         height: double.infinity,
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        decoration: BoxDecoration(gradient: customTheme.scaffoldGradient),
         child: SafeArea(
           child: Column(
             children: [
-              _buildHeader(),
+              _buildHeader(customTheme),
               Expanded(
                 child: Directionality(
                   textDirection: TextDirection.rtl,
@@ -293,7 +397,7 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
                           const SizedBox(height: 16),
                           FormTextField(
                             controller: _titleController,
-                            label: 'عنوان الاوردر (مثلاً: نقل حديد )',
+                            label: 'عنوان الاوردر (مثلاً: نقل حديد)',
                             icon: Icons.title_rounded,
                             validator: (v) => v!.isEmpty ? 'مطلوب' : null,
                           ),
@@ -305,7 +409,16 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
                             maxLines: 3,
                           ),
                           const SizedBox(height: 16),
-                          _buildPriorityDropdown(),
+                          _buildPriorityDropdown(customTheme),
+                          const SizedBox(height: 16),
+                          if (widget.order != null) ...[
+                            _buildStatusDropdown(customTheme),
+                            const SizedBox(height: 16),
+                          ],
+                          if (_workerId != null && _workerId!.isNotEmpty) ...[
+                            _buildWorkerSection(customTheme),
+                            const SizedBox(height: 16),
+                          ],
                           const SizedBox(height: 32),
                           const SectionHeader(title: 'التوافر والوقت'),
                           const SizedBox(height: 16),
@@ -341,28 +454,36 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
                               ),
                             ),
                           ],
+                          const SizedBox(height: 16),
+                          _buildAdvancedAvailabilityButton(customTheme),
                           const SizedBox(height: 32),
                           const SectionHeader(
                             title: 'الموقع العام (يظهر للجميع)',
                           ),
                           const SizedBox(height: 16),
-                          FormTextField(
-                            controller: _areaController,
-                            label: 'المنطقة أو الحي',
-                            icon: Icons.location_city_rounded,
-                            validator: (v) => v!.isEmpty ? 'مطلوب' : null,
-                          ),
-                          const SizedBox(height: 32),
-                          const SectionHeader(title: 'الموقع التفصيلي (خاص)'),
-                          const SizedBox(height: 16),
-                          FormTextField(
-                            controller: _fullAddressController,
-                            label: 'العنوان الكامل',
-                            icon: Icons.map_rounded,
-                          ),
-                          const SizedBox(height: 16),
-                          _buildMapPickerButton(),
-                          _buildLocationStatus(),
+                          _buildPlacesDropdown(customTheme),
+                          if (_isManualArea) ...[
+                            const SizedBox(height: 16),
+                            FormTextField(
+                              controller: _areaController,
+                              label: 'المنطقة أو الحي (يدوياً)',
+                              icon: Icons.location_city_rounded,
+                              validator: (v) => v!.isEmpty ? 'مطلوب' : null,
+                            ),
+                          ],
+                          if (_isManualArea || _selectedPlace != null) ...[
+                            const SizedBox(height: 32),
+                            const SectionHeader(title: 'الموقع التفصيلي (خاص)'),
+                            const SizedBox(height: 16),
+                            FormTextField(
+                              controller: _fullAddressController,
+                              label: 'العنوان الكامل',
+                              icon: Icons.map_rounded,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildMapPickerButton(customTheme),
+                            _buildLocationStatus(customTheme),
+                          ],
                           const SizedBox(height: 32),
                           const SectionHeader(title: 'بيانات التواصل (خاص)'),
                           const SizedBox(height: 16),
@@ -387,11 +508,10 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
                               return null;
                             },
                           ),
-                          // todo : uplode photos
                           const SizedBox(height: 16),
                           uplodePhotoWidget(),
                           const SizedBox(height: 32),
-                          _buildSubmitButton(isLoading),
+                          _buildSubmitButton(isLoading, customTheme),
                           const SizedBox(height: 40),
                         ],
                       ),
@@ -406,20 +526,20 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(CustomThemeExtension customTheme) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Row(
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: Colors.white,
+              color: customTheme.textPrimary,
               size: 20,
             ),
             style: IconButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.05),
+              backgroundColor: customTheme.textPrimary.withOpacity(0.05),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -431,7 +551,7 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
             style: GoogleFonts.cairo(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: customTheme.textPrimary,
             ),
           ),
         ],
@@ -439,24 +559,24 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
     );
   }
 
-  Widget _buildPriorityDropdown() {
+  Widget _buildPriorityDropdown(CustomThemeExtension customTheme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
       ),
       child: DropdownButton<OrderPriority>(
         value: _priority,
-        dropdownColor: AppColors.darkCard,
+        dropdownColor: customTheme.cardBackground,
         isExpanded: true,
         underline: const SizedBox(),
-        icon: const Icon(
+        icon: Icon(
           Icons.keyboard_arrow_down_rounded,
-          color: AppColors.textGrey,
+          color: customTheme.textSecondary,
         ),
-        style: GoogleFonts.cairo(color: Colors.white),
+        style: GoogleFonts.cairo(color: customTheme.textPrimary),
         items: OrderPriority.values
             .map(
               (p) =>
@@ -468,14 +588,14 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
     );
   }
 
-  Widget _buildMapPickerButton() {
+  Widget _buildMapPickerButton(CustomThemeExtension customTheme) {
     return Container(
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
-        color: AppColors.primaryBlue.withOpacity(0.1),
+        color: customTheme.primaryBlue.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+        border: Border.all(color: customTheme.primaryBlue.withOpacity(0.3)),
       ),
       child: InkWell(
         onTap: _pickLocation,
@@ -483,16 +603,12 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.map_rounded,
-              color: AppColors.primaryBlue,
-              size: 20,
-            ),
+            Icon(Icons.map_rounded, color: customTheme.primaryBlue, size: 20),
             const SizedBox(width: 12),
             Text(
-              'تحديد الموقع من الخريطة',
+              'تحديد الموقع من الخريطة *',
               style: GoogleFonts.cairo(
-                color: AppColors.primaryBlue,
+                color: customTheme.primaryBlue,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -503,14 +619,14 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
     );
   }
 
-  Widget _buildLocationStatus() {
+  Widget _buildLocationStatus(CustomThemeExtension customTheme) {
     if (_latController.text.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(top: 8, right: 12),
       child: Text(
         'تم تحديد الموقع: ${_latController.text}, ${_lngController.text}',
         style: GoogleFonts.cairo(
-          color: AppColors.statusGreen,
+          color: customTheme.statusGreen,
           fontSize: 12,
           fontWeight: FontWeight.bold,
         ),
@@ -518,15 +634,21 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
     );
   }
 
-  Widget _buildSubmitButton(bool isLoading) {
+  Widget _buildSubmitButton(bool isLoading, CustomThemeExtension customTheme) {
     return SizedBox(
       width: double.infinity,
       height: 60,
       child: Container(
         decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
+          gradient: customTheme.primaryGradient,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: AppColors.glowShadow,
+          boxShadow: [
+            BoxShadow(
+              color: customTheme.primaryBlue.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: ElevatedButton(
           onPressed: isLoading ? null : _submit,
@@ -538,9 +660,11 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
             ),
           ),
           child: isLoading
-              ? const CircularProgressIndicator(color: Colors.white)
+              ? AnimationWidget.loadingAnimation(24)
               : Text(
-                  'إنشاء الاوردر الآن',
+                  widget.order != null
+                      ? 'تحديث الاوردر الآن'
+                      : 'إنشاء الاوردر الآن',
                   style: GoogleFonts.cairo(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -562,6 +686,525 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
         return 'عالية';
       case OrderPriority.urgent:
         return 'عاجل جداً';
+    }
+  }
+
+  Widget _buildPlacesDropdown(CustomThemeExtension customTheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'المنطقة أو الحي',
+          style: GoogleFonts.cairo(
+            color: customTheme.textSecondary,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: () => _showPlacesPicker(customTheme),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: customTheme.cardBackground,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: customTheme.textPrimary.withOpacity(0.1),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  _isManualArea
+                      ? Icons.edit_location_alt_rounded
+                      : Icons.location_on_rounded,
+                  color: customTheme.primaryBlue.withOpacity(0.7),
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _isManualArea
+                        ? 'أخرى (إدخال يدوي)'
+                        : (_selectedPlace?.name ?? 'اختر منطقة من القائمة'),
+                    style: GoogleFonts.cairo(
+                      color: (_isManualArea || _selectedPlace != null)
+                          ? customTheme.textPrimary
+                          : customTheme.textSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: customTheme.textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showPlacesPicker(CustomThemeExtension customTheme) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _PlacesPickerSheet(
+        customTheme: customTheme,
+        onPlaceSelected: (place) {
+          setState(() {
+            _isManualArea = false;
+            _selectedPlace = place;
+            _areaController.text = place.name;
+            _latController.text = place.lat.toString();
+            _lngController.text = place.lng.toString();
+          });
+        },
+        onManualSelected: () {
+          setState(() {
+            _isManualArea = true;
+            _selectedPlace = null;
+            _areaController.clear();
+            _latController.clear();
+            _lngController.clear();
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatusDropdown(CustomThemeExtension customTheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'حالة الاوردر',
+          style: GoogleFonts.cairo(
+            color: customTheme.textSecondary,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: BoxDecoration(
+            color: customTheme.cardBackground,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+          ),
+          child: DropdownButton<OrderStatus>(
+            value: _status,
+            dropdownColor: customTheme.cardBackground,
+            isExpanded: true,
+            underline: const SizedBox(),
+            icon: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: customTheme.textSecondary,
+            ),
+            style: GoogleFonts.cairo(color: customTheme.textPrimary),
+            items: OrderStatus.values
+                .map(
+                  (s) =>
+                      DropdownMenuItem(value: s, child: Text(_statusArabic(s))),
+                )
+                .toList(),
+            onChanged: (value) => setState(() {
+              _status = value!;
+              if (_status == OrderStatus.pending) {
+                _workerId = null;
+              }
+            }),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWorkerSection(CustomThemeExtension customTheme) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: customTheme.cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: customTheme.primaryBlue.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.engineering_rounded, color: customTheme.primaryBlue),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'العامل المعين',
+                  style: GoogleFonts.cairo(
+                    color: customTheme.textSecondary,
+                    fontSize: 10,
+                  ),
+                ),
+                Text(
+                  _workerId ?? '',
+                  style: GoogleFonts.cairo(
+                    color: customTheme.textPrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _workerId = null;
+                // Automatically set status to pending if worker is removed
+                _status = OrderStatus.pending;
+              });
+            },
+            icon: Icon(
+              Icons.person_remove_rounded,
+              color: customTheme.errorColor,
+              size: 18,
+            ),
+            label: Text(
+              'حذف',
+              style: GoogleFonts.cairo(
+                color: customTheme.errorColor,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _statusArabic(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return 'قيد الانتظار';
+      case OrderStatus.accepted:
+        return 'تم القبول';
+      case OrderStatus.completed:
+        return 'مكتمل';
+      case OrderStatus.cancelled:
+        return 'ملغي';
+    }
+  }
+
+  Widget _buildAdvancedAvailabilityButton(CustomThemeExtension customTheme) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: customTheme.primaryBlue.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: customTheme.primaryBlue.withOpacity(0.2)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () async {
+            final result = await Navigator.push<AvailabilityConfig>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AvailabilitySettingsScreen(
+                  initialConfig: _availabilityConfig,
+                ),
+              ),
+            );
+            if (result != null) {
+              setState(() {
+                _availabilityConfig = result;
+              });
+            }
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.settings_suggest_rounded,
+                  color: customTheme.primaryBlue,
+                  size: 24,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'إدارة التوافر المتقدمة',
+                        style: GoogleFonts.cairo(
+                          color: customTheme.textPrimary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        'فترات متعددة، استثناءات تواريخ معينة',
+                        style: GoogleFonts.cairo(
+                          color: customTheme.textSecondary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: customTheme.textSecondary,
+                  size: 14,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlacesPickerSheet extends StatefulWidget {
+  final CustomThemeExtension customTheme;
+  final Function(AlexPlace) onPlaceSelected;
+  final VoidCallback onManualSelected;
+
+  const _PlacesPickerSheet({
+    required this.customTheme,
+    required this.onPlaceSelected,
+    required this.onManualSelected,
+  });
+
+  @override
+  State<_PlacesPickerSheet> createState() => _PlacesPickerSheetState();
+}
+
+class _PlacesPickerSheetState extends State<_PlacesPickerSheet> {
+  final _searchController = TextEditingController();
+  List<AlexPlace> _filteredPlaces = alexPlaces;
+
+  void _filterPlaces(String query) {
+    setState(() {
+      _filteredPlaces = alexPlaces
+          .where(
+            (p) =>
+                p.name.contains(query) ||
+                p.zone.toLowerCase().contains(query.toLowerCase()),
+          )
+          .toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.85,
+      decoration: BoxDecoration(
+        color: widget.customTheme.background,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        gradient: widget.customTheme.scaffoldGradient,
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 12),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: widget.customTheme.textPrimary.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              children: [
+                Text(
+                  'اختر المنطقة',
+                  style: GoogleFonts.cairo(
+                    color: widget.customTheme.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(
+                    Icons.close,
+                    color: widget.customTheme.textPrimary.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _filterPlaces,
+              style: GoogleFonts.cairo(color: widget.customTheme.textPrimary),
+              decoration: InputDecoration(
+                hintText: 'ابحث عن منطقة...',
+                hintStyle: GoogleFonts.cairo(
+                  color: widget.customTheme.textSecondary,
+                ),
+                prefixIcon: Icon(
+                  Icons.search_rounded,
+                  color: widget.customTheme.primaryBlue,
+                ),
+                filled: true,
+                fillColor: widget.customTheme.textPrimary.withOpacity(0.05),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: widget.customTheme.textPrimary.withOpacity(0.1),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                children: [
+                  _buildOptionItem(
+                    icon: Icons.edit_location_alt_rounded,
+                    title: 'أخرى (إدخال يدوي)',
+                    subtitle: 'اختر هذا للمناطق غير الموجودة بالقائمة',
+                    isManual: true,
+                    onTap: () {
+                      widget.onManualSelected();
+                      Navigator.pop(context);
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(
+                      color: widget.customTheme.textPrimary.withOpacity(0.1),
+                    ),
+                  ),
+                  ..._filteredPlaces.map(
+                    (place) => _buildOptionItem(
+                      icon: Icons.location_on_rounded,
+                      title: place.name,
+                      subtitle: _zoneArabic(place.zone),
+                      onTap: () {
+                        widget.onPlaceSelected(place);
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOptionItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    bool isManual = false,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: isManual
+            ? widget.customTheme.primaryBlue.withOpacity(0.1)
+            : widget.customTheme.textPrimary.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isManual
+              ? widget.customTheme.primaryBlue.withOpacity(0.3)
+              : widget.customTheme.textPrimary.withOpacity(0.1),
+        ),
+      ),
+      child: ListTile(
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isManual
+                ? widget.customTheme.primaryBlue.withOpacity(0.2)
+                : widget.customTheme.textPrimary.withOpacity(0.05),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: isManual
+                ? widget.customTheme.primaryBlue
+                : widget.customTheme.textSecondary,
+            size: 20,
+          ),
+        ),
+        title: Text(
+          title,
+          style: GoogleFonts.cairo(
+            color: isManual
+                ? widget.customTheme.primaryBlue
+                : widget.customTheme.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: GoogleFonts.cairo(
+            color: widget.customTheme.textSecondary,
+            fontSize: 11,
+          ),
+        ),
+        trailing: Icon(
+          Icons.arrow_forward_ios_rounded,
+          color: isManual
+              ? widget.customTheme.primaryBlue
+              : widget.customTheme.textSecondary.withOpacity(0.3),
+          size: 14,
+        ),
+      ),
+    );
+  }
+
+  String _zoneArabic(String zone) {
+    switch (zone.toLowerCase()) {
+      case 'west':
+        return 'غرب الإسكندرية';
+      case 'center':
+        return 'وسط الإسكندرية';
+      case 'east':
+        return 'شرق الإسكندرية';
+      case 'montaza':
+        return 'حي المنتزة';
+      default:
+        return zone;
     }
   }
 }

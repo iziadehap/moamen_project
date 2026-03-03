@@ -16,11 +16,11 @@ class OrderRepository {
 
       // Upload returns the path if successful
       await supabase.storage
-          .from(SupabaseTables.ordersPhotosBucket)
+          .from(SupabaseTables.PhotosBucket)
           .upload(fileName, file);
 
       final url = supabase.storage
-          .from(SupabaseTables.ordersPhotosBucket)
+          .from(SupabaseTables.PhotosBucket)
           .getPublicUrl(fileName);
       return url;
     } catch (e) {

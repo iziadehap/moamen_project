@@ -30,10 +30,10 @@ class SplashRepositoryImpl implements SplashRepository {
     return await permissionService.isLocationServiceEnabled();
   }
 
-  @override
-  Future<Map<String, String?>> getSavedCredentials() async {
-    return await PrivcyCash.readCredentials();
-  }
+  // @override
+  // Future<Map<String, String?>> getSavedCredentials() async {
+  //   return await PrivcyCash.readCredentials();
+  // }
 }
 
 final splashRepositoryProvider = Provider<SplashRepository>((ref) {

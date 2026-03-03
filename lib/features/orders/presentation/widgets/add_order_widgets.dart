@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:moamen_project/core/theme/app_colors.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
+import 'package:moamen_project/core/utils/availability_utils.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
@@ -11,13 +12,14 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
     return Row(
       children: [
         Container(
           width: 4,
           height: 18,
           decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
+            gradient: customTheme.primaryGradient,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -25,7 +27,7 @@ class SectionHeader extends StatelessWidget {
         Text(
           title,
           style: GoogleFonts.cairo(
-            color: Colors.white,
+            color: customTheme.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -55,33 +57,39 @@ class FormTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
       validator: validator,
-      style: GoogleFonts.cairo(color: Colors.white, fontSize: 14),
+      style: GoogleFonts.cairo(color: customTheme.textPrimary, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.cairo(color: AppColors.textGrey, fontSize: 12),
+        labelStyle: GoogleFonts.cairo(
+          color: customTheme.textSecondary,
+          fontSize: 12,
+        ),
         prefixIcon: Icon(
           icon,
-          color: AppColors.primaryBlue.withOpacity(0.5),
+          color: customTheme.primaryBlue.withOpacity(0.5),
           size: 20,
         ),
         filled: true,
-        fillColor: AppColors.darkCard,
+        fillColor: customTheme.cardBackground,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.white10),
+          borderSide: BorderSide(
+            color: customTheme.textPrimary.withOpacity(0.1),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.primaryBlue),
+          borderSide: BorderSide(color: customTheme.primaryBlue),
         ),
         errorStyle: GoogleFonts.cairo(fontSize: 10),
       ),
@@ -109,12 +117,13 @@ class AvailabilityToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
       ),
       child: Column(
         children: [
@@ -122,32 +131,35 @@ class AvailabilityToggle extends StatelessWidget {
             children: [
               Icon(
                 Icons.calendar_month_rounded,
-                color: AppColors.primaryBlue.withOpacity(0.5),
+                color: customTheme.primaryBlue.withOpacity(0.5),
               ),
               const SizedBox(width: 12),
               Text(
                 'متاح طوال الأسبوع',
-                style: GoogleFonts.cairo(color: Colors.white, fontSize: 14),
+                style: GoogleFonts.cairo(
+                  color: customTheme.textPrimary,
+                  fontSize: 14,
+                ),
               ),
               const Spacer(),
               Switch(
                 value: isAllWeek,
                 onChanged: onChanged,
-                activeColor: AppColors.primaryBlue,
+                activeColor: customTheme.primaryBlue,
               ),
             ],
           ),
           if (isAllWeek) ...[
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Divider(color: Colors.white10),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Divider(color: customTheme.textPrimary.withOpacity(0.1)),
             ),
             Row(
               children: [
                 Text(
                   'التوقيت لكل الأيام:',
                   style: GoogleFonts.cairo(
-                    color: AppColors.textGrey,
+                    color: customTheme.textSecondary,
                     fontSize: 12,
                   ),
                 ),
@@ -158,7 +170,10 @@ class AvailabilityToggle extends StatelessWidget {
                   onChanged: onFromChanged,
                 ),
                 const SizedBox(width: 8),
-                Text(':', style: GoogleFonts.cairo(color: AppColors.textGrey)),
+                Text(
+                  ':',
+                  style: GoogleFonts.cairo(color: customTheme.textSecondary),
+                ),
                 const SizedBox(width: 8),
                 TimePickerField(
                   label: 'إلى',
@@ -188,23 +203,32 @@ class TimePickerField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
     return InkWell(
       onTap: () async {
         final newTime = await showTimePicker(
           context: context,
           initialTime: time,
           builder: (context, child) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
             return Theme(
               data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.dark(
-                  primary: AppColors.primaryBlue,
-                  onPrimary: Colors.white,
-                  surface: AppColors.darkCard,
-                  onSurface: Colors.white,
-                ),
+                colorScheme: isDark
+                    ? ColorScheme.dark(
+                        primary: customTheme.primaryBlue,
+                        onPrimary: Colors.white,
+                        surface: customTheme.background,
+                        onSurface: customTheme.textPrimary,
+                      )
+                    : ColorScheme.light(
+                        primary: customTheme.primaryBlue,
+                        onPrimary: Colors.white,
+                        surface: customTheme.background,
+                        onSurface: customTheme.textPrimary,
+                      ),
                 textButtonTheme: TextButtonThemeData(
                   style: TextButton.styleFrom(
-                    foregroundColor: AppColors.primaryBlue,
+                    foregroundColor: customTheme.primaryBlue,
                   ),
                 ),
               ),
@@ -217,7 +241,7 @@ class TimePickerField extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: customTheme.textPrimary.withOpacity(0.05),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -225,12 +249,15 @@ class TimePickerField extends StatelessWidget {
           children: [
             Text(
               '$label ',
-              style: GoogleFonts.cairo(color: AppColors.textGrey, fontSize: 10),
+              style: GoogleFonts.cairo(
+                color: customTheme.textSecondary,
+                fontSize: 10,
+              ),
             ),
             Text(
-              time.format(context),
+              formatMinuteOfDay12hAr(time.hour * 60 + time.minute),
               style: GoogleFonts.cairo(
-                color: AppColors.primaryBlue,
+                color: customTheme.primaryBlue,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
@@ -260,13 +287,14 @@ class DailyScheduleItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.darkCard.withOpacity(0.5),
+        color: customTheme.cardBackground.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
       ),
       child: Row(
         children: [
@@ -275,7 +303,7 @@ class DailyScheduleItem extends StatelessWidget {
             child: Text(
               _dayArabic(day),
               style: GoogleFonts.cairo(
-                color: Colors.white,
+                color: customTheme.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -288,7 +316,7 @@ class DailyScheduleItem extends StatelessWidget {
             onChanged: onFromChanged,
           ),
           const SizedBox(width: 8),
-          Text(':', style: GoogleFonts.cairo(color: AppColors.textGrey)),
+          Text(':', style: GoogleFonts.cairo(color: customTheme.textSecondary)),
           const SizedBox(width: 8),
           TimePickerField(label: 'إلى', time: toTime, onChanged: onToChanged),
         ],
@@ -319,6 +347,7 @@ class DailyScheduleItem extends StatelessWidget {
 Widget uplodePhotoWidget() {
   return Consumer(
     builder: (context, ref, child) {
+      final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
       final state = ref.watch(orderProvider);
       final controller = ref.read(orderProvider.notifier);
 
@@ -361,26 +390,26 @@ Widget uplodePhotoWidget() {
               width: double.infinity,
               height: 60,
               decoration: BoxDecoration(
-                color: AppColors.darkCard,
+                color: customTheme.cardBackground,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: AppColors.primaryBlue.withOpacity(0.3),
+                  color: customTheme.primaryBlue.withOpacity(0.3),
                 ),
               ),
               child: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.add_a_photo_rounded,
-                      color: AppColors.primaryBlue,
+                      color: customTheme.primaryBlue,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       'إضافة صور',
                       style: GoogleFonts.cairo(
-                        color: AppColors.primaryBlue,
+                        color: customTheme.primaryBlue,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -404,6 +433,7 @@ class _PhotoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
     return Stack(
       children: [
         Container(
@@ -411,7 +441,7 @@ class _PhotoItem extends StatelessWidget {
           width: 100,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white10),
+            border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
             image: DecorationImage(image: image, fit: BoxFit.cover),
           ),
         ),
@@ -422,8 +452,8 @@ class _PhotoItem extends StatelessWidget {
             onTap: onRemove,
             child: Container(
               padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                color: Colors.red,
+              decoration: BoxDecoration(
+                color: customTheme.errorColor,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.close, size: 14, color: Colors.white),

@@ -1,9 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:moamen_project/core/utils/app_text.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/features/auth/data/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../../core/services/connectivity/connectivity_service.dart';
+import 'package:moamen_project/core/services/connectivity/connectivity_service.dart';
 import '../../../auth/presentation/controller/auth_provider.dart';
 import '../../domain/repositories/splash_repository.dart';
 import '../../data/repositories/splash_repository_impl.dart';
@@ -23,24 +22,31 @@ class SplashNotifier extends Notifier<SplashState> {
     state = state.copyWith(progress: 0.1, error: null);
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // 1. Internet check
+    // 1. Internet check with retry logic
     state = state.copyWith(progress: 0.2);
 
-    // Wait for connectivity check to stabilize if needed
-    // In strict clean arch, this waiting logic might belong in a UseCase,
-    // but for Splash flow it's often View-related timing.
-    // We'll trust the repository's current state but add a small delay if it's checking.
-    // However, repository just returns bool. Checks should be fast.
-    // The original code waited if checking.
-    // Let's check the provider state directly for "isChecking" to replicate the delay logic
-    // or just assume we can retry if false.
+    bool isConnected = false;
+    int retryCount = 0;
+    const int maxRetries = 3;
 
-    // final connectivityState = ref.read(connectivityProvider);
-    // if (connectivityState.isChecking) {
-    //   await Future.delayed(const Duration(milliseconds: 1000));
-    // }
+    while (retryCount < maxRetries) {
+      // If service is still checking, wait a bit
+      final connectivityState = ref.read(connectivityProvider);
+      if (connectivityState.isChecking) {
+        await Future.delayed(const Duration(milliseconds: 800));
+        retryCount++; // Consider waiting as a "soft retry"
+        continue;
+      }
 
-    final isConnected = await _repository.checkConnectivity();
+      isConnected = await _repository.checkConnectivity();
+      if (isConnected) break;
+
+      retryCount++;
+      if (retryCount < maxRetries) {
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    }
+
     if (!isConnected) {
       state = state.copyWith(
         error: 'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة.',

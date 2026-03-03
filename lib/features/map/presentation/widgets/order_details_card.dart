@@ -1,106 +1,284 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:icons_plus/icons_plus.dart';
+import 'package:intl/intl.dart';
 import 'package:moamen_project/core/theme/app_colors.dart';
+import 'package:moamen_project/core/widgets/open_phone_number.dart';
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
+import 'package:moamen_project/features/orders/presentation/order_detail_screen.dart';
 
 class OrderDetailsCard extends StatelessWidget {
   final Order order;
+  final bool isPublicOnly;
 
-  const OrderDetailsCard({super.key, required this.order});
+  const OrderDetailsCard({
+    super.key,
+    required this.order,
+    this.isPublicOnly = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.darkCard,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Status & Priority
+          // Header: Status & Date
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildStatusChip(order.status),
-              _buildPriorityBadge(order.priority),
+              if (order.createdAt != null)
+                Text(
+                  DateFormat('yyyy/MM/dd - hh:mm a').format(order.createdAt!),
+                  style: GoogleFonts.cairo(
+                    color: AppColors.textGrey,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
             ],
+          ),
+          const SizedBox(height: 20),
+
+          // Title
+          Text(
+            order.title,
+            style: GoogleFonts.cairo(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              height: 1.2,
+            ),
           ),
           const SizedBox(height: 12),
 
-          // Description
-          Text(
-            'التفاصيل:',
-            style: GoogleFonts.cairo(
-              color: AppColors.textGrey,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
+          // Priority & Info Row
+          Row(
+            children: [
+              _buildPriorityBadge(order.priority),
+              if (order.photoUrls.isNotEmpty) ...[
+                const SizedBox(width: 14),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.primaryBlue.withOpacity(0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        HeroIcons.photo,
+                        color: AppColors.primaryBlue,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${order.photoUrls.length} صور',
+                        style: GoogleFonts.cairo(
+                          color: AppColors.primaryBlue,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 24),
+
+          // Divider
+          Divider(color: Colors.white.withOpacity(0.05), height: 1),
+          const SizedBox(height: 24),
+
+          // Description Section
+          _SectionHeader(title: 'التفاصيل:', icon: HeroIcons.document_text),
+          const SizedBox(height: 12),
           Text(
             order.description,
             style: GoogleFonts.cairo(
-              color: Colors.white,
-              fontSize: 14,
-              height: 1.4,
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 15,
+              height: 1.6,
             ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 28),
 
-          // Info Grid (Order Type, Worker, Location)
+          // Contact Section
+          if (!isPublicOnly &&
+              (order.contactName != null || order.contactPhone != null)) ...[
+            _SectionHeader(title: 'معلومات التواصل:', icon: HeroIcons.user),
+            const SizedBox(height: 12),
+            OpenPhoneNumber(
+              phone: order.contactPhone ?? '',
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.02),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.05)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        HeroIcons.phone,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            order.contactName ?? 'بدون اسم',
+                            style: GoogleFonts.cairo(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            order.contactPhone ?? 'لا يوجد رقم',
+                            style: GoogleFonts.cairo(
+                              color: AppColors.primaryBlue,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      HeroIcons.chevron_left,
+                      color: Colors.white12,
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+          ],
+
+          // Location Section
+          _SectionHeader(title: 'الموقع والعنوان:', icon: HeroIcons.map_pin),
+          const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.03),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.white.withOpacity(0.02),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withOpacity(0.05)),
             ),
             child: Column(
               children: [
-                // _buildInfoRow(
-                //   Icons.category_rounded,
-                //   'نوع الاوردر‏:',
-                //   order.orderType.name,
-                //   color: AppColors.primaryBlue,
-                // ),
-                // if (order.workerId != null) ...[
-                //   const Divider(color: Colors.white10, height: 16),
-                //   _buildInfoRow(
-                //     Icons.badge_rounded,
-                //     'معرف المندوب:',
-                //     order.workerId!,
-                //     color: Colors.orange,
-                //   ),
-                // ],
-                const Divider(color: Colors.white10, height: 16),
                 _buildInfoRow(
-                  Icons.location_city_rounded,
+                  HeroIcons.building_office_2,
                   'المنطقة:',
                   order.publicArea,
                   color: AppColors.statusCyan,
                 ),
-                // if (order.publicLandmark != null &&
-                //     order.publicLandmark!.isNotEmpty) ...[
-                //   const Divider(color: Colors.white10, height: 16),
-                //   _buildInfoRow(
-                //     Icons.flag_rounded,
-                //     'علامة مميزة:',
-                //     order.publicLandmark!,
-                //     color: AppColors.primaryPurple,
-                //   ),
-                // ],
+                if (!isPublicOnly &&
+                    order.fullAddress != null &&
+                    order.fullAddress!.isNotEmpty) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(color: Colors.white10, height: 1),
+                  ),
+                  _buildInfoRow(
+                    HeroIcons.map,
+                    'العنوان الكامل:',
+                    order.fullAddress!,
+                    color: AppColors.primaryPurple,
+                  ),
+                ],
               ],
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Action Button
+          SizedBox(
+            width: double.infinity,
+            height: 58,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: AppColors.primaryGradient,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryBlue.withOpacity(0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OrderDetailScreen(order: order),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'عرض التفاصيل كاملة',
+                      style: GoogleFonts.cairo(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Icon(
+                      HeroIcons.arrow_left,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -132,11 +310,11 @@ class OrderDetailsCard extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -156,13 +334,13 @@ class OrderDetailsCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Text(
             text,
             style: GoogleFonts.cairo(
               color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -178,36 +356,36 @@ class OrderDetailsCard extends StatelessWidget {
     switch (priority) {
       case OrderPriority.urgent:
         color = Colors.red;
-        icon = Icons.campaign_rounded;
+        icon = HeroIcons.megaphone;
         text = 'عاجل جداً';
         break;
       case OrderPriority.high:
         color = Colors.deepOrange;
-        icon = Icons.priority_high_rounded;
+        icon = HeroIcons.exclamation_triangle;
         text = 'عاجل';
         break;
       case OrderPriority.medium:
         color = Colors.orange;
-        icon = Icons.access_time_rounded;
+        icon = HeroIcons.clock;
         text = 'متوسط';
         break;
       case OrderPriority.low:
         color = AppColors.statusGreen;
-        icon = Icons.low_priority_rounded;
+        icon = HeroIcons.check_circle;
         text = 'عادي';
         break;
     }
 
     return Row(
       children: [
-        Icon(icon, color: color, size: 16),
-        const SizedBox(width: 4),
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: 8),
         Text(
           text,
           style: GoogleFonts.cairo(
             color: color,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ],
@@ -221,32 +399,66 @@ class OrderDetailsCard extends StatelessWidget {
     Color color = Colors.white,
   }) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: color, size: 16),
+          child: Icon(icon, color: color, size: 20),
         ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: GoogleFonts.cairo(color: AppColors.textGrey, fontSize: 10),
-            ),
-            Text(
-              value,
-              style: GoogleFonts.cairo(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.cairo(
+                  color: AppColors.textGrey,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: GoogleFonts.cairo(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final IconData icon;
+
+  const _SectionHeader({required this.title, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.textGrey, size: 16),
+        const SizedBox(width: 10),
+        Text(
+          title,
+          style: GoogleFonts.cairo(
+            color: AppColors.textGrey,
+            fontSize: 14,
+            fontWeight: FontWeight.w900,
+          ),
         ),
       ],
     );

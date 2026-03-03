@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
+import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/features/auth/presentation/AccountNotActiveScreen.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import 'controller/auth_provider.dart';
 import 'register_screen.dart';
 import '../../dashboard/presentation/dashboard_screen.dart';
@@ -77,12 +79,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
+
     ref.listen(authProvider, (previous, next) {
       if (next.error != null && next.error != previous?.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.error!),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: customTheme.errorColor,
           ),
         );
       }
@@ -93,24 +97,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          decoration: const BoxDecoration(
-            gradient: AppColors.backgroundGradient,
-          ),
+          decoration: BoxDecoration(gradient: customTheme.scaffoldGradient),
           child: Stack(
             children: [
-              // Close Button
-              // Positioned(
-              //   top: 50,
-              //   right: 20,
-              //   child: Container(
-              //     padding: const EdgeInsets.all(8),
-              //     decoration: BoxDecoration(
-              //       color: Colors.white.withValues(alpha: 0.1),
-              //       shape: BoxShape.circle,
-              //     ),
-              //     child: const Icon(Icons.close, color: Colors.white),
-              //   ),
-              // ),
               Center(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24.0),
@@ -126,7 +115,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.cairo(
                             fontSize: 20,
-                            color: Colors.white,
+                            color: customTheme.textPrimary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -136,7 +125,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.cairo(
                             fontSize: 48,
-                            color: Colors.white,
+                            color: customTheme.textPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -145,7 +134,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.cairo(
                             fontSize: 16,
-                            color: AppColors.textGrey,
+                            color: customTheme.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 60),
@@ -159,33 +148,49 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               Text(
                                 'رقم الهاتف',
                                 style: GoogleFonts.cairo(
-                                  color: AppColors.textGrey,
+                                  color: customTheme.textSecondary,
                                 ),
                               ),
                               const SizedBox(height: 8),
                               TextFormField(
                                 controller: _phoneController,
-                                style: const TextStyle(color: Colors.white),
+                                style: TextStyle(
+                                  color: customTheme.textPrimary,
+                                ),
                                 keyboardType: TextInputType.phone,
                                 decoration: InputDecoration(
                                   hintText: '01xxxxxxxx',
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.phone_android,
-                                    color: AppColors.textGrey,
+                                    color: customTheme.textSecondary,
                                   ),
-                                  // prefixText: '+20 ',
-                                  prefixStyle: const TextStyle(
-                                    color: Colors.white,
+                                  prefixStyle: TextStyle(
+                                    color: customTheme.textPrimary,
                                     fontSize: 16,
                                   ),
                                   hintStyle: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.3),
+                                    color: customTheme.textSecondary
+                                        .withOpacity(0.3),
                                   ),
                                   filled: true,
-                                  fillColor: AppColors.darkCard,
+                                  fillColor: customTheme.cardBackground,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: customTheme.textPrimary
+                                          .withOpacity(0.05),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: customTheme.primaryBlue,
+                                      width: 2,
+                                    ),
                                   ),
                                 ),
                                 validator: _validatePhone,
@@ -205,28 +210,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               Text(
                                 'كلمة المرور',
                                 style: GoogleFonts.cairo(
-                                  color: AppColors.textGrey,
+                                  color: customTheme.textSecondary,
                                 ),
                               ),
                               const SizedBox(height: 8),
                               TextFormField(
                                 controller: _passwordController,
-                                style: const TextStyle(color: Colors.white),
+                                style: TextStyle(
+                                  color: customTheme.textPrimary,
+                                ),
                                 obscureText: true,
                                 decoration: InputDecoration(
                                   hintText: '••••••••',
                                   hintStyle: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.3),
+                                    color: customTheme.textSecondary
+                                        .withOpacity(0.3),
                                   ),
                                   filled: true,
-                                  fillColor: AppColors.darkCard,
-                                  prefixIcon: const Icon(
+                                  fillColor: customTheme.cardBackground,
+                                  prefixIcon: Icon(
                                     Icons.lock_outline,
-                                    color: AppColors.textGrey,
+                                    color: customTheme.textSecondary,
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: customTheme.textPrimary
+                                          .withOpacity(0.05),
+                                    ),
                                   ),
                                 ),
                                 validator: _validatePassword,
@@ -237,7 +252,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 child: Text(
                                   'نسيت كلمة المرور؟',
                                   style: GoogleFonts.cairo(
-                                    color: AppColors.primaryBlue,
+                                    color:
+                                        customTheme.primaryGradient.colors[0],
                                   ),
                                 ),
                               ),
@@ -251,17 +267,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         Container(
                           height: 56,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2E66F6), Color(0xFF8B47FA)],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
+                            gradient: customTheme.primaryGradient,
                             borderRadius: BorderRadius.circular(30),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(
-                                  0xFF2E66F6,
-                                ).withValues(alpha: 0.4),
+                                color: customTheme.primaryGradient.colors[0]
+                                    .withOpacity(0.4),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -280,10 +291,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ? SizedBox(
                                     height: 24,
                                     width: 24,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
+                                    child: AnimationWidget.loadingAnimation(24),
                                   )
                                 : Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -321,7 +329,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             'ليس لديك حساب؟ إنشاء حساب جديد',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.cairo(
-                              color: AppColors.primaryBlue,
+                              color: customTheme.primaryGradient.colors[0],
                               fontWeight: FontWeight.bold,
                             ),
                           ),

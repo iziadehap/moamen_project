@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:geolocator/geolocator.dart'; // Added import for openLocationSettings
+import 'package:geolocator/geolocator.dart';
 import 'package:moamen_project/core/services/connectivity/connectivity_service.dart';
 import 'package:moamen_project/core/services/location/location_service.dart';
+import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../auth/presentation/login_screen.dart';
 import '../../dashboard/presentation/dashboard_screen.dart';
 import 'riverpod/splash_state.dart';
@@ -18,30 +19,31 @@ class SplashScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(splashProvider);
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
 
     // Listen for navigation only
     ref.listen<SplashState>(splashProvider, (previous, next) {
       if (next.progress == 1.0 && next.error == null) {
+        if (!context.mounted) return;
+
         final session = Supabase.instance.client.auth.currentSession;
 
         if (session != null) {
-          // Enable connectivity and location services
           ref.read(connectivityProvider.notifier).enable();
           ref.read(locationProvider.notifier).enable();
 
-          // get user profile from supabase
           ref.read(splashProvider.notifier).getUserProfile().then((value) {
-            // User is logged in
+            if (!context.mounted) return;
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (_) => const DashboardScreen()),
             );
           });
         } else {
-          // Enable connectivity and location services for Login Screen
           ref.read(connectivityProvider.notifier).enable();
           ref.read(locationProvider.notifier).enable();
-          // Not logged in
+
+          if (!context.mounted) return;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -52,7 +54,7 @@ class SplashScreen extends ConsumerWidget {
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        decoration: BoxDecoration(gradient: customTheme.scaffoldGradient),
         child: Stack(
           children: [
             // Background Pattern
@@ -64,7 +66,7 @@ class SplashScreen extends ConsumerWidget {
                     crossAxisCount: 6,
                   ),
                   itemBuilder: (context, index) =>
-                      const Icon(Icons.add, color: Colors.white),
+                      Icon(Icons.add, color: customTheme.textPrimary),
                   itemCount: 100,
                 ),
               ),
@@ -72,8 +74,8 @@ class SplashScreen extends ConsumerWidget {
 
             Center(
               child: state.error != null
-                  ? _buildErrorState(ref, state)
-                  : _buildLoadingState(state),
+                  ? _buildErrorState(ref, state, customTheme)
+                  : _buildLoadingState(state, customTheme),
             ),
           ],
         ),
@@ -81,40 +83,57 @@ class SplashScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLoadingState(SplashState state) {
+  Widget _buildLoadingState(
+    SplashState state,
+    CustomThemeExtension customTheme,
+  ) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Logo
         Container(
-          padding: const EdgeInsets.all(24),
+          width: 150,
+          height: 150,
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.primaryBlue.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-            boxShadow: AppColors.glowShadow,
+            color: customTheme.cardBackground,
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: customTheme.primaryBlue.withOpacity(0.2),
+                blurRadius: 30,
+                spreadRadius: 5,
+              ),
+            ],
           ),
-          child: const Icon(
-            Icons.local_shipping_rounded,
-            size: 64,
-            color: AppColors.primaryBlue,
-          ),
+          child: AnimationWidget.hiAnimation(50),
         ),
         const SizedBox(height: 32),
-        Text(
-          'نظام التوصيل الذكي',
-          style: GoogleFonts.cairo(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        Text(
-          'SMART LOGISTICS 2026',
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            letterSpacing: 4,
-            color: AppColors.textGrey,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Scrapekia',
+              style: GoogleFonts.outfit(
+                fontSize: 42,
+                fontWeight: FontWeight.w900,
+                color: customTheme.textPrimary,
+                letterSpacing: -1,
+              ),
+            ),
+            const SizedBox(width: 16),
+            SizedBox(
+              width: 60,
+              height: 60,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32),
+                child: Image.asset(
+                  'assets/images/app_icon.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 60),
         // Status Cards
@@ -124,9 +143,11 @@ class SplashScreen extends ConsumerWidget {
           margin: const EdgeInsets.symmetric(horizontal: 24),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.darkCard.withValues(alpha: 0.5),
+            color: customTheme.cardBackground.withOpacity(0.5),
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+            border: Border.all(
+              color: customTheme.textPrimary.withOpacity(0.05),
+            ),
           ),
           child: Column(
             children: [
@@ -135,15 +156,20 @@ class SplashScreen extends ConsumerWidget {
                 'Network Check...',
                 Icons.wifi,
                 state.internetChecked,
-                AppColors.statusGreen,
+                customTheme.statusGreen,
+                customTheme,
               ),
-              const Divider(color: Colors.white10, height: 32),
+              Divider(
+                color: customTheme.textPrimary.withOpacity(0.05),
+                height: 32,
+              ),
               _buildStatusRow(
                 'صلاحية الموقع (GPS)',
                 'Location Access...',
                 Icons.navigation,
                 state.gpsChecked,
-                AppColors.primaryBlue,
+                customTheme.primaryBlue,
+                customTheme,
               ),
             ],
           ),
@@ -159,11 +185,11 @@ class SplashScreen extends ConsumerWidget {
                 children: [
                   Text(
                     '${(state.progress * 100).toInt()}%',
-                    style: const TextStyle(color: AppColors.primaryBlue),
+                    style: TextStyle(color: customTheme.primaryBlue),
                   ),
                   Text(
                     'جاري التحقق...',
-                    style: GoogleFonts.cairo(color: Colors.white),
+                    style: GoogleFonts.cairo(color: customTheme.textPrimary),
                   ),
                 ],
               ),
@@ -177,8 +203,8 @@ class SplashScreen extends ConsumerWidget {
                   builder: (context, value, child) {
                     return LinearProgressIndicator(
                       value: value,
-                      backgroundColor: AppColors.darkCard,
-                      color: AppColors.primaryBlue,
+                      backgroundColor: customTheme.cardBackground,
+                      color: customTheme.primaryBlue,
                       minHeight: 6,
                     );
                   },
@@ -191,7 +217,11 @@ class SplashScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(WidgetRef ref, SplashState state) {
+  Widget _buildErrorState(
+    WidgetRef ref,
+    SplashState state,
+    CustomThemeExtension customTheme,
+  ) {
     final error = state.error ?? '';
     return Padding(
       padding: const EdgeInsets.all(32.0),
@@ -201,12 +231,12 @@ class SplashScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.redAccent.withValues(alpha: 0.1),
+              color: customTheme.errorColor.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.error_outline_rounded,
-              color: Colors.redAccent,
+              color: customTheme.errorColor,
               size: 80,
             ),
           ),
@@ -216,14 +246,17 @@ class SplashScreen extends ConsumerWidget {
             style: GoogleFonts.cairo(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: customTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             error,
             textAlign: TextAlign.center,
-            style: GoogleFonts.cairo(fontSize: 16, color: AppColors.textGrey),
+            style: GoogleFonts.cairo(
+              fontSize: 16,
+              color: customTheme.textSecondary,
+            ),
           ),
           const SizedBox(height: 48),
 
@@ -234,7 +267,7 @@ class SplashScreen extends ConsumerWidget {
             child: ElevatedButton(
               onPressed: () => ref.read(splashProvider.notifier).retry(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryBlue,
+                backgroundColor: customTheme.primaryBlue,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -276,8 +309,8 @@ class SplashScreen extends ConsumerWidget {
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primaryBlue,
-                  side: const BorderSide(color: AppColors.primaryBlue),
+                  foregroundColor: customTheme.primaryBlue,
+                  side: BorderSide(color: customTheme.primaryBlue),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -287,7 +320,7 @@ class SplashScreen extends ConsumerWidget {
 
             if (state.solveError == 'permission') ...[
               const SizedBox(height: 24),
-              _buildPermissionGuide(),
+              _buildPermissionGuide(customTheme),
             ],
           ],
         ],
@@ -295,7 +328,7 @@ class SplashScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPermissionGuide() {
+  Widget _buildPermissionGuide(CustomThemeExtension customTheme) {
     final steps = [
       'اضغط على زر (فتح إعدادات التطبيق) أعلاه',
       'اختر قسم (الأذونات / Permissions)',
@@ -306,9 +339,9 @@ class SplashScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: customTheme.textPrimary.withOpacity(0.05),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -319,15 +352,15 @@ class SplashScreen extends ConsumerWidget {
               Text(
                 'كيفية تفعيل الصلاحية؟',
                 style: GoogleFonts.cairo(
-                  color: Colors.white,
+                  color: customTheme.textPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(
+              Icon(
                 Icons.info_outline,
-                color: AppColors.primaryBlue,
+                color: customTheme.primaryBlue,
                 size: 20,
               ),
             ],
@@ -345,7 +378,7 @@ class SplashScreen extends ConsumerWidget {
                       entry.value,
                       textAlign: TextAlign.right,
                       style: GoogleFonts.cairo(
-                        color: AppColors.textGrey,
+                        color: customTheme.textSecondary,
                         fontSize: 14,
                       ),
                     ),
@@ -354,8 +387,8 @@ class SplashScreen extends ConsumerWidget {
                   Container(
                     width: 24,
                     height: 24,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primaryBlue,
+                    decoration: BoxDecoration(
+                      color: customTheme.primaryBlue,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -384,6 +417,7 @@ class SplashScreen extends ConsumerWidget {
     IconData icon,
     bool checked,
     Color activeColor,
+    CustomThemeExtension customTheme,
   ) {
     return Row(
       children: [
@@ -391,12 +425,14 @@ class SplashScreen extends ConsumerWidget {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: checked ? activeColor : Colors.grey.shade800,
+            color: checked
+                ? activeColor
+                : customTheme.textPrimary.withOpacity(0.1),
             shape: BoxShape.circle,
             boxShadow: checked
                 ? [
                     BoxShadow(
-                      color: activeColor.withValues(alpha: 0.5),
+                      color: activeColor.withOpacity(0.5),
                       blurRadius: 10,
                     ),
                   ]
@@ -410,14 +446,14 @@ class SplashScreen extends ConsumerWidget {
             Text(
               title,
               style: GoogleFonts.cairo(
-                color: Colors.white,
+                color: customTheme.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
               subtitle,
-              style: const TextStyle(color: AppColors.textGrey, fontSize: 12),
+              style: TextStyle(color: customTheme.textSecondary, fontSize: 12),
             ),
           ],
         ),
@@ -425,11 +461,13 @@ class SplashScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.midnightNavy,
+            color: customTheme.cardBackground,
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white10),
+            border: Border.all(
+              color: customTheme.textPrimary.withOpacity(0.05),
+            ),
           ),
-          child: Icon(icon, color: Colors.white, size: 20),
+          child: Icon(icon, color: customTheme.textPrimary, size: 20),
         ),
       ],
     );

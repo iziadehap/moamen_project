@@ -1,10 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:moamen_project/core/utils/fake_email.dart';
-import 'package:moamen_project/core/utils/cash.dart';
 import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:bcrypt/bcrypt.dart';
 import '../../../../core/services/supabase_service.dart';
 import '../../data/models/user_model.dart';
 import 'auth_state.dart';
@@ -281,7 +279,6 @@ class AuthNotifier extends Notifier<AppAuthState> {
   //     state = state.copyWith(isLoading: false);
   //   }
   // }
-
 
   void setUser(UserModel user) {
     state = state.copyWith(user: user, error: null);

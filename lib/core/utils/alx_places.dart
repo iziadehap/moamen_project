@@ -1,0 +1,73 @@
+class AlexPlace {
+  final String name;
+  final double lat;
+  final double lng;
+  final String zone;
+
+  AlexPlace({
+    required this.name,
+    required this.lat,
+    required this.lng,
+    required this.zone,
+  });
+}
+
+final List<AlexPlace> alexPlaces = [
+  AlexPlace(name: "أبو قير", lat: 31.3200, lng: 30.0650, zone: "Montaza"),
+  AlexPlace(name: "الأزاريطة", lat: 31.2090, lng: 29.9080, zone: "East"),
+  AlexPlace(name: "الأنفوشي", lat: 31.2140, lng: 29.8850, zone: "Center"),
+  AlexPlace(name: "الإبراهيمية", lat: 31.2130, lng: 29.9280, zone: "East"),
+  AlexPlace(name: "البيطاش", lat: 31.1300, lng: 29.7900, zone: "West"),
+  AlexPlace(name: "الحضرة", lat: 31.2000, lng: 29.9350, zone: "Center"),
+  AlexPlace(name: "الدخيلة", lat: 31.1380, lng: 29.8250, zone: "West"),
+  AlexPlace(name: "السيوف", lat: 31.2480, lng: 30.0080, zone: "East"),
+  AlexPlace(name: "الشاطبي", lat: 31.2075, lng: 29.9150, zone: "East"),
+  AlexPlace(name: "العصافرة", lat: 31.2750, lng: 30.0100, zone: "Montaza"),
+  AlexPlace(name: "العطارين", lat: 31.1945, lng: 29.9000, zone: "Center"),
+  AlexPlace(name: "العجمي", lat: 31.1250, lng: 29.7850, zone: "West"),
+  AlexPlace(name: "العامرية", lat: 30.9990, lng: 29.8150, zone: "West"),
+  AlexPlace(name: "العوايد", lat: 31.2230, lng: 30.0010, zone: "East"),
+  AlexPlace(name: "القباري", lat: 31.1750, lng: 29.8680, zone: "West"),
+  AlexPlace(name: "اللبان", lat: 31.1980, lng: 29.8850, zone: "Center"),
+  AlexPlace(name: "المراغي", lat: 31.2250, lng: 30.0350, zone: "East"),
+  AlexPlace(name: "المعمورة", lat: 31.2950, lng: 30.0450, zone: "Montaza"),
+  AlexPlace(name: "المكس", lat: 31.1550, lng: 29.8450, zone: "West"),
+  AlexPlace(name: "المندرة", lat: 31.2800, lng: 30.0180, zone: "Montaza"),
+  AlexPlace(name: "المنتزة", lat: 31.2870, lng: 30.0220, zone: "Montaza"),
+  AlexPlace(name: "المنشية", lat: 31.1990, lng: 29.8940, zone: "Center"),
+  AlexPlace(name: "الورديان", lat: 31.1680, lng: 29.8550, zone: "West"),
+  AlexPlace(name: "باكوس", lat: 31.2400, lng: 29.9800, zone: "East"),
+  AlexPlace(name: "برج العرب", lat: 30.8858, lng: 29.5620, zone: "West"),
+  AlexPlace(
+    name: "برج العرب الجديدة",
+    lat: 30.9167,
+    lng: 29.5833,
+    zone: "West",
+  ),
+  AlexPlace(name: "بولكلي", lat: 31.2355, lng: 29.9590, zone: "East"),
+  AlexPlace(name: "جليم", lat: 31.2420, lng: 29.9650, zone: "East"),
+  AlexPlace(name: "الجمرك", lat: 31.2085, lng: 29.8845, zone: "Center"),
+  AlexPlace(name: "خورشيد", lat: 31.2100, lng: 30.0450, zone: "East"),
+  AlexPlace(name: "رشدي", lat: 31.2330, lng: 29.9550, zone: "East"),
+  AlexPlace(name: "زيزينيا", lat: 31.2435, lng: 29.9690, zone: "East"),
+  AlexPlace(name: "سان ستيفانو", lat: 31.2465, lng: 29.9710, zone: "East"),
+  AlexPlace(name: "سبورتنج", lat: 31.2190, lng: 29.9350, zone: "East"),
+  AlexPlace(name: "ستانلي", lat: 31.2355, lng: 29.9480, zone: "East"),
+  AlexPlace(name: "سموحة", lat: 31.2170, lng: 29.9570, zone: "East"),
+  AlexPlace(name: "سيدي بشر", lat: 31.2610, lng: 29.9930, zone: "Montaza"),
+  AlexPlace(name: "سيدي جابر", lat: 31.2320, lng: 29.9480, zone: "East"),
+  AlexPlace(name: "فيكتوريا", lat: 31.2440, lng: 29.9860, zone: "East"),
+  AlexPlace(name: "فليمنج", lat: 31.2410, lng: 29.9640, zone: "East"),
+  AlexPlace(name: "كامب شيزار", lat: 31.2100, lng: 29.9250, zone: "East"),
+  AlexPlace(name: "كرموز", lat: 31.1870, lng: 29.8960, zone: "Center"),
+  AlexPlace(name: "كفر عبده", lat: 31.2260, lng: 29.9540, zone: "East"),
+  AlexPlace(name: "كليوباترا", lat: 31.2210, lng: 29.9400, zone: "East"),
+  AlexPlace(name: "كوم الدكة", lat: 31.1960, lng: 29.9060, zone: "Center"),
+  AlexPlace(name: "كينج مريوط", lat: 31.0125, lng: 29.7450, zone: "West"),
+  AlexPlace(name: "لوران", lat: 31.2480, lng: 29.9750, zone: "East"),
+  AlexPlace(name: "محطة الرمل", lat: 31.2005, lng: 29.9000, zone: "Center"),
+  AlexPlace(name: "محرم بك", lat: 31.1930, lng: 29.9150, zone: "Center"),
+  AlexPlace(name: "مرغم", lat: 31.0550, lng: 29.8100, zone: "West"),
+  AlexPlace(name: "ميامي", lat: 31.2650, lng: 30.0010, zone: "Montaza"),
+  AlexPlace(name: "الهانوفيل", lat: 31.1150, lng: 29.7650, zone: "West"),
+];

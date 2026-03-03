@@ -4,7 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:moamen_project/core/theme/app_colors.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 
 class LocationResult {
   final LatLng location;
@@ -77,8 +77,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.midnightNavy,
+      backgroundColor: customTheme.background,
       body: SafeArea(
         child: Stack(
           children: [
@@ -103,8 +106,12 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.moamen_project',
+                  urlTemplate: isDarkMode
+                      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                      : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+                  subdomains: const ['a', 'b', 'c', 'd'],
+                  userAgentPackageName: 'com.moamen.project',
+                  retinaMode: RetinaMode.isHighDensity(context),
                 ),
                 if (widget.isReadOnly)
                   MarkerLayer(
@@ -113,9 +120,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                         point: _selectedLocation,
                         width: 80,
                         height: 80,
-                        child: const Icon(
+                        child: Icon(
                           Icons.location_on_rounded,
-                          color: Colors.redAccent,
+                          color: customTheme.errorColor,
                           size: 45,
                         ),
                       ),
@@ -134,7 +141,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     children: [
                       Icon(
                         Icons.location_on_rounded,
-                        color: Colors.redAccent,
+                        color: customTheme.errorColor,
                         size: 45,
                         shadows: [
                           Shadow(
@@ -147,8 +154,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       Container(
                         width: 4,
                         height: 4,
-                        decoration: const BoxDecoration(
-                          color: Colors.black12,
+                        decoration: BoxDecoration(
+                          color: customTheme.textPrimary.withOpacity(0.12),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -167,12 +174,14 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.midnightNavy.withOpacity(0.7),
+                    color: customTheme.cardBackground.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.white10),
+                    border: Border.all(
+                      color: customTheme.textPrimary.withOpacity(0.1),
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withOpacity(0.1),
                         blurRadius: 10,
                       ),
                     ],
@@ -181,11 +190,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircleAvatar(
-                        backgroundColor: Colors.white.withOpacity(0.1),
+                        backgroundColor: customTheme.textPrimary.withOpacity(
+                          0.1,
+                        ),
                         child: IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.arrow_back_ios_new,
-                            color: Colors.white,
+                            color: customTheme.textPrimary,
                             size: 18,
                           ),
                           onPressed: () => Navigator.pop(context),
@@ -195,7 +206,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       Text(
                         widget.isReadOnly ? 'عرض الموقع' : 'تحديد الموقع',
                         style: GoogleFonts.cairo(
-                          color: Colors.white,
+                          color: customTheme.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -216,16 +227,18 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppColors.midnightNavy.withOpacity(0.95),
+                    color: customTheme.cardBackground,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.4),
+                        color: Colors.black.withOpacity(isDarkMode ? 0.4 : 0.1),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
                     ],
-                    border: Border.all(color: Colors.white10),
+                    border: Border.all(
+                      color: customTheme.textPrimary.withOpacity(0.1),
+                    ),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -237,7 +250,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                             width: 40,
                             height: 4,
                             decoration: BoxDecoration(
-                              color: Colors.white10,
+                              color: customTheme.textPrimary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -247,7 +260,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       Text(
                         'الإحداثيات المختارة',
                         style: GoogleFonts.cairo(
-                          color: AppColors.primaryBlue,
+                          color: customTheme.primaryBlue,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -257,7 +270,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                         '${_selectedLocation.latitude.toStringAsFixed(6)}, ${_selectedLocation.longitude.toStringAsFixed(6)}',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.cairo(
-                          color: Colors.white,
+                          color: customTheme.textPrimary,
                           fontSize: 14,
                           height: 1.5,
                         ),
@@ -271,16 +284,25 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: AppColors.midnightNavy,
+                                color: customTheme.cardBackground,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: AppColors.primaryBlue.withOpacity(0.5),
+                                  color: customTheme.primaryBlue.withOpacity(
+                                    0.5,
+                                  ),
                                 ),
-                                boxShadow: AppColors.glowShadow,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: customTheme.primaryBlue.withOpacity(
+                                      0.2,
+                                    ),
+                                    blurRadius: 10,
+                                  ),
+                                ],
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.my_location_rounded,
-                                color: AppColors.primaryBlue,
+                                color: customTheme.primaryBlue,
                                 size: 24,
                               ),
                             ),
@@ -299,7 +321,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                                       );
                                     },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryBlue,
+                                backgroundColor: customTheme.primaryBlue,
                                 foregroundColor: Colors.white,
                                 minimumSize: const Size(double.infinity, 56),
                                 shape: RoundedRectangleBorder(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moamen_project/core/theme/app_colors.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
 
 class OrderStatusHelper {
@@ -16,16 +16,19 @@ class OrderStatusHelper {
     }
   }
 
-  static Color getStatusColor(OrderStatus status) {
+  static Color getStatusColor(
+    OrderStatus status,
+    CustomThemeExtension customTheme,
+  ) {
     switch (status) {
       case OrderStatus.pending:
-        return Colors.green;
+        return customTheme.statusCyan;
       case OrderStatus.accepted:
-        return AppColors.primaryBlue;
+        return customTheme.primaryBlue;
       case OrderStatus.completed:
-        return Colors.brown;
+        return customTheme.statusGreen;
       case OrderStatus.cancelled:
-        return Colors.redAccent;
+        return customTheme.errorColor;
     }
   }
 
@@ -38,7 +41,7 @@ class OrderStatusHelper {
       case OrderStatus.completed:
         return 'تم توصيل الاوردر بنجاح';
       case OrderStatus.cancelled:
-        return 'تم إلغاء الاوردر ولن يتم توصيله';
+        return 'تم إلغاء الاوردر';
     }
   }
 }

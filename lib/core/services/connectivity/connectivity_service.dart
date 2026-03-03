@@ -44,6 +44,7 @@ class ConnectivityNotifier extends Notifier<ConnectivityState> {
     return const ConnectivityState(
       status: ConnectivityResult.none,
       isEnabled: false,
+      isChecking: true,
     );
   }
 

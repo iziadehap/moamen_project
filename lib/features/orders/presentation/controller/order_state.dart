@@ -4,6 +4,7 @@ import 'package:moamen_project/features/orders/data/models/order_model.dart';
 
 class OrderState {
   final List<Order> orders;
+  final HintError? hintError;
   final bool isLoading;
   final bool isError;
   final String errorMessage;
@@ -13,6 +14,7 @@ class OrderState {
 
   OrderState({
     this.orders = const [],
+    this.hintError,
     this.isLoading = false,
     this.isError = false,
     this.errorMessage = '',
@@ -23,15 +25,18 @@ class OrderState {
 
   OrderState copyWith({
     List<Order>? orders,
+    HintError? hintError,
     bool? isLoading,
     bool? isError,
     String? errorMessage,
     bool? hasFetched,
     List<String>? photoUrls,
     List<File>? localPhotos,
+    bool clearHintError = false,
   }) {
     return OrderState(
       orders: orders ?? this.orders,
+      hintError: clearHintError ? null : (hintError ?? this.hintError),
       isLoading: isLoading ?? this.isLoading,
       isError: isError ?? this.isError,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -40,4 +45,11 @@ class OrderState {
       localPhotos: localPhotos ?? this.localPhotos,
     );
   }
+}
+
+class HintError {
+  final String message;
+  final String description;
+
+  HintError({required this.message, required this.description});
 }

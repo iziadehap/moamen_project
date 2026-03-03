@@ -67,9 +67,12 @@ class Order {
       // workerName: json['worker_name'] as String?,
       publicArea: json['public_area'] as String,
       //   publicLandmark: json['public_landmark'] as String?,
-      availability: (json['availability'] as List<dynamic>)
-          .map((e) => e as Map<String, dynamic>)
-          .toList(),
+      availability:
+          (json['availability'] as List<dynamic>?)
+              ?.map((e) => e as Map<String, dynamic>?)
+              .whereType<Map<String, dynamic>>()
+              .toList() ??
+          [],
       fullAddress: json['full_address'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
@@ -84,10 +87,11 @@ class Order {
       acceptedAt: json['accepted_at'] != null
           ? DateTime.parse(json['accepted_at'])
           : null,
-     photoUrls: (json['photo_urls'] as List<dynamic>?)
-        ?.map((e) => e.toString())
-        .toList() ?? [],
-
+      photoUrls:
+          (json['photo_urls'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
     );
   }
 
@@ -120,6 +124,46 @@ class Order {
     }
 
     return data;
+  }
+
+  Order copyWith({
+    String? id,
+    String? title,
+    String? description,
+    OrderStatus? status,
+    OrderPriority? priority,
+    String? workerId,
+    String? publicArea,
+    List<Map<String, dynamic>>? availability,
+    String? fullAddress,
+    double? latitude,
+    double? longitude,
+    String? contactName,
+    String? contactPhone,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? acceptedAt,
+    List<String>? photoUrls,
+  }) {
+    return Order(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      status: status ?? this.status,
+      priority: priority ?? this.priority,
+      workerId: workerId ?? this.workerId,
+      publicArea: publicArea ?? this.publicArea,
+      availability: availability ?? this.availability,
+      fullAddress: fullAddress ?? this.fullAddress,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      contactName: contactName ?? this.contactName,
+      contactPhone: contactPhone ?? this.contactPhone,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      acceptedAt: acceptedAt ?? this.acceptedAt,
+      photoUrls: photoUrls ?? this.photoUrls,
+    );
   }
 }
 

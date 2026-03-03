@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../auth/presentation/controller/auth_provider.dart';
+import 'package:moamen_project/core/widgets/animation_widget.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../data/priceList_model.dart';
 import '../controller/priceList_provider.dart';
+import '../widgets/widgets.dart';
 
 class AddPriceListScreen extends ConsumerStatefulWidget {
   final PriceListModel? service;
@@ -23,6 +24,24 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
 
   bool get isEdit => widget.service != null;
 
+  bool get _hasChanges {
+    final state = ref.read(priceProvider);
+    if (!isEdit) {
+      return _titleController.text.isNotEmpty ||
+          _priceController.text.isNotEmpty ||
+          state.localPhotos.isNotEmpty;
+    }
+    final s = widget.service!;
+    final price = double.tryParse(_priceController.text) ?? 0.0;
+    return _titleController.text != s.title ||
+        price != s.price ||
+        _descriptionController.text != s.description ||
+        _isActive != s.isActive ||
+        state.localPhotos.isNotEmpty ||
+        state.photoUrls.length != s.photoUrls.length ||
+        state.photoUrls.any((url) => !s.photoUrls.contains(url));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +53,13 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
       text: widget.service?.description,
     );
     _isActive = widget.service?.isActive ?? true;
+
+    // Initialize photo state
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(priceProvider.notifier)
+          .setPhotoUrls(widget.service?.photoUrls ?? []);
+    });
   }
 
   @override
@@ -48,42 +74,46 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final price = double.tryParse(_priceController.text) ?? 0.0;
-    final adminId = ref.read(authProvider).user?.id;
+    final notifier = ref.read(priceProvider.notifier);
+    final state = ref.read(priceProvider);
 
-    if (adminId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('خطأ: لم يتم العثور على بيانات المشرف')),
-      );
-      return;
+    // 1. Upload new photos if any
+    List<String> newUrls = [];
+    if (state.localPhotos.isNotEmpty) {
+      newUrls = await notifier.uploadAllPhotos();
+      if (newUrls.isEmpty && state.localPhotos.isNotEmpty) {
+        // Error already handled in notifier
+        return;
+      }
     }
 
+    // 2. Combine with existing photos
+    final totalPhotoUrls = [...state.photoUrls, ...newUrls];
+
     if (isEdit) {
-      await ref
-          .read(priceProvider.notifier)
-          .updatePriceItem(
-            adminId: adminId,
-            priceId: widget.service!.id,
-            title: _titleController.text,
-            price: price,
-            description: _descriptionController.text,
-            isActive: _isActive,
-          );
+      await notifier.updatePriceItem(
+        priceId: widget.service!.id,
+        title: _titleController.text,
+        price: price,
+        description: _descriptionController.text,
+        photoUrls: totalPhotoUrls,
+        isActive: _isActive,
+      );
     } else {
-      await ref
-          .read(priceProvider.notifier)
-          .addPriceItem(
-            adminId: adminId,
-            title: _titleController.text,
-            price: price,
-            description: _descriptionController.text,
-            isActive: _isActive,
-          );
+      await notifier.addPriceItem(
+        title: _titleController.text,
+        price: price,
+        description: _descriptionController.text,
+        photoUrls: totalPhotoUrls,
+        isActive: _isActive,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final priceState = ref.watch(priceProvider);
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
 
     ref.listen(priceProvider, (previous, next) {
       if (next.isSuccess && !(previous?.isSuccess ?? false)) {
@@ -92,7 +122,7 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
             content: Text(
               isEdit ? 'تم تعديل الخدمة بنجاح' : 'تم إضافة الخدمة بنجاح',
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: customTheme.statusGreen,
           ),
         );
         ref.read(priceProvider.notifier).resetActionState();
@@ -108,9 +138,10 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
     });
 
     return Scaffold(
+      backgroundColor: customTheme.background,
       body: Container(
         height: double.infinity,
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        decoration: BoxDecoration(gradient: customTheme.scaffoldGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -121,9 +152,9 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_back_ios_new,
-                        color: Colors.white,
+                        color: customTheme.textPrimary,
                       ),
                     ),
                     Expanded(
@@ -133,7 +164,7 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                         style: GoogleFonts.cairo(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: customTheme.textPrimary,
                         ),
                       ),
                     ),
@@ -150,24 +181,28 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _buildLabel('اسم الخدمة'),
+                        _buildLabel('اسم الخدمة', customTheme),
                         const SizedBox(height: 8),
                         _buildTextField(
                           controller: _titleController,
                           hint: 'مثال: توصيل سريع داخل المدينة',
                           icon: Icons.title_rounded,
+                          customTheme: customTheme,
+                          onChanged: (_) => setState(() {}),
                           validator: (v) =>
                               v!.isEmpty ? 'اسم الخدمة مطلوب' : null,
                         ),
 
                         const SizedBox(height: 20),
 
-                        _buildLabel('السعر (ج.م)'),
+                        _buildLabel('السعر (ج.م)', customTheme),
                         const SizedBox(height: 8),
                         _buildTextField(
                           controller: _priceController,
                           hint: 'مثال: 50.0',
                           icon: Icons.attach_money_rounded,
+                          customTheme: customTheme,
+                          onChanged: (_) => setState(() {}),
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
@@ -181,12 +216,14 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
 
                         const SizedBox(height: 20),
 
-                        _buildLabel('الوصف'),
+                        _buildLabel('الوصف', customTheme),
                         const SizedBox(height: 8),
                         _buildTextField(
                           controller: _descriptionController,
                           hint: 'اكتب وصفاً مختصراً للخدمة...',
                           icon: Icons.description_outlined,
+                          customTheme: customTheme,
+                          onChanged: (_) => setState(() {}),
                           maxLines: 4,
                           validator: (v) => v!.isEmpty ? 'الوصف مطلوب' : null,
                         ),
@@ -200,10 +237,10 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.darkCard,
+                            color: customTheme.cardBackground,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.05),
+                              color: customTheme.textPrimary.withOpacity(0.05),
                             ),
                           ),
                           child: Row(
@@ -213,8 +250,8 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                                     ? Icons.visibility_rounded
                                     : Icons.visibility_off_rounded,
                                 color: _isActive
-                                    ? AppColors.statusGreen
-                                    : AppColors.textGrey,
+                                    ? customTheme.successColor
+                                    : customTheme.textSecondary,
                               ),
                               const SizedBox(width: 16),
                               Expanded(
@@ -224,7 +261,7 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                                     Text(
                                       'حالة الخدمة',
                                       style: GoogleFonts.cairo(
-                                        color: Colors.white,
+                                        color: customTheme.textPrimary,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -234,7 +271,7 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                                           ? 'الخدمة تظهر للعملاء'
                                           : 'الخدمة مخفية عن العملاء',
                                       style: GoogleFonts.cairo(
-                                        color: AppColors.textGrey,
+                                        color: customTheme.textSecondary,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -243,7 +280,7 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                               ),
                               Switch.adaptive(
                                 value: _isActive,
-                                activeColor: AppColors.statusGreen,
+                                activeColor: customTheme.successColor,
                                 onChanged: (value) {
                                   setState(() => _isActive = value);
                                 },
@@ -252,50 +289,76 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                           ),
                         ),
 
+                        const SizedBox(height: 24),
+                        uplodePhotoWidget(),
                         const SizedBox(height: 60),
 
                         // Save Button
-                        Container(
-                          height: 56,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2E66F6), Color(0xFF8B47FA)],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(
-                                  0xFF2E66F6,
-                                ).withValues(alpha: 0.4),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            onPressed: priceState.isLoading ? null : _savePrice,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
+                        Builder(
+                          builder: (context) {
+                            final isEnabled =
+                                !priceState.isLoading &&
+                                (!isEdit || _hasChanges);
+                            return Container(
+                              height: 56,
+                              decoration: BoxDecoration(
+                                gradient: isEnabled
+                                    ? customTheme.primaryGradient
+                                    : LinearGradient(
+                                        colors: [
+                                          customTheme.textSecondary.withOpacity(
+                                            0.2,
+                                          ),
+                                          customTheme.textSecondary.withOpacity(
+                                            0.1,
+                                          ),
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
                                 borderRadius: BorderRadius.circular(30),
+                                boxShadow: isEnabled
+                                    ? [
+                                        BoxShadow(
+                                          color: customTheme.primaryBlue
+                                              .withOpacity(0.4),
+                                          blurRadius: 20,
+                                          offset: const Offset(0, 10),
+                                        ),
+                                      ]
+                                    : null,
                               ),
-                            ),
-                            child: priceState.isLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
-                                : Text(
-                                    isEdit ? 'حفظ التعديلات' : 'حفظ الخدمة',
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
+                              child: ElevatedButton(
+                                onPressed: isEnabled ? _savePrice : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
                                   ),
-                          ),
+                                ),
+                                child: priceState.isLoading
+                                    ?  Center(
+                                        child: SizedBox(
+                                          height: 24,
+                                          width: 24,
+                                          child:
+                                              AnimationWidget.loadingAnimation(
+                                                24,
+                                              )
+                                        ),
+                                      )
+                                    : Text(
+                                        isEdit ? 'حفظ التعديلات' : 'حفظ السعر ',
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -309,10 +372,10 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(String text, CustomThemeExtension customTheme) {
     return Text(
       text,
-      style: GoogleFonts.cairo(color: AppColors.textGrey, fontSize: 16),
+      style: GoogleFonts.cairo(color: customTheme.textSecondary, fontSize: 16),
     );
   }
 
@@ -320,25 +383,38 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
     required TextEditingController controller,
     required String hint,
     required IconData icon,
+    required CustomThemeExtension customTheme,
     int maxLines = 1,
     TextInputType? keyboardType,
+    void Function(String)? onChanged,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
-      style: const TextStyle(color: Colors.white),
+      onChanged: onChanged,
+      style: TextStyle(color: customTheme.textPrimary),
       validator: validator,
       maxLines: maxLines,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+        hintStyle: TextStyle(color: customTheme.textPrimary.withOpacity(0.3)),
         filled: true,
-        fillColor: AppColors.darkCard,
-        prefixIcon: Icon(icon, color: AppColors.textGrey),
+        fillColor: customTheme.cardBackground,
+        prefixIcon: Icon(icon, color: customTheme.textSecondary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: customTheme.textPrimary.withOpacity(0.05),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: customTheme.primaryBlue, width: 2),
         ),
       ),
     );

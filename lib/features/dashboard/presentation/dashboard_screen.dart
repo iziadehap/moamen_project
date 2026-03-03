@@ -1,243 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:moamen_project/core/utils/supabase_text.dart';
-import 'package:moamen_project/features/adminDashbord/presentation/admin_dash.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:moamen_project/features/map/presentation/map_screen.dart';
 import 'package:moamen_project/features/orders/presentation/orders_screen.dart';
-import 'package:moamen_project/features/settings/presentation/settings_screen.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../orders/presentation/add_order_screen.dart';
+import 'package:moamen_project/features/settings/presentation/profile_screen.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import '../../pricelist/presentation/screens/price_list_screen.dart';
-import '../../../features/auth/presentation/controller/auth_provider.dart';
-import 'widgets/dashboard_card.dart';
+import 'controller/nav_notifier.dart';
 
-class DashboardScreen extends ConsumerStatefulWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIndex = ref.watch(navIndexProvider);
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  @override
-  Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
-    final user = authState.user;
-    final isAdmin = user?.role == SupabaseAccountTyps.admin;
-    print('user: $user');
-    print('isAdmin: $isAdmin');
-    print('isAdmin: ${user?.role}');
-    print('isAdmin: ${user?.id}');
-    print('isAdmin: ${user?.name}');
-    print('isAdmin: ${user?.maxOrders}');
-    print('isAdmin: ${user?.phone}');
+    final List<Widget> screens = [
+      const OrdersScreen(),
+      const PriceListScreen(),
+      const MapScreen(),
+      const ProfileScreen(),
+    ];
+
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
 
     return Scaffold(
-      backgroundColor: AppColors.midnightNavy,
-      body: Container(
-        height: double.infinity,
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                // Custom Premium Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'مرحباً بك،',
-                          style: GoogleFonts.cairo(
-                            fontSize: 16,
-                            color: AppColors.textGrey,
-                          ),
-                        ),
-                        Text(
-                          user?.name ?? 'المستخدم',
-                          style: GoogleFonts.cairo(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        // Admin/User Badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isAdmin
-                                ? AppColors.primaryPurple.withOpacity(0.2)
-                                : AppColors.primaryBlue.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isAdmin
-                                  ? AppColors.primaryPurple.withOpacity(0.3)
-                                  : AppColors.primaryBlue.withOpacity(0.3),
-                            ),
-                          ),
-                          child: Text(
-                            isAdmin ? 'مدير' : 'مستخدم',
-                            style: GoogleFonts.cairo(
-                              fontSize: 12,
-                              color: isAdmin
-                                  ? AppColors.primaryPurple
-                                  : AppColors.primaryBlue,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // max order
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryBlue.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppColors.primaryBlue.withOpacity(0.3),
-                            ),
-                          ),
-                          child: Text(
-                            // fix text
-                            '${user?.maxOrders} اوردرات',
-                            style: GoogleFonts.cairo(
-                              fontSize: 12,
-                              color: AppColors.primaryBlue,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                Text(
-                  'ماذا تريد أن تفعل اليوم؟',
-                  style: GoogleFonts.cairo(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                // Premium Vertical List
-                Expanded(
-                  child: Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        DashboardCard(
-                          title: 'الاوردرات',
-                          subtitle: 'مشاهدة وإدارة جميع اوردر التوصيل',
-                          icon: Icons.list_alt_rounded,
-                          color: AppColors.primaryBlue,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => OrdersScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        DashboardCard(
-                          title: 'الخريطة',
-                          subtitle: 'تتبع الشحنات والمواقع المباشرة',
-                          icon: Icons.map_rounded,
-                          color: AppColors.statusCyan,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MapScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        DashboardCard(
-                          title: 'قائمة الأسعار',
-                          subtitle: 'أسعار خدمات التوصيل والطرود',
-                          icon: Icons.attach_money_rounded,
-                          color: Colors.orangeAccent,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const PriceListScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        // if (isAdmin)
-                        //   DashboardCard(
-                        //     title: 'إضافة طلب',
-                        //     subtitle: 'إنشاء اوردر توصيل جديد للنظام',
-                        //     icon: Icons.add_location_alt_rounded,
-                        //     color: AppColors.primaryPurple,
-                        //     onTap: () {
-                        //       Navigator.push(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //           builder: (context) => const AddOrderScreen(),
-                        //         ),
-                        //       );
-                        //     },
-                        //   ),
-                        if (isAdmin)
-                          DashboardCard(
-                            title: 'اداره الحسابات ',
-                            subtitle: 'اداره الحسابات',
-                            icon: Icons.settings_rounded,
-                            color: AppColors.primaryPurple,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const AdminDash(),
-                                ),
-                              );
-                            },
-                          ),
-                        DashboardCard(
-                          title: 'الاعدادات ',
-                          subtitle: 'الاعدادات',
-                          icon: Icons.settings,
-                          color: AppColors.primaryPurple,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SettingsScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+      backgroundColor: customTheme.background,
+      body: IndexedStack(index: selectedIndex, children: screens),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: customTheme.cardBackground,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
             ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: selectedIndex,
+          onTap: (index) => ref.read(navIndexProvider.notifier).state = index,
+          backgroundColor: customTheme.cardBackground,
+          selectedItemColor: customTheme.primaryBlue,
+          unselectedItemColor: customTheme.textSecondary.withOpacity(0.5),
+          type: BottomNavigationBarType.fixed,
+          selectedLabelStyle: GoogleFonts.cairo(
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
           ),
+          unselectedLabelStyle: GoogleFonts.cairo(fontSize: 12),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(HeroIcons.shopping_bag),
+              activeIcon: Icon(HeroIcons.shopping_bag),
+              label: 'الطلبات',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(HeroIcons.banknotes),
+              activeIcon: Icon(HeroIcons.banknotes),
+              label: 'الأسعار',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(HeroIcons.map),
+              activeIcon: Icon(HeroIcons.map),
+              label: 'الخريطة',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(HeroIcons.user),
+              activeIcon: Icon(HeroIcons.user),
+              label: 'الحساب',
+            ),
+          ],
         ),
       ),
     );

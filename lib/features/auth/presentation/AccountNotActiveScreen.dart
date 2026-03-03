@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:moamen_project/core/theme/app_colors.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/auth/presentation/login_screen.dart';
 
@@ -10,10 +10,12 @@ class NotActiveScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        decoration: BoxDecoration(gradient: customTheme.scaffoldGradient),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -21,24 +23,24 @@ class NotActiveScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(30),
               decoration: BoxDecoration(
-                color: AppColors.darkCard,
+                color: customTheme.cardBackground,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.orange.withOpacity(0.2),
+                    color: customTheme.statusOrange.withOpacity(0.2),
                     blurRadius: 30,
                     spreadRadius: 5,
                   ),
                 ],
                 border: Border.all(
-                  color: Colors.orange.withOpacity(0.3),
+                  color: customTheme.statusOrange.withOpacity(0.3),
                   width: 2,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.hourglass_top_rounded,
                 size: 60,
-                color: Colors.orange,
+                color: customTheme.statusOrange,
               ),
             ),
 
@@ -50,7 +52,7 @@ class NotActiveScreen extends ConsumerWidget {
               style: GoogleFonts.cairo(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: customTheme.textPrimary,
               ),
             ),
 
@@ -64,7 +66,7 @@ class NotActiveScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.cairo(
                   fontSize: 16,
-                  color: AppColors.textGrey,
+                  color: customTheme.textSecondary,
                   height: 1.6,
                 ),
               ),
@@ -84,16 +86,19 @@ class NotActiveScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: AppColors.primaryBlue.withOpacity(0.3),
+                        color: customTheme.accentGradient.colors[0].withOpacity(
+                          0.3,
+                        ),
                       ),
-                      color: AppColors.darkCard.withOpacity(0.5),
+                      color: customTheme.cardBackground.withOpacity(0.5),
                     ),
                     child: MaterialButton(
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('سيتم التواصل معك قريباً'),
-                            backgroundColor: AppColors.primaryBlue,
+                            content: const Text('سيتم التواصل معك قريباً'),
+                            backgroundColor:
+                                customTheme.accentGradient.colors[0],
                           ),
                         );
                         // TODO: Implement contact support
@@ -104,9 +109,9 @@ class NotActiveScreen extends ConsumerWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.support_agent_rounded,
-                            color: AppColors.primaryBlue,
+                            color: customTheme.accentGradient.colors[0],
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -114,7 +119,7 @@ class NotActiveScreen extends ConsumerWidget {
                             style: GoogleFonts.cairo(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: customTheme.textPrimary,
                             ),
                           ),
                         ],
@@ -133,14 +138,14 @@ class NotActiveScreen extends ConsumerWidget {
                         (route) => false,
                       );
                     },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.logout_rounded,
-                      color: Colors.redAccent,
+                      color: customTheme.errorColor,
                     ),
                     label: Text(
                       'تسجيل خروج',
                       style: GoogleFonts.cairo(
-                        color: Colors.redAccent,
+                        color: customTheme.errorColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
