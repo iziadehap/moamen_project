@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
+import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/priceList_model.dart';
 import '../controller/priceList_provider.dart';
@@ -117,22 +118,23 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
 
     ref.listen(priceProvider, (previous, next) {
       if (next.isSuccess && !(previous?.isSuccess ?? false)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isEdit ? 'تم تعديل الخدمة بنجاح' : 'تم إضافة الخدمة بنجاح',
-            ),
-            backgroundColor: customTheme.statusGreen,
-          ),
+        showCustomSnackBar(
+          context,
+          customTheme: customTheme,
+          message: isEdit ? 'تم تعديل الخدمة بنجاح' : 'تم إضافة الخدمة بنجاح',
+          icon: Icons.check,
+          color: customTheme.successColor,
         );
         ref.read(priceProvider.notifier).resetActionState();
         Navigator.pop(context);
       } else if (next.error != null && next.error != previous?.error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error!),
-            backgroundColor: Colors.redAccent,
-          ),
+        showCustomSnackBar(
+          context,
+          customTheme: customTheme,
+          message: next.error!,
+          icon: Icons.error,
+          isError: true,
+          color: customTheme.errorColor,
         );
       }
     });

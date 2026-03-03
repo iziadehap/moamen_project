@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
+import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
@@ -202,18 +203,18 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
 
     // Check if location is selected
     if (_latController.text.isEmpty || _lngController.text.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'يرجى تحديد الموقع على الخريطة أولاً',
-              style: GoogleFonts.cairo(),
-            ),
-            backgroundColor: Colors.redAccent,
-          ),
+        showCustomSnackBar(
+          context,
+          customTheme: customTheme,
+          message: 'يرجى تحديد الموقع على الخريطة أولاً',
+          icon: Icons.error,
+          isError: true,
+          color: customTheme.errorColor,
         );
       }
       return;
@@ -228,14 +229,13 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
     if (ref.read(orderProvider).isError) {
       print('AddOrderScreen._submit: Error during photo upload');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'حدث خطأ أثناء رفع الصور، يرجى المحاولة مرة أخرى',
-              style: GoogleFonts.cairo(),
-            ),
-            backgroundColor: Colors.redAccent,
-          ),
+        showCustomSnackBar(
+          context,
+          customTheme: customTheme,
+          message: 'حدث خطأ أثناء رفع الصور، يرجى المحاولة مرة أخرى',
+          icon: Icons.error,
+          isError: true,
+          color: customTheme.errorColor,
         );
       }
       return;
@@ -292,18 +292,14 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
       // Clear photos on success
       ref.read(orderProvider.notifier).resetPhotos();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.order != null
-                ? 'تم تحديث الاوردر بنجاح'
-                : 'تم إضافة الاوردر بنجاح',
-            style: GoogleFonts.cairo(),
-          ),
-          backgroundColor: Theme.of(
-            context,
-          ).extension<CustomThemeExtension>()!.statusGreen,
-        ),
+      showCustomSnackBar(
+        context,
+        customTheme: customTheme,
+        message: widget.order != null
+            ? 'تم تحديث الاوردر بنجاح'
+            : 'تم إضافة الاوردر بنجاح',
+        icon: Icons.check,
+        color: customTheme.statusGreen,
       );
       Navigator.pop(context);
     }
@@ -511,8 +507,8 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
                           const SizedBox(height: 16),
                           uplodePhotoWidget(),
                           const SizedBox(height: 32),
-                          _buildSubmitButton(isLoading, customTheme),
-                          const SizedBox(height: 40),
+                          // _buildSubmitButton(isLoading, customTheme),
+                          // const SizedBox(height: 40),
                         ],
                       ),
                     ),
@@ -527,6 +523,8 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
   }
 
   Widget _buildHeader(CustomThemeExtension customTheme) {
+    final isLoading = ref.watch(orderProvider).isLoading;
+
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Row(
@@ -546,13 +544,28 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
             ),
           ),
           const SizedBox(width: 16),
-          Text(
-            widget.order != null ? 'تعديل الاوردر' : 'إضافة اوردر جديد',
-            style: GoogleFonts.cairo(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: customTheme.textPrimary,
+
+          // Title
+          Expanded(
+            child: Text(
+              widget.order != null ? 'تعديل الاوردر' : 'إضافة اوردر جديد',
+              style: GoogleFonts.cairo(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: customTheme.textPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
+          ),
+
+          const SizedBox(width: 12),
+
+          // ✅ Submit/Update button in header
+          _HeaderActionButton(
+            isLoading: isLoading,
+            label: widget.order != null ? 'تحديث' : 'إنشاء',
+            onTap: isLoading ? null : _submit,
+            customTheme: customTheme,
           ),
         ],
       ),
@@ -629,48 +642,6 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
           color: customTheme.statusGreen,
           fontSize: 12,
           fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton(bool isLoading, CustomThemeExtension customTheme) {
-    return SizedBox(
-      width: double.infinity,
-      height: 60,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: customTheme.primaryGradient,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: customTheme.primaryBlue.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: ElevatedButton(
-          onPressed: isLoading ? null : _submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-          child: isLoading
-              ? AnimationWidget.loadingAnimation(24)
-              : Text(
-                  widget.order != null
-                      ? 'تحديث الاوردر الآن'
-                      : 'إنشاء الاوردر الآن',
-                  style: GoogleFonts.cairo(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
         ),
       ),
     );
@@ -1206,5 +1177,73 @@ class _PlacesPickerSheetState extends State<_PlacesPickerSheet> {
       default:
         return zone;
     }
+  }
+}
+
+class _HeaderActionButton extends StatelessWidget {
+  final bool isLoading;
+  final String label;
+  final VoidCallback? onTap;
+  final CustomThemeExtension customTheme;
+
+  const _HeaderActionButton({
+    required this.isLoading,
+    required this.label,
+    required this.onTap,
+    required this.customTheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 200),
+      opacity: onTap == null ? 0.55 : 1.0,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            gradient: customTheme.primaryGradient,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: customTheme.primaryBlue.withOpacity(0.25),
+                blurRadius: 12,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Center(
+            child: isLoading
+                ? SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: AnimationWidget.loadingAnimation(18),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.check_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        label,
+                        style: GoogleFonts.cairo(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ),
+    );
   }
 }

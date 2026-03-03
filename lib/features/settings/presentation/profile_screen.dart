@@ -162,38 +162,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                                   backgroundColor: Theme.of(
                                     context,
                                   ).colorScheme.surface,
-
-                                  backgroundImage: user?.imageUrl == null
-                                      ? null
-                                      : CachedNetworkImageProvider(
-                                          user!.imageUrl!,
-                                          
-                                        ),
-
                                   child: user?.imageUrl == null
                                       ? const Icon(
                                           HeroIcons.user,
                                           size: 54,
                                           color: Colors.white24,
                                         )
-                                      : ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            50,
-                                          ),
+                                      : ClipOval(
                                           child: CachedNetworkImage(
                                             imageUrl: user!.imageUrl!,
                                             fit: BoxFit.cover,
-                                            width: 100,
-                                            height: 120,
+                                            width: 108,
+                                            height: 108,
                                             placeholder: (context, url) =>
                                                 BuildImagesShimmerEffect(),
                                             errorWidget:
                                                 (context, url, error) =>
-                                                    const Center(
-                                                      child: Icon(
-                                                        Icons.error,
-                                                        color: Colors.white,
-                                                      ),
+                                                    const Icon(
+                                                      Icons.error,
+                                                      color: Colors.white,
                                                     ),
                                           ),
                                         ),

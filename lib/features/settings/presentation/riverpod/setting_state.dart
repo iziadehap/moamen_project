@@ -1,23 +1,34 @@
+import 'package:moamen_project/core/error/failure.dart';
+
 class SettingState {
   final bool isLoading;
-  final String? errorMessage;
+  final Failure? failureInMainScreen;
   final bool isSuccess;
+  final Failure? failureInEditScreen;
+  final bool isUpdateBottonEnabled;
 
   const SettingState({
     this.isLoading = false,
-    this.errorMessage,
+    this.failureInMainScreen,
     this.isSuccess = false,
+    this.failureInEditScreen,
+    this.isUpdateBottonEnabled = false,
   });
 
   SettingState copyWith({
     bool? isLoading,
-    String? errorMessage,
+    Failure? failureInMainScreen,
     bool? isSuccess,
+    Failure? failureInEditScreen,
+    bool? isUpdateBottonEnabled,
   }) {
     return SettingState(
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
+      failureInMainScreen: failureInMainScreen ?? this.failureInMainScreen,
       isSuccess: isSuccess ?? this.isSuccess,
+      failureInEditScreen: failureInEditScreen ?? this.failureInEditScreen,
+      isUpdateBottonEnabled:
+          isUpdateBottonEnabled ?? this.isUpdateBottonEnabled,
     );
   }
 }

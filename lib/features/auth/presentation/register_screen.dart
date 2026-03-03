@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
+import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:moamen_project/features/auth/presentation/AccountNotActiveScreen.dart';
 import 'package:moamen_project/core/theme/app_theme.dart';
 import 'controller/auth_provider.dart';
@@ -103,11 +104,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     ref.listen(authProvider, (previous, next) {
       if (next.error != null && next.error != previous?.error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error!),
-            backgroundColor: customTheme.errorColor,
-          ),
+        showCustomSnackBar(
+          context,
+          customTheme: customTheme,
+          message: next.error!,
+          icon: Icons.error,
+          isError: true,
+          color: customTheme.errorColor,
         );
       }
     });
@@ -250,7 +253,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               ),
                             ),
                             child: authState.isLoading
-                                ?  SizedBox(
+                                ? SizedBox(
                                     height: 24,
                                     width: 24,
                                     child: AnimationWidget.loadingAnimation(24),

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
+import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/controller/admin_provider.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/transaction_screen.dart';
 import 'package:moamen_project/features/auth/data/models/user_model.dart';
@@ -34,6 +35,8 @@ class _AdminDashState extends ConsumerState<AdminDash> {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
+
     final adminState = ref.watch(adminProvider);
     final notifier = ref.read(adminProvider.notifier);
     final filteredUsers = notifier.filteredUsers;
@@ -41,19 +44,16 @@ class _AdminDashState extends ConsumerState<AdminDash> {
     ref.listen(adminProvider, (previous, next) {
       if (next.error.isNotEmpty && next.error != previous?.error) {
         print(next.error);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              next.error,
-              style: GoogleFonts.cairo(color: Colors.white),
-            ),
-            backgroundColor: Colors.redAccent,
-          ),
+        showCustomSnackBar(
+          context,
+          customTheme: customTheme,
+          message: next.error,
+          icon: Icons.error,
+          isError: true,
+          color: customTheme.errorColor,
         );
       }
     });
-
-    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
 
     return Scaffold(
       backgroundColor: customTheme.background,

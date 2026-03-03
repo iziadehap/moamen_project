@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/services/update/update_app.dart';
+import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -50,6 +51,8 @@ class _UpdateGateState extends State<UpdateGate> {
   }
 
   Future<void> _install() async {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>();
+
     if (installing) return;
     setState(() {
       installing = true;
@@ -67,14 +70,13 @@ class _UpdateGateState extends State<UpdateGate> {
     } catch (e) {
       if (mounted) {
         print('error in update $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: Text(
-              'فشل التحديث: $e',
-              style: GoogleFonts.cairo(color: Colors.white),
-            ),
-          ),
+        showCustomSnackBar(
+          context,
+          customTheme: customTheme!,
+          message: 'فشل التحديث: $e',
+          icon: Icons.error,
+          isError: true,
+          color: customTheme.errorColor,
         );
       }
     } finally {

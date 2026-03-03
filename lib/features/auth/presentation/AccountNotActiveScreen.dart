@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/theme/app_theme.dart';
+import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/auth/presentation/login_screen.dart';
 
@@ -94,13 +95,14 @@ class NotActiveScreen extends ConsumerWidget {
                     ),
                     child: MaterialButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('سيتم التواصل معك قريباً'),
-                            backgroundColor:
-                                customTheme.accentGradient.colors[0],
-                          ),
+                        showCustomSnackBar(
+                          context,
+                          customTheme: customTheme,
+                          message: 'سيتم التواصل معك قريباً',
+                          icon: Icons.info,
+                          color: customTheme.accentGradient.colors[0],
                         );
+
                         // TODO: Implement contact support
                       },
                       shape: RoundedRectangleBorder(

@@ -6,6 +6,7 @@ import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/utils/app_config_data.dart';
 import 'package:moamen_project/core/utils/fake_email.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
+import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/controller/admin_provider.dart';
 import 'package:moamen_project/features/auth/data/models/user_model.dart';
 import 'package:moamen_project/core/widgets/open_phone_number.dart';
@@ -338,15 +339,14 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
     }
 
     if (changes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'لا توجد تعديلات لحفظها',
-            style: GoogleFonts.cairo(color: Colors.white),
-          ),
-          backgroundColor: customTheme.statusOrange,
-        ),
+      showCustomSnackBar(
+        context,
+        customTheme: customTheme,
+        message: 'لا توجد تعديلات لحفظها',
+        icon: Icons.info,
+        color: customTheme.statusOrange,
       );
+
       return;
     }
 
@@ -434,14 +434,12 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
         isActive: isActive,
       );
       ref.read(adminProvider.notifier).updateUser(widget.user.id, updated);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'تم حفظ التعديلات',
-            style: GoogleFonts.cairo(color: Colors.white),
-          ),
-          backgroundColor: customTheme.statusGreen,
-        ),
+      showCustomSnackBar(
+        context,
+        customTheme: customTheme,
+        message: 'تم حفظ التعديلات',
+        icon: Icons.check_circle,
+        color: customTheme.statusGreen,
       );
     }
     Navigator.pop(context);
@@ -501,14 +499,12 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
                 }
               } else {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'كلمة المرور غير صحيحة',
-                        style: GoogleFonts.cairo(color: Colors.white),
-                      ),
-                      backgroundColor: customTheme.errorColor,
-                    ),
+                  showCustomSnackBar(
+                    context,
+                    customTheme: customTheme,
+                    message: 'كلمة المرور غير صحيحة',
+                    icon: Icons.error,
+                    color: customTheme.errorColor,
                   );
                 }
               }
@@ -568,14 +564,13 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
               if (passController.text.isNotEmpty && isSame) {
                 Navigator.pop(context, true);
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'كلمة المرور غير صحيحة',
-                      style: GoogleFonts.cairo(color: Colors.white),
-                    ),
-                    backgroundColor: customTheme.errorColor,
-                  ),
+                showCustomSnackBar(
+                  context,
+                  customTheme: customTheme,
+                  message: 'كلمة المرور غير صحيحة',
+                  icon: Icons.error,
+                  isError: true,
+                  color: customTheme.errorColor,
                 );
               }
             },
@@ -795,14 +790,13 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
               if (amount > 0) {
                 final int currentTotal = widget.user.maxOrders + addedOrders;
                 if (currentTotal - amount < 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'لا يمكن أن يكون الإجمالي أقل من صفر',
-                        style: GoogleFonts.cairo(color: Colors.white),
-                      ),
-                      backgroundColor: customTheme.errorColor,
-                    ),
+                  showCustomSnackBar(
+                    context,
+                    customTheme: customTheme,
+                    message: 'لا يمكن أن يكون الإجمالي أقل من صفر',
+                    icon: Icons.error,
+                    isError: true,
+                    color: customTheme.errorColor,
                   );
                   return;
                 }

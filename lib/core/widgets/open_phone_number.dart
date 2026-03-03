@@ -9,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
+import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OpenPhoneNumber extends StatelessWidget {
@@ -21,17 +23,20 @@ class OpenPhoneNumber extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
     return GestureDetector(
       onTap: () {
         String phoneWithCountryCode;
         try {
           phoneWithCountryCode = normalizeEgyptianPhone(phone);
         } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('رقم الهاتف غير صحيح', style: GoogleFonts.cairo()),
-              backgroundColor: Colors.redAccent,
-            ),
+          showCustomSnackBar(
+            context,
+            customTheme: customTheme,
+            message: 'رقم الهاتف غير صحيح',
+            icon: Icons.error,
+            isError: true,
+            color: customTheme.errorColor,
           );
           return;
         }

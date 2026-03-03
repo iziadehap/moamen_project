@@ -1,14 +1,13 @@
 import 'package:carousel_slider/carousel_slider.dart';
-// import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:moamen_project/core/utils/app_config_data.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/core/widgets/build_images_heder.dart';
+import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:moamen_project/core/widgets/open_in_googleMap.dart';
 import 'package:moamen_project/core/widgets/open_phone_number.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
@@ -30,11 +29,6 @@ class OrderDetailScreen extends ConsumerStatefulWidget {
 
 class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   bool congratolation = false;
-  int _currentIndex = 0;
-  final CarouselSliderController _carouselController =
-      CarouselSliderController();
-  // late ConfettiController _confettiController;
-
   Order get order => widget.order;
 
   @override
@@ -231,15 +225,15 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: isAdmin
-          ? _buildEditButton(context, currentOrder, customTheme)
-          : null,
     );
   }
 
   Widget _buildCongratulation() {
-    double height = MediaQuery.of(context).size.height;
-    return AnimationWidget.congratolation(size: height, isPlaying: false);
+    final height = MediaQuery.of(context).size.height;
+    return IgnorePointer(
+      ignoring: true,
+      child: AnimationWidget.congratolation(size: height, isPlaying: false),
+    );
   }
 
   Widget _buildAcceptButton(
@@ -254,11 +248,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         currentOrder.status == OrderStatus.pending && !isAlreadyMine;
 
     final isCompleted = currentOrder.status == OrderStatus.completed;
-
-    // if (!isAvarbleToAccept) {
-    //   // build button to show order is not available to accept
-    //   return const SizedBox.shrink();
-    // }
 
     final orderState = ref.watch(orderProvider);
     final isLoading = orderState.isLoading;
@@ -312,7 +301,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         onPressed: (isLoading || isDisabled)
             ? null
             : () async {
-                final scaffoldMessenger = ScaffoldMessenger.of(context);
                 final navigator = Navigator.of(context);
 
                 if (isAlreadyMine &&
@@ -332,30 +320,23 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
 
                   success.fold(
                     (failure) {
-                      scaffoldMessenger.showSnackBar(
-                        SnackBar(
-                          content: Column(
-                            children: [
-                              Text(failure.message, style: GoogleFonts.cairo()),
-                              Text(
-                                failure.description ?? '',
-                                style: GoogleFonts.cairo(),
-                              ),
-                            ],
-                          ),
-                          backgroundColor: customTheme.errorColor,
-                        ),
+                      showCustomSnackBar(
+                        context,
+                        customTheme: customTheme,
+                        message: failure.message,
+                        icon: Icons.error,
+                        isError: true,
+                        color: customTheme.errorColor,
                       );
                     },
                     (success) {
-                      scaffoldMessenger.showSnackBar(
-                        SnackBar(
-                          content: Text(
+                      showCustomSnackBar(
+                        context,
+                        customTheme: customTheme,
+                        message:
                             'تم قبول الاوردر بنجاح! يمكنك الآن البدء في تنفيذه.',
-                            style: GoogleFonts.cairo(),
-                          ),
-                          backgroundColor: customTheme.successColor,
-                        ),
+                        icon: Icons.check,
+                        color: customTheme.successColor,
                       );
                       navigator.pop();
                     },
@@ -559,66 +540,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     );
   }
 
-  Widget _buildEditButton(
-    BuildContext context,
-    Order currentOrder,
-    CustomThemeExtension customTheme,
-  ) {
-    return SafeArea(
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-        decoration: BoxDecoration(
-          color: customTheme.background.withOpacity(0.8),
-          border: Border(
-            top: BorderSide(color: customTheme.textPrimary.withOpacity(0.1)),
-          ),
-        ),
-        child: SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: customTheme.primaryGradient,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddOrderScreen(order: currentOrder),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.edit_note_rounded, color: Colors.white),
-                  const SizedBox(width: 12),
-                  Text(
-                    'تعديل تفاصيل الاوردر',
-                    style: GoogleFonts.cairo(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildHeader(
     BuildContext context,
     bool isAdmin,
@@ -659,47 +580,36 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ],
           ),
           Spacer(),
-          if (isAdmin) ...[
-            IconButton(
-              onPressed: () => _showDeleteConfirmation(
-                context,
-                ref,
-                currentOrder,
-                customTheme,
+          // sdfsaf
+          if (isAdmin)
+            // show edit button
+            Container(
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                gradient: customTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(12),
               ),
-              icon: Icon(
-                Icons.delete_outline_rounded,
-                color: customTheme.errorColor,
-                size: 22,
-              ),
-              style: IconButton.styleFrom(
-                backgroundColor: customTheme.errorColor.withOpacity(0.1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddOrderScreen(order: currentOrder),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
+                child: Icon(Icons.edit, color: Colors.white, size: 20),
               ),
             ),
-            const SizedBox(width: 5),
-            IconButton(
-              onPressed: () => _showCancelConfirmation(
-                context,
-                ref,
-                currentOrder,
-                customTheme,
-              ),
-              icon: Icon(
-                Icons.cancel_sharp,
-                color: customTheme.errorColor,
-                size: 22,
-              ),
-              style: IconButton.styleFrom(
-                backgroundColor: customTheme.errorColor.withOpacity(0.1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -773,7 +683,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
               ),
               child: ElevatedButton(
                 onPressed: () async {
-                  final scaffoldMessenger = ScaffoldMessenger.of(context);
                   final navigator = Navigator.of(context);
 
                   // Close dialog first
@@ -792,14 +701,12 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                     // playCongratulation();
                     // _confettiController.play();
 
-                    scaffoldMessenger.showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'تم إتمام الاوردر بنجاح! شكراً لك.',
-                          style: GoogleFonts.cairo(),
-                        ),
-                        backgroundColor: customTheme.successColor,
-                      ),
+                    showCustomSnackBar(
+                      context,
+                      customTheme: customTheme,
+                      message: 'تم إتمام الاوردر بنجاح! شكراً لك.',
+                      icon: Icons.check,
+                      color: customTheme.successColor,
                     );
 
                     // Wait a bit for the animation to be seen
@@ -810,14 +717,13 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                       navigator.pop();
                     }
                   } else {
-                    scaffoldMessenger.showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'فشل إتمام الاوردر: ${newState.errorMessage}',
-                          style: GoogleFonts.cairo(),
-                        ),
-                        backgroundColor: customTheme.errorColor,
-                      ),
+                    showCustomSnackBar(
+                      context,
+                      customTheme: customTheme,
+                      message: 'فشل إتمام الاوردر: ${newState.errorMessage}',
+                      icon: Icons.error,
+                      isError: true,
+                      color: customTheme.errorColor,
                     );
                   }
                 },
@@ -834,260 +740,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(
-    BuildContext context,
-    WidgetRef ref,
-    Order currentOrder,
-    CustomThemeExtension customTheme,
-  ) {
-    final TextEditingController passwordController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: AlertDialog(
-          backgroundColor: customTheme.cardBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: customTheme.textPrimary.withOpacity(0.1)),
-          ),
-          title: Text(
-            'حذف الاوردر',
-            style: GoogleFonts.cairo(
-              color: customTheme.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'هل أنت متأكد من رغبتك في حذف هذا الاوردر؟ لا يمكن التراجع عن هذا الإجراء.',
-                style: GoogleFonts.cairo(color: customTheme.textSecondary),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                style: GoogleFonts.cairo(color: customTheme.textPrimary),
-                decoration: InputDecoration(
-                  labelText: 'كلمة مرور الحذف',
-                  labelStyle: GoogleFonts.cairo(
-                    color: customTheme.textSecondary,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: customTheme.textPrimary.withOpacity(0.1),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: customTheme.primaryGradient.colors[0],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'إلغاء',
-                style: GoogleFonts.cairo(color: customTheme.textSecondary),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (passwordController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'يرجى إدخال كلمة المرور أولاً',
-                        style: GoogleFonts.cairo(),
-                      ),
-                      backgroundColor: Colors.orange,
-                    ),
-                  );
-                  return;
-                }
-
-                final scaffoldMessenger = ScaffoldMessenger.of(context);
-                final navigator = Navigator.of(context);
-
-                // 1. Local Validation: Verify password first without setting state error
-                final isVerified = await AppConfigData().verifyBigBossPassword(
-                  passwordController.text,
-                );
-
-                if (!isVerified) {
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'كلمة المرور غير صحيحة',
-                        style: GoogleFonts.cairo(),
-                      ),
-                      backgroundColor: customTheme.errorColor,
-                    ),
-                  );
-                  return;
-                }
-
-                // 2. If verified, proceed with deletion
-                final userId = ref.read(authProvider).user?.id ?? '';
-
-                // Close dialog
-                navigator.pop();
-
-                final success = await ref
-                    .read(orderProvider.notifier)
-                    .deleteOrder(
-                      orderId: currentOrder.id,
-                      userId: userId,
-                      order: currentOrder,
-                    );
-
-                if (success) {
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'تم حذف الاوردر بنجاح',
-                        style: GoogleFonts.cairo(),
-                      ),
-                      backgroundColor: customTheme.successColor,
-                    ),
-                  );
-                  // Return to orders screen
-                  navigator.pop();
-                } else {
-                  // If it's a server error (not password), show generic or state error
-                  final errorMsg = ref.read(orderProvider).errorMessage;
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        errorMsg.isEmpty ? 'فشل حذف الاوردر' : errorMsg,
-                        style: GoogleFonts.cairo(),
-                      ),
-                      backgroundColor: customTheme.errorColor,
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: customTheme.errorColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                'حذف',
-                style: GoogleFonts.cairo(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showCancelConfirmation(
-    BuildContext context,
-    WidgetRef ref,
-    Order currentOrder,
-    CustomThemeExtension customTheme,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: AlertDialog(
-          backgroundColor: customTheme.cardBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: customTheme.textPrimary.withOpacity(0.1)),
-          ),
-          title: Text(
-            'الغاء الاوردر',
-            style: GoogleFonts.cairo(
-              color: customTheme.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Text(
-            'هل أنت متأكد من رغبتك في إلغاء هذا الاوردر؟',
-            style: GoogleFonts.cairo(color: customTheme.textSecondary),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'تراجع',
-                style: GoogleFonts.cairo(color: customTheme.textSecondary),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final userId = ref.read(authProvider).user?.id ?? '';
-                final scaffoldMessenger = ScaffoldMessenger.of(context);
-                final navigator = Navigator.of(context);
-
-                // Close dialog
-                navigator.pop();
-
-                final success = await ref
-                    .read(orderProvider.notifier)
-                    .cancelOrder(orderId: currentOrder.id, userId: userId);
-
-                if (success) {
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'تم الغاء الاوردر بنجاح',
-                        style: GoogleFonts.cairo(),
-                      ),
-                      backgroundColor: customTheme.successColor,
-                    ),
-                  );
-                  // Return to orders screen
-                  navigator.pop();
-                } else {
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'فشل الغاء الاوردر',
-                        style: GoogleFonts.cairo(),
-                      ),
-                      backgroundColor: customTheme.errorColor,
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: customTheme.errorColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                'الغاء',
-                style: GoogleFonts.cairo(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
