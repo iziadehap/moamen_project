@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -165,6 +163,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                                     context,
                                   ).colorScheme.surface,
 
+                                  backgroundImage: user?.imageUrl == null
+                                      ? null
+                                      : CachedNetworkImageProvider(
+                                          user!.imageUrl!,
+                                          
+                                        ),
+
                                   child: user?.imageUrl == null
                                       ? const Icon(
                                           HeroIcons.user,
@@ -173,7 +178,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                                         )
                                       : ClipRRect(
                                           borderRadius: BorderRadius.circular(
-                                            100,
+                                            50,
                                           ),
                                           child: CachedNetworkImage(
                                             imageUrl: user!.imageUrl!,
