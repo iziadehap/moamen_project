@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
           child: LocationWidget(child: child!),
         );
       },
-      home: const SplashScreen(),
+      home: Center(child: const SplashScreen()),
     );
   }
 }
