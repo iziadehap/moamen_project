@@ -7,9 +7,9 @@ import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/controller/admin_provider.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/transaction_screen.dart';
-import 'package:moamen_project/features/auth/data/models/user_model.dart';
-import 'package:moamen_project/features/adminDashbord/presentation/widgets/user_card.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/widgets/sort_options.dart';
+import 'package:moamen_project/features/adminDashbord/presentation/widgets/user_card.dart';
+import 'package:moamen_project/features/auth/data/models/user_model.dart';
 
 class AdminDash extends ConsumerStatefulWidget {
   const AdminDash({super.key});
@@ -90,7 +90,7 @@ class _AdminDashState extends ConsumerState<AdminDash> {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: customTheme.textPrimary.withOpacity(0.05),
+                        color: customTheme.textPrimary.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: IconButton(
@@ -150,7 +150,7 @@ class _AdminDashState extends ConsumerState<AdminDash> {
                       color: customTheme.textPrimary,
                     ),
                     style: IconButton.styleFrom(
-                      backgroundColor: customTheme.textPrimary.withOpacity(
+                      backgroundColor: customTheme.textPrimary.withValues(alpha: 
                         0.05,
                       ),
                       padding: const EdgeInsets.all(12),
@@ -165,7 +165,7 @@ class _AdminDashState extends ConsumerState<AdminDash> {
                       color: customTheme.textPrimary,
                     ),
                     style: IconButton.styleFrom(
-                      backgroundColor: customTheme.textPrimary.withOpacity(
+                      backgroundColor: customTheme.textPrimary.withValues(alpha: 
                         0.05,
                       ),
                       padding: const EdgeInsets.all(12),
@@ -187,7 +187,7 @@ class _AdminDashState extends ConsumerState<AdminDash> {
       decoration: BoxDecoration(
         color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+        border: Border.all(color: customTheme.textPrimary.withValues(alpha: 0.1)),
       ),
       child: TextField(
         controller: _searchController,
@@ -302,12 +302,12 @@ class _AdminDashState extends ConsumerState<AdminDash> {
         decoration: BoxDecoration(
           color: isSelected
               ? customTheme.primaryBlue
-              : customTheme.textPrimary.withOpacity(0.05),
+              : customTheme.textPrimary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
                 ? customTheme.primaryBlue
-                : customTheme.textPrimary.withOpacity(0.1),
+                : customTheme.textPrimary.withValues(alpha: 0.1),
           ),
         ),
         child: Text(

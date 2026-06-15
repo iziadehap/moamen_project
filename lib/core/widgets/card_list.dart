@@ -1,27 +1,24 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:moamen_project/core/utils/images.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:moamen_project/core/theme/app_theme.dart';
+import 'package:moamen_project/core/utils/images.dart';
+import 'package:moamen_project/features/orders/data/models/order_model.dart';
 
 class CardList extends StatefulWidget {
   final VoidCallback ontap;
   final Widget child;
   final List<String> images;
-  // final Widget content;
-
-  // final Order order;
-  // final bool isSelectionMode;
+  final Order? order; // Add order parameter
+  final bool showBillButton; // Option to show bill button
 
   const CardList({
     super.key,
-    // required this.order,
     required this.images,
-    // required this.content,
     required this.child,
     required this.ontap,
-    // this.isSelectionMode = false,
+    this.order,
+    this.showBillButton = true,
   });
 
   @override
@@ -34,6 +31,23 @@ class _CardListState extends State<CardList> {
   final CarouselSliderController _carouselController =
       CarouselSliderController();
 
+  void _showFullScreenImage(BuildContext context, String imageUrl) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            FullScreenImageViewer(imageUrl: imageUrl),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
+  }
+
+  void _showBillImage(BuildContext context, String billUrl) {
+    _showFullScreenImage(context, billUrl);
+  }
+
   @override
   Widget build(BuildContext context) {
     final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
@@ -44,16 +58,16 @@ class _CardListState extends State<CardList> {
         borderRadius: BorderRadius.circular(28),
         gradient: LinearGradient(
           colors: [
-            customTheme.textPrimary.withOpacity(0.05),
-            customTheme.textPrimary.withOpacity(0.01),
+            customTheme.textPrimary.withValues(alpha: 0.05),
+            customTheme.textPrimary.withValues(alpha: 0.01),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
-              Theme.of(context).brightness == Brightness.dark ? 0.3 : 0.05,
+            color: Colors.black.withValues(
+              alpha: Theme.of(context).brightness == Brightness.dark ? 0.3 : 0.05,
             ),
             blurRadius: 15,
             offset: const Offset(0, 8),
@@ -67,9 +81,9 @@ class _CardListState extends State<CardList> {
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  color: customTheme.cardBackground.withOpacity(0.8),
+                  color: customTheme.cardBackground.withValues(alpha: 0.8),
                   border: Border.all(
-                    color: customTheme.textPrimary.withOpacity(0.08),
+                    color: customTheme.textPrimary.withValues(alpha: 0.08),
                     width: 1,
                   ),
                 ),
@@ -85,7 +99,7 @@ class _CardListState extends State<CardList> {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      customTheme.primaryBlue.withOpacity(0.1),
+                      customTheme.primaryBlue.withValues(alpha: 0.1),
                       Colors.transparent,
                     ],
                   ),
@@ -100,16 +114,24 @@ class _CardListState extends State<CardList> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Row(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (widget.images.isNotEmpty) ...[
-                        _buildImageCarousel(customTheme),
-                        const SizedBox(width: 16),
-                      ],
-                      Expanded(child: widget.child),
-                      // Content
-                      // contant_widget(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (widget.images.isNotEmpty) ...[
+                            _buildImageCarousel(customTheme),
+                            const SizedBox(width: 16),
+                          ],
+                          Expanded(child: widget.child),
+                        ],
+                      ),
+                      // Show price and bill button if order exists
+                      if (widget.order != null && widget.order!.price != null)
+                        const SizedBox(height: 12),
+                      if (widget.order != null && widget.order!.price != null)
+                        _buildPriceAndBillSection(customTheme),
                     ],
                   ),
                 ),
@@ -117,6 +139,90 @@ class _CardListState extends State<CardList> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPriceAndBillSection(CustomThemeExtension customTheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(
+        color: customTheme.primaryBlue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: customTheme.primaryBlue.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Price section
+          Expanded(
+            child: Row(
+              children: [
+                Icon(
+                  Icons.payments_outlined,
+                  color: customTheme.primaryBlue,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'السعر:',
+                  style: TextStyle(
+                    color: customTheme.textSecondary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${widget.order!.price} جنيه',
+                  style: TextStyle(
+                    color: customTheme.primaryBlue,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Bill button (only if billUrl exists and showBillButton is true)
+          if (widget.showBillButton && widget.order!.billUrl != null && widget.order!.billUrl!.isNotEmpty)
+          
+            GestureDetector(
+              onTap: () => _showBillImage(context, widget.order!.billUrl!),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: customTheme.cardBackground,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: customTheme.primaryBlue.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.receipt_long_rounded,
+                      color: customTheme.primaryBlue,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'عرض الفاتورة',
+                      style: TextStyle(
+                        color: customTheme.primaryBlue,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -129,16 +235,19 @@ class _CardListState extends State<CardList> {
           CarouselSlider(
             carouselController: _carouselController,
             items: widget.images.map((e) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: CachedNetworkImage(
-                  imageUrl: e,
-                  fit: BoxFit.cover,
-                  width: 100,
-                  height: 120,
-                  placeholder: (context, url) => BuildImagesShimmerEffect(),
-                  errorWidget: (context, url, error) => const Center(
-                    child: Icon(Icons.error, color: Colors.white),
+              return GestureDetector(
+                onTap: () => _showFullScreenImage(context, e),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: CachedNetworkImage(
+                    imageUrl: e,
+                    fit: BoxFit.cover,
+                    width: 100,
+                    height: 120,
+                    placeholder: (context, url) => BuildImagesShimmerEffect(),
+                    errorWidget: (context, url, error) => const Center(
+                      child: Icon(Icons.error, color: Colors.white),
+                    ),
                   ),
                 ),
               );
@@ -186,12 +295,86 @@ class _CardListState extends State<CardList> {
                   shape: BoxShape.circle,
                   color: isActive
                       ? customTheme.primaryGradient.colors[0]
-                      : customTheme.textSecondary.withOpacity(0.2),
+                      : customTheme.textSecondary.withValues(alpha: 0.2),
                 ),
               );
             }),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// Full Screen Image Viewer Widget
+class FullScreenImageViewer extends StatelessWidget {
+  final String imageUrl;
+
+  const FullScreenImageViewer({
+    super.key,
+    required this.imageUrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
+    
+    return Scaffold(
+      backgroundColor: Colors.black.withValues(alpha: 0.95),
+      body: Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                ),
+                errorWidget: (context, url, error) => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      color: customTheme.errorColor,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'فشل في تحميل الصورة',
+                      style: TextStyle(
+                        color: customTheme.errorColor,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            right: 16,
+            child: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.close_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

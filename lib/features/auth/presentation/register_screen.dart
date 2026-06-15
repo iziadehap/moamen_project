@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:moamen_project/features/auth/presentation/AccountNotActiveScreen.dart';
-import 'package:moamen_project/core/theme/app_theme.dart';
-import 'controller/auth_provider.dart';
+
 import '../../dashboard/presentation/dashboard_screen.dart';
+import 'controller/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -132,7 +133,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   icon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: customTheme.textPrimary.withOpacity(0.1),
+                      color: customTheme.textPrimary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -237,7 +238,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             boxShadow: [
                               BoxShadow(
                                 color: customTheme.primaryGradient.colors[0]
-                                    .withOpacity(0.4),
+                                    .withValues(alpha: 0.4),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -319,7 +320,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(
-                color: customTheme.textSecondary.withOpacity(0.3),
+                color: customTheme.textSecondary.withValues(alpha: 0.3),
               ),
               prefixText: prefixText,
               prefixStyle: TextStyle(
@@ -336,7 +337,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: customTheme.textPrimary.withOpacity(0.05),
+                  color: customTheme.textPrimary.withValues(alpha: 0.05),
                 ),
               ),
               focusedBorder: OutlineInputBorder(

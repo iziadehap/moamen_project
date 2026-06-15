@@ -52,10 +52,10 @@ Widget uplodePhotoWidget() {
               width: double.infinity,
               height: 60,
               decoration: BoxDecoration(
-                color: customTheme.primaryBlue.withOpacity(0.05),
+                color: customTheme.primaryBlue.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: customTheme.primaryBlue.withOpacity(0.2),
+                  color: customTheme.primaryBlue.withValues(alpha: 0.2),
                   width: 1.5,
                 ),
               ),
@@ -103,7 +103,7 @@ class _PhotoItem extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         image: DecorationImage(image: image, fit: BoxFit.cover),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: Stack(
         children: [
@@ -206,7 +206,7 @@ Widget price_list_item_widget(
       Text(
         priceItem.description,
         style: GoogleFonts.cairo(
-          color: customTheme.textPrimary.withOpacity(0.8),
+          color: customTheme.textPrimary.withValues(alpha: 0.8),
           fontSize: 13,
           height: 1.4,
         ),
@@ -228,13 +228,13 @@ Widget _buildPriceBadge(
     decoration: BoxDecoration(
       gradient: LinearGradient(
         colors: [
-          customTheme.primaryBlue.withOpacity(0.15),
-          customTheme.primaryBlue.withOpacity(0.05),
+          customTheme.primaryBlue.withValues(alpha: 0.15),
+          customTheme.primaryBlue.withValues(alpha: 0.05),
         ],
       ),
       borderRadius: BorderRadius.circular(12),
       border: Border.all(
-        color: customTheme.primaryBlue.withOpacity(0.2),
+        color: customTheme.primaryBlue.withValues(alpha: 0.2),
         width: 1,
       ),
     ),
@@ -283,9 +283,9 @@ class _ActiveBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

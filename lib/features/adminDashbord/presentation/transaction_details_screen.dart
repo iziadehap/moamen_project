@@ -109,12 +109,12 @@ class TransactionDetailsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: customTheme.cardBackground.withOpacity(0.7),
+        color: customTheme.cardBackground.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.05),
+            color: color.withValues(alpha: 0.05),
             blurRadius: 20,
             spreadRadius: 5,
           ),
@@ -125,7 +125,7 @@ class TransactionDetailsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -152,7 +152,7 @@ class TransactionDetailsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Divider(color: customTheme.textPrimary.withOpacity(0.1)),
+          Divider(color: customTheme.textPrimary.withValues(alpha: 0.1)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -165,7 +165,7 @@ class TransactionDetailsScreen extends StatelessWidget {
               Container(
                 width: 1,
                 height: 30,
-                color: customTheme.textPrimary.withOpacity(0.1),
+                color: customTheme.textPrimary.withValues(alpha: 0.1),
               ),
               _buildSimpleStat(
                 'الرصيد بعد',
@@ -178,7 +178,7 @@ class TransactionDetailsScreen extends StatelessWidget {
           Text(
             df.format(transaction.createdAt),
             style: GoogleFonts.cairo(
-              color: customTheme.textSecondary.withOpacity(0.6),
+              color: customTheme.textSecondary.withValues(alpha: 0.6),
               fontSize: 12,
             ),
           ),
@@ -223,9 +223,11 @@ class TransactionDetailsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: customTheme.cardBackground.withOpacity(0.5),
+        color: customTheme.cardBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.05)),
+        border: Border.all(
+          color: customTheme.textPrimary.withValues(alpha: 0.05),
+        ),
       ),
       child: Column(
         children: [
@@ -241,7 +243,7 @@ class TransactionDetailsScreen extends StatelessWidget {
               ),
               Icon(
                 Icons.double_arrow_rounded,
-                color: customTheme.primaryBlue.withOpacity(0.5),
+                color: customTheme.primaryBlue.withValues(alpha: 0.5),
                 size: 24,
               ),
               if (user != null)
@@ -255,7 +257,10 @@ class TransactionDetailsScreen extends StatelessWidget {
           ),
           if (admin != null) ...[
             const SizedBox(height: 20),
-            Divider(color: customTheme.textPrimary.withOpacity(0.1), height: 1),
+            Divider(
+              color: customTheme.textPrimary.withValues(alpha: 0.1),
+              height: 1,
+            ),
             const SizedBox(height: 16),
             _buildProfileDetails(
               admin,
@@ -268,7 +273,7 @@ class TransactionDetailsScreen extends StatelessWidget {
             const SizedBox(height: 16),
             if (admin != null)
               Divider(
-                color: customTheme.textPrimary.withOpacity(0.1),
+                color: customTheme.textPrimary.withValues(alpha: 0.1),
                 height: 1,
               ),
             const SizedBox(height: 16),
@@ -297,11 +302,11 @@ class TransactionDetailsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: color.withOpacity(0.3), width: 2),
+            border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
           ),
           child: CircleAvatar(
             radius: 30,
-            backgroundColor: color.withOpacity(0.1),
+            backgroundColor: color.withValues(alpha: 0.1),
             backgroundImage: (!isMissing && profile?.imageUrl != null)
                 ? NetworkImage(profile!.imageUrl!)
                 : null,
@@ -328,7 +333,7 @@ class TransactionDetailsScreen extends StatelessWidget {
         Text(
           label,
           style: GoogleFonts.cairo(
-            color: color.withOpacity(0.8),
+            color: color.withValues(alpha: 0.8),
             fontSize: 10,
             fontWeight: FontWeight.bold,
           ),
@@ -349,11 +354,11 @@ class TransactionDetailsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: color.withOpacity(0.3), width: 2),
+            border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
           ),
           child: CircleAvatar(
             radius: 30,
-            backgroundColor: color.withOpacity(0.1),
+            backgroundColor: color.withValues(alpha: 0.1),
             backgroundImage: profile.imageUrl != null
                 ? NetworkImage(profile.imageUrl!)
                 : null,
@@ -374,7 +379,7 @@ class TransactionDetailsScreen extends StatelessWidget {
         Text(
           label,
           style: GoogleFonts.cairo(
-            color: color.withOpacity(0.8),
+            color: color.withValues(alpha: 0.8),
             fontSize: 10,
             fontWeight: FontWeight.bold,
           ),
@@ -431,7 +436,7 @@ class TransactionDetailsScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
                         decoration: TextDecoration.underline,
-                        decorationColor: color.withOpacity(0.3),
+                        decorationColor: color.withValues(alpha: 0.3),
                       ),
                     ),
                   ),
@@ -441,7 +446,7 @@ class TransactionDetailsScreen extends StatelessWidget {
             Text(
               'ID: ${profile.id.substring(0, 8)}...',
               style: GoogleFonts.cairo(
-                color: customTheme.textSecondary.withOpacity(0.4),
+                color: customTheme.textSecondary.withValues(alpha: 0.4),
                 fontSize: 10,
               ),
             ),
@@ -456,9 +461,11 @@ class TransactionDetailsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: customTheme.cardBackground.withOpacity(0.5),
+        color: customTheme.cardBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: customTheme.primaryBlue.withOpacity(0.1)),
+        border: Border.all(
+          color: customTheme.primaryBlue.withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -483,7 +490,7 @@ class TransactionDetailsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: customTheme.primaryBlue.withOpacity(0.1),
+                  color: customTheme.primaryBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -510,7 +517,7 @@ class TransactionDetailsScreen extends StatelessWidget {
           Text(
             'ID: ${order.id}',
             style: GoogleFonts.cairo(
-              color: customTheme.textSecondary.withOpacity(0.4),
+              color: customTheme.textSecondary.withValues(alpha: 0.4),
               fontSize: 10,
             ),
           ),
@@ -523,7 +530,7 @@ class TransactionDetailsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: customTheme.cardBackground.withOpacity(0.3),
+        color: customTheme.cardBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -580,7 +587,7 @@ class TransactionDetailsScreen extends StatelessWidget {
         SelectableText(
           value,
           style: GoogleFonts.sourceCodePro(
-            color: customTheme.textPrimary.withOpacity(0.7),
+            color: customTheme.textPrimary.withValues(alpha: 0.7),
             fontSize: 10,
           ),
         ),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:moamen_project/features/auth/presentation/AccountNotActiveScreen.dart';
-import 'package:moamen_project/core/theme/app_theme.dart';
+
+import '../../dashboard/presentation/dashboard_screen.dart';
 import 'controller/auth_provider.dart';
 import 'register_screen.dart';
-import '../../dashboard/presentation/dashboard_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -167,7 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                   hintStyle: TextStyle(
                                     color: customTheme.textSecondary
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                   ),
                                   filled: true,
                                   fillColor: customTheme.cardBackground,
@@ -179,7 +179,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide(
                                       color: customTheme.textPrimary
-                                          .withOpacity(0.05),
+                                          .withValues(alpha: 0.05),
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
@@ -221,7 +221,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   hintText: '••••••••',
                                   hintStyle: TextStyle(
                                     color: customTheme.textSecondary
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                   ),
                                   filled: true,
                                   fillColor: customTheme.cardBackground,
@@ -237,7 +237,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide(
                                       color: customTheme.textPrimary
-                                          .withOpacity(0.05),
+                                          .withValues(alpha: 0.05),
                                     ),
                                   ),
                                 ),
@@ -269,7 +269,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             boxShadow: [
                               BoxShadow(
                                 color: customTheme.primaryGradient.colors[0]
-                                    .withOpacity(0.4),
+                                    .withValues(alpha: 0.4),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),

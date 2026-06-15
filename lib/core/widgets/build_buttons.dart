@@ -13,11 +13,11 @@ class BuildButtons extends StatelessWidget {
       onPressed: ontap,
       icon: Icon(icon, color: customTheme.textPrimary),
       style: IconButton.styleFrom(
-        backgroundColor: customTheme.primaryGradient.colors[0].withOpacity(0.1),
+        backgroundColor: customTheme.primaryGradient.colors[0].withValues(alpha: 0.1),
         padding: const EdgeInsets.all(12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: customTheme.primaryBlue.withOpacity(0.2)),
+          side: BorderSide(color: customTheme.primaryBlue.withValues(alpha: 0.2)),
         ),
       ),
     );

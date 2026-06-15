@@ -1,19 +1,21 @@
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:icons_plus/icons_plus.dart';
+// import 'package:icons_plus/icons_plus.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:moamen_project/core/theme/app_colors.dart';
 import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/features/map/data/map_model.dart';
-import 'package:moamen_project/features/map/presentation/controller/map_state.dart';
 import 'package:moamen_project/features/map/presentation/controller/map_provider.dart';
-import 'package:moamen_project/features/orders/data/models/order_model.dart';
+import 'package:moamen_project/features/map/presentation/controller/map_state.dart';
 import 'package:moamen_project/features/map/presentation/widgets/map_bottom_sheet.dart';
 import 'package:moamen_project/features/map/presentation/widgets/order_details_card.dart';
+import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/orders/presentation/orders_screen.dart';
 
 // import 'package:moamen_project/features/map/presentation/controller/map_notifier.dart';
@@ -80,7 +82,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
 
       // Ensure we have location before fetching/routing orders
       await ref.read(mapProvider.notifier).initLocationService();
-      ref.read(mapProvider.notifier).getOrders();
+      // ref.read(mapProvider.notifier).getOrders();
     });
   }
 
@@ -193,8 +195,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
               colors: [
                 Colors.transparent,
                 isDarkMode
-                    ? AppColors.midnightNavy.withOpacity(0.4)
-                    : Colors.white.withOpacity(0.2),
+                    ? AppColors.midnightNavy.withValues(alpha: 0.4)
+                    : Colors.white.withValues(alpha: 0.2),
               ],
             ),
           ),
@@ -213,7 +215,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         _MapActionButton(
-          icon: HeroIcons.map_pin,
+          icon: FaIcon(FontAwesomeIcons.location, size: 20),
           color: AppColors.primaryBlue,
           tooltip: 'موقعي',
           onTap: () => _goToUserLocation(mapState.userLocation),
@@ -221,8 +223,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
         const SizedBox(width: 10),
         _MapActionButton(
           icon: mapState.showPublicCircles
-              ? HeroIcons.eye_slash
-              : HeroIcons.eye,
+              ? FaIcon(FontAwesomeIcons.eyeSlash, size: 20)
+              : FaIcon(FontAwesomeIcons.eye, size: 20),
           color: AppColors.primaryPurple,
           tooltip: mapState.showPublicCircles
               ? 'إخفاء الدوائر'
@@ -255,16 +257,18 @@ class _MapScreenState extends ConsumerState<MapScreen>
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryBlue.withOpacity(0.2),
+                      color: AppColors.primaryBlue.withValues(alpha: 0.2),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: Icon(
-                  HeroIcons.truck,
-                  color: isDarkMode ? Colors.white : AppColors.textWhite,
-                  size: 22,
+                child: Center(
+                  child: FaIcon(
+                    FontAwesomeIcons.truck,
+                    size: 20,
+                    color: isDarkMode ? Colors.white : AppColors.textWhite,
+                  ),
                 ),
               ),
               const SizedBox(width: 14),
@@ -297,10 +301,10 @@ class _MapScreenState extends ConsumerState<MapScreen>
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withOpacity(0.1),
+                    color: AppColors.primaryBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppColors.primaryBlue.withOpacity(0.3),
+                      color: AppColors.primaryBlue.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
@@ -313,11 +317,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
                   ),
                 ),
               const SizedBox(width: 8),
-              const Icon(
-                HeroIcons.chevron_left,
-                color: Colors.white24,
-                size: 14,
-              ),
+              FaIcon(FontAwesomeIcons.chevronLeft, color: Colors.white24),
             ],
           ),
         ),
@@ -366,10 +366,10 @@ class _MapScreenState extends ConsumerState<MapScreen>
       decoration: BoxDecoration(
         color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -377,11 +377,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
       ),
       child: Row(
         children: [
-          const Icon(
-            HeroIcons.exclamation_circle,
-            color: Colors.redAccent,
-            size: 20,
-          ),
+          FaIcon(FontAwesomeIcons.exclamationCircle, color: Colors.redAccent),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -405,10 +401,10 @@ class _MapScreenState extends ConsumerState<MapScreen>
       decoration: BoxDecoration(
         color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -416,11 +412,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
       ),
       child: Row(
         children: [
-          const Icon(
-            HeroIcons.information_circle,
-            color: AppColors.primaryBlue,
-            size: 20,
-          ),
+          FaIcon(FontAwesomeIcons.circleInfo, color: AppColors.primaryBlue),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -488,9 +480,9 @@ class _MapScreenState extends ConsumerState<MapScreen>
               Polyline(
                 points: mapState.routePoints,
                 strokeWidth: 5,
-                color: AppColors.primaryBlue.withOpacity(0.8),
+                color: AppColors.primaryBlue.withValues(alpha: 0.8),
                 borderStrokeWidth: 2,
-                borderColor: AppColors.primaryBlue.withOpacity(0.3),
+                borderColor: AppColors.primaryBlue.withValues(alpha: 0.3),
               ),
             ],
           ),
@@ -499,8 +491,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
             circles: mapModel.publicPoints.map((circleOrder) {
               return CircleMarker(
                 point: circleOrder.points,
-                color: AppColors.primaryPurple.withOpacity(0.1),
-                borderColor: AppColors.primaryPurple.withOpacity(0.4),
+                color: AppColors.primaryPurple.withValues(alpha: 0.1),
+                borderColor: AppColors.primaryPurple.withValues(alpha: 0.4),
                 borderStrokeWidth: 1.5,
                 useRadiusInMeter: true,
                 radius: 1000,
@@ -641,9 +633,9 @@ class _MapScreenState extends ConsumerState<MapScreen>
   //                 Polyline(
   //                   points: mapState.routePoints,
   //                   strokeWidth: 5,
-  //                   color: AppColors.primaryBlue.withOpacity(0.8),
+  //                   color: AppColors.primaryBlue.withValues(alpha: 0.8),
   //                   borderStrokeWidth: 2,
-  //                   borderColor: AppColors.primaryBlue.withOpacity(0.3),
+  //                   borderColor: AppColors.primaryBlue.withValues(alpha: 0.3),
   //                 ),
   //               ],
   //             ),
@@ -653,8 +645,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
   //               circles: mapModel.publicPoints.map((circleOrder) {
   //                 return CircleMarker(
   //                   point: circleOrder.points,
-  //                   color: AppColors.primaryPurple.withOpacity(0.1),
-  //                   borderColor: AppColors.primaryPurple.withOpacity(0.4),
+  //                   color: AppColors.primaryPurple.withValues(alpha: 0.1),
+  //                   borderColor: AppColors.primaryPurple.withValues(alpha: 0.4),
   //                   borderStrokeWidth: 1.5,
   //                   useRadiusInMeter: true,
   //                   radius: 1000,
@@ -954,10 +946,12 @@ class _MapCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.05)),
+        border: Border.all(
+          color: customTheme.textPrimary.withValues(alpha: 0.05),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -970,7 +964,7 @@ class _MapCard extends StatelessWidget {
 
 /// Custom action button without blur
 class _MapActionButton extends StatelessWidget {
-  final IconData icon;
+  final FaIcon icon;
   final Color color;
   final String tooltip;
   final VoidCallback onTap;
@@ -995,16 +989,16 @@ class _MapActionButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: customTheme.cardBackground,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.3)),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: Icon(icon, color: color, size: 22),
+          child: Center(child: icon),
         ),
       ),
     );
@@ -1054,9 +1048,13 @@ class _UserLocationMarkerState extends State<_UserLocationMarker>
               height: 56,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.greenAccent.withOpacity(0.15 * _pulseAnim.value),
+                color: Colors.greenAccent.withValues(
+                  alpha: 0.15 * _pulseAnim.value,
+                ),
                 border: Border.all(
-                  color: Colors.greenAccent.withOpacity(0.4 * _pulseAnim.value),
+                  color: Colors.greenAccent.withValues(
+                    alpha: 0.4 * _pulseAnim.value,
+                  ),
                   width: 2,
                 ),
               ),
@@ -1065,21 +1063,23 @@ class _UserLocationMarkerState extends State<_UserLocationMarker>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: Colors.greenAccent,
+                color: Colors.green,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2.5),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.greenAccent.withOpacity(0.35),
+                    color: Colors.greenAccent.withValues(alpha: 0.35),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
                 ],
               ),
-              child: const Icon(
-                HeroIcons.cursor_arrow_rays,
-                color: Colors.white,
-                size: 12,
+              child: Center(
+                child: FaIcon(
+                  FontAwesomeIcons.arrowRightLong,
+                  color: Colors.white,
+                  size: 10,
+                ),
               ),
             ),
           ],
@@ -1102,10 +1102,13 @@ class _PublicClusterMarker extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: AppColors.primaryGradient,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.3),
+          width: 2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryPurple.withOpacity(0.35),
+            color: AppColors.primaryPurple.withValues(alpha: 0.35),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -1171,7 +1174,7 @@ class _UserOrderMarker extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [color, color.withOpacity(0.8)],
+                  colors: [color, color.withValues(alpha: 0.8)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -1179,7 +1182,7 @@ class _UserOrderMarker extends StatelessWidget {
                 border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.35),
+                    color: color.withValues(alpha: 0.35),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
@@ -1247,7 +1250,7 @@ class _EdgeIndicatorButton extends StatelessWidget {
         border: Border.all(color: Colors.white, width: 2.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryBlue.withOpacity(0.45),
+            color: AppColors.primaryBlue.withValues(alpha: 0.45),
             blurRadius: 14,
             spreadRadius: 2,
             offset: const Offset(0, 4),
@@ -1280,10 +1283,9 @@ class _EdgeIndicatorButton extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     padding: const EdgeInsets.all(1),
-                    child: const Icon(
-                      HeroIcons.chevron_right,
+                    child: FaIcon(
+                      FontAwesomeIcons.chevronRight,
                       color: AppColors.primaryBlue,
-                      size: 10,
                     ),
                   ),
                 ),

@@ -1,5 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
+// import 'package:flutter_riverpod/legacy.dart';
 import 'package:moamen_project/core/utils/fake_email.dart';
 import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
@@ -72,7 +73,7 @@ class AuthNotifier extends Notifier<AppAuthState> {
       final user = UserModel.fromMap(profileResponse);
       state = state.copyWith(user: user, error: null);
     } on AuthException catch (error) {
-      print('❌ Auth error: ${error.message} (code: ${error.statusCode})');
+      debugPrint('❌ Auth error: ${error.message} (code: ${error.statusCode})');
 
       if (error.message.contains('Invalid login credentials') ||
           error.message.contains('invalid_credentials')) {

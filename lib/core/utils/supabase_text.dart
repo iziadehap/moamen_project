@@ -71,6 +71,9 @@ class SupabaseOrdersCulomns {
   static const String updatedAt = "updated_at";
   static const String photoUrls = "photo_urls";
   static const String acceptedAt = "accepted_at";
+  static const String billUrl = "bill_url";
+  static const String isFromCam = "is_from_cam";
+  static const String price = "price";
 }
 
 class TransactionType {
@@ -106,6 +109,7 @@ class SupabaseTables {
   static const String orders = "orders";
   static const String orderTransactions = "order_transactions";
   static const String PhotosBucket = "orders-photos";
+  static const String BillPhotosBucket = "bill_photo";
   static const String orderTracking = "order_tracking";
   static const String appConfig = "app_config";
   // static const String pricelistPhotosBucket = "pricelist-photos";

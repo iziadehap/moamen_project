@@ -1,11 +1,13 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/services/update/update_app.dart';
 import 'package:moamen_project/core/widgets/custom_snackbar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UpdateGate extends StatefulWidget {
   final Widget child;
@@ -254,22 +256,22 @@ class _AnimatedUpdateBannerState extends State<AnimatedUpdateBanner>
         margin: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           // Layered glassmorphism background
-          color: customTheme.cardBackground.withOpacity(0.88),
+          color: customTheme.cardBackground.withValues(alpha: 0.88),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: AppColors.primaryBlue.withOpacity(0.25),
+            color: AppColors.primaryBlue.withValues(alpha: 0.25),
             width: 1.2,
           ),
           boxShadow: [
             // Ambient
             BoxShadow(
-              color: Colors.black.withOpacity(0.28),
+              color: Colors.black.withValues(alpha: 0.28),
               blurRadius: 24,
               offset: const Offset(0, 12),
             ),
             // Blue glow
             BoxShadow(
-              color: AppColors.primaryBlue.withOpacity(0.18 * _pulse.value),
+              color: AppColors.primaryBlue.withValues(alpha: 0.18 * _pulse.value),
               blurRadius: 32,
               spreadRadius: 2,
               offset: const Offset(0, 4),
@@ -293,8 +295,8 @@ class _AnimatedUpdateBannerState extends State<AnimatedUpdateBanner>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.primaryBlue.withOpacity(0.18),
-                            AppColors.primaryBlue.withOpacity(0.32),
+                            AppColors.primaryBlue.withValues(alpha: 0.18),
+                            AppColors.primaryBlue.withValues(alpha: 0.32),
                           ],
                         ),
                       ),
@@ -317,9 +319,9 @@ class _AnimatedUpdateBannerState extends State<AnimatedUpdateBanner>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Colors.white.withOpacity(0.0),
-                          Colors.white.withOpacity(0.06),
-                          Colors.white.withOpacity(0.0),
+                          Colors.white.withValues(alpha: 0.0),
+                          Colors.white.withValues(alpha: 0.06),
+                          Colors.white.withValues(alpha: 0.0),
                         ],
                       ),
                     ),
@@ -362,7 +364,7 @@ class _AnimatedUpdateBannerState extends State<AnimatedUpdateBanner>
           height: 48,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.primaryBlue.withOpacity(0.12 * _pulse.value),
+            color: AppColors.primaryBlue.withValues(alpha: 0.12 * _pulse.value),
           ),
         ),
         // Inner ring
@@ -371,7 +373,7 @@ class _AnimatedUpdateBannerState extends State<AnimatedUpdateBanner>
           height: 38,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.primaryBlue.withOpacity(0.2 * _pulse.value),
+            color: AppColors.primaryBlue.withValues(alpha: 0.2 * _pulse.value),
           ),
         ),
         // Icon button
@@ -389,7 +391,7 @@ class _AnimatedUpdateBannerState extends State<AnimatedUpdateBanner>
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.primaryBlue.withOpacity(0.5 * _pulse.value),
+                color: AppColors.primaryBlue.withValues(alpha: 0.5 * _pulse.value),
                 blurRadius: 12,
                 spreadRadius: 1,
               ),
@@ -458,7 +460,7 @@ class _AnimatedUpdateBannerState extends State<AnimatedUpdateBanner>
       borderRadius: BorderRadius.circular(4),
       child: Stack(
         children: [
-          Container(height: 3, color: AppColors.primaryBlue.withOpacity(0.15)),
+          Container(height: 3, color: AppColors.primaryBlue.withValues(alpha: 0.15)),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOut,
@@ -471,14 +473,14 @@ class _AnimatedUpdateBannerState extends State<AnimatedUpdateBanner>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.primaryBlue.withOpacity(0.7),
+                      AppColors.primaryBlue.withValues(alpha: 0.7),
                       AppColors.primaryBlue,
                     ],
                   ),
                   borderRadius: BorderRadius.circular(4),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryBlue.withOpacity(0.6),
+                      color: AppColors.primaryBlue.withValues(alpha: 0.6),
                       blurRadius: 6,
                     ),
                   ],
@@ -521,7 +523,7 @@ class _AnimatedUpdateBannerState extends State<AnimatedUpdateBanner>
               shadowColor: Colors.transparent,
             ).copyWith(
               overlayColor: WidgetStateProperty.resolveWith(
-                (states) => Colors.white.withOpacity(0.15),
+                (states) => Colors.white.withValues(alpha: 0.15),
               ),
             ),
         child: AnimatedSwitcher(
@@ -709,7 +711,7 @@ class _AnimatedForcedUpdateScreenState extends State<AnimatedForcedUpdateScreen>
             height: size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primaryBlue.withOpacity(
+              color: AppColors.primaryBlue.withValues(alpha: 
                 0.05 * (3 - i) / 3 * _pulse.value,
               ),
             ),
@@ -726,7 +728,7 @@ class _AnimatedForcedUpdateScreenState extends State<AnimatedForcedUpdateScreen>
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.primaryBlue.withOpacity(0.4 * _pulse.value),
+                color: AppColors.primaryBlue.withValues(alpha: 0.4 * _pulse.value),
                 blurRadius: 30,
                 spreadRadius: 5,
               ),
@@ -776,13 +778,13 @@ class _AnimatedForcedUpdateScreenState extends State<AnimatedForcedUpdateScreen>
         onTap: widget.installing ? null : widget.onInstall,
         child: Container(
           decoration: BoxDecoration(
-            color: customTheme.cardBackground.withOpacity(0.5),
+            color: customTheme.cardBackground.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+            border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.3)),
             boxShadow: [
               if (widget.installing)
                 BoxShadow(
-                  color: AppColors.primaryBlue.withOpacity(0.1),
+                  color: AppColors.primaryBlue.withValues(alpha: 0.1),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),

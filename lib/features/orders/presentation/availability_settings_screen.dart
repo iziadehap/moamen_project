@@ -94,7 +94,7 @@ class _AvailabilitySettingsScreenState
               size: 20,
             ),
             style: IconButton.styleFrom(
-              backgroundColor: customTheme.textPrimary.withOpacity(0.05),
+              backgroundColor: customTheme.textPrimary.withValues(alpha: 0.05),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -118,7 +118,7 @@ class _AvailabilitySettingsScreenState
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      color: customTheme.errorColor.withOpacity(0.1),
+      color: customTheme.errorColor.withValues(alpha: 0.1),
       child: Row(
         children: [
           Icon(Icons.error_outline, color: customTheme.errorColor, size: 20),
@@ -157,7 +157,7 @@ class _AvailabilitySettingsScreenState
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: customTheme.primaryBlue.withOpacity(0.3),
+                color: customTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 5),
               ),
@@ -228,7 +228,9 @@ class _RuleCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.08)),
+        border: Border.all(
+          color: customTheme.textPrimary.withValues(alpha: 0.08),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,7 +336,7 @@ class _DayPicker extends StatelessWidget {
               newDays.remove(day.$1);
             onChanged(newDays);
           },
-          selectedColor: customTheme.primaryBlue.withOpacity(0.2),
+          selectedColor: customTheme.primaryBlue.withValues(alpha: 0.2),
           checkmarkColor: customTheme.primaryBlue,
           labelStyle: TextStyle(
             color: isSelected
@@ -391,7 +393,7 @@ class _RangeRow extends StatelessWidget {
           IconButton(
             icon: Icon(
               Icons.remove_circle_outline,
-              color: customTheme.errorColor.withOpacity(0.5),
+              color: customTheme.errorColor.withValues(alpha: 0.5),
               size: 18,
             ),
             onPressed: onDelete,
@@ -427,7 +429,7 @@ class _TimeChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: customTheme.textPrimary.withOpacity(0.05),
+          color: customTheme.textPrimary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -504,8 +506,8 @@ class _OverrideCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isClosed
-              ? customTheme.errorColor.withOpacity(0.2)
-              : customTheme.textPrimary.withOpacity(0.08),
+              ? customTheme.errorColor.withValues(alpha: 0.2)
+              : customTheme.textPrimary.withValues(alpha: 0.08),
         ),
       ),
       child: Column(
@@ -538,14 +540,14 @@ class _OverrideCard extends ConsumerWidget {
                   Switch(
                     value: isClosed,
                     onChanged: (v) => notifier.toggleDayClosed(index),
-                    activeColor: customTheme.errorColor,
+                    activeThumbColor: customTheme.errorColor,
                   ),
                 ],
               ),
               IconButton(
                 icon: Icon(
                   Icons.delete_outline,
-                  color: customTheme.errorColor.withOpacity(0.7),
+                  color: customTheme.errorColor.withValues(alpha: 0.7),
                   size: 18,
                 ),
                 onPressed: () => notifier.removeOverride(index),
@@ -596,10 +598,10 @@ class _AddButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: customTheme.primaryBlue.withOpacity(0.05),
+          color: customTheme.primaryBlue.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: customTheme.primaryBlue.withOpacity(0.2),
+            color: customTheme.primaryBlue.withValues(alpha: 0.2),
             style: BorderStyle.solid,
           ), // Fixed: dashed border not easy in vanilla
         ),

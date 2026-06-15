@@ -1,9 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:moamen_project/core/theme/app_theme.dart';
 
 class LocationResult {
@@ -97,9 +98,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   // If read-only, we might still want panning/zooming but maybe no dragging of a center
                 ),
                 onPositionChanged: (position, hasGesture) {
-                  if (!widget.isReadOnly && position.center != null) {
+                  if (!widget.isReadOnly) {
                     setState(() {
-                      _selectedLocation = position.center!;
+                      _selectedLocation = position.center;
                     });
                   }
                 },
@@ -145,7 +146,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                         size: 45,
                         shadows: [
                           Shadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withValues(alpha: 0.3),
                             offset: const Offset(0, 4),
                             blurRadius: 10,
                           ),
@@ -155,7 +156,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                         width: 4,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: customTheme.textPrimary.withOpacity(0.12),
+                          color: customTheme.textPrimary.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -174,14 +175,14 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: customTheme.cardBackground.withOpacity(0.8),
+                    color: customTheme.cardBackground.withValues(alpha: 0.8),
                     borderRadius: BorderRadius.circular(30),
                     border: Border.all(
-                      color: customTheme.textPrimary.withOpacity(0.1),
+                      color: customTheme.textPrimary.withValues(alpha: 0.1),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 10,
                       ),
                     ],
@@ -190,7 +191,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircleAvatar(
-                        backgroundColor: customTheme.textPrimary.withOpacity(
+                        backgroundColor: customTheme.textPrimary.withValues(alpha: 
                           0.1,
                         ),
                         child: IconButton(
@@ -231,13 +232,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(isDarkMode ? 0.4 : 0.1),
+                        color: Colors.black.withValues(alpha: isDarkMode ? 0.4 : 0.1),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
                     ],
                     border: Border.all(
-                      color: customTheme.textPrimary.withOpacity(0.1),
+                      color: customTheme.textPrimary.withValues(alpha: 0.1),
                     ),
                   ),
                   child: Column(
@@ -250,7 +251,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                             width: 40,
                             height: 4,
                             decoration: BoxDecoration(
-                              color: customTheme.textPrimary.withOpacity(0.1),
+                              color: customTheme.textPrimary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -287,13 +288,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                                 color: customTheme.cardBackground,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: customTheme.primaryBlue.withOpacity(
+                                  color: customTheme.primaryBlue.withValues(alpha: 
                                     0.5,
                                   ),
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: customTheme.primaryBlue.withOpacity(
+                                    color: customTheme.primaryBlue.withValues(alpha: 
                                       0.2,
                                     ),
                                     blurRadius: 10,

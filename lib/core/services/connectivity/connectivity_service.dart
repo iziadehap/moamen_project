@@ -40,7 +40,9 @@ class ConnectivityNotifier extends Notifier<ConnectivityState> {
   @override
   ConnectivityState build() {
     _initConnectivity();
-    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    _connectivity.onConnectivityChanged.listen((result) {
+      _updateConnectionStatus(result.first);
+    });
     return const ConnectivityState(
       status: ConnectivityResult.none,
       isEnabled: false,
@@ -51,7 +53,7 @@ class ConnectivityNotifier extends Notifier<ConnectivityState> {
   Future<void> _initConnectivity() async {
     try {
       final result = await _connectivity.checkConnectivity();
-      _updateConnectionStatus(result);
+      _updateConnectionStatus(result.first);
     } catch (e) {
       print('Could not check connectivity status: $e');
     }

@@ -30,6 +30,9 @@ class Order {
   final DateTime? acceptedAt;
 
   final List<String> photoUrls;
+  final String? billUrl;
+  final bool isFromCam;
+  final int? price;
 
   Order({
     required this.id,
@@ -52,6 +55,9 @@ class Order {
     this.updatedAt,
     this.acceptedAt,
     this.photoUrls = const [],
+    this.billUrl,
+    this.isFromCam = false,
+    this.price,
   });
 
   // ===================== fromJson =====================
@@ -92,6 +98,9 @@ class Order {
               ?.map((e) => e.toString())
               .toList() ??
           [],
+      billUrl: json['bill_url'] as String?,
+      isFromCam: json['is_from_cam'] as bool? ?? false,
+      price: (json['price'] as num?)?.toInt(),
     );
   }
 
@@ -144,6 +153,9 @@ class Order {
     DateTime? updatedAt,
     DateTime? acceptedAt,
     List<String>? photoUrls,
+    String? billUrl,
+    bool? isFromCam,
+    int? price,
   }) {
     return Order(
       id: id ?? this.id,
@@ -163,6 +175,9 @@ class Order {
       updatedAt: updatedAt ?? this.updatedAt,
       acceptedAt: acceptedAt ?? this.acceptedAt,
       photoUrls: photoUrls ?? this.photoUrls,
+      billUrl: billUrl ?? this.billUrl,
+      isFromCam: isFromCam ?? this.isFromCam,
+      price: price ?? this.price,
     );
   }
 }
@@ -181,10 +196,3 @@ OrderPriority _priorityFromString(String value) {
     orElse: () => OrderPriority.medium,
   );
 }
-
-// OrderType _typeFromString(String value) {
-//   return OrderType.values.firstWhere(
-//     (e) => e.name == value,
-//     orElse: () => OrderType.pickup,
-//   );
-// }

@@ -103,16 +103,19 @@ class MapNotifier extends Notifier<MapState> {
     state = state.copyWith(showPublicCircles: !state.showPublicCircles);
   }
 
-  Future<void> getOrders() async {
-    state = state.copyWith(isLoding: true, errorMassage: "", hintMassage: "");
-    try {
-      await ref.read(orderProvider.notifier).fetchOrders();
-      // Logic removed from here, handled by the listener in build()
-    } catch (e) {
-      print('Error triggering getOrders: $e');
-      state = state.copyWith(isLoding: false, errorMassage: e.toString());
-    }
-  }
+  // Future<void> getOrders() async {
+  //   state = state.copyWith(isLoding: true, errorMassage: "", hintMassage: "");
+  //   if (ref.read(orderProvider).hasFetched) {
+  //   return;
+  // }
+  //   try {
+  //     await ref.read(orderProvider.notifier).fetchOrders();
+  //     // Logic removed from here, handled by the listener in build()
+  //   } catch (e) {
+  //     print('Error triggering getOrders: $e');
+  //     state = state.copyWith(isLoding: false, errorMassage: e.toString());
+  //   }
+  // }
 
   Future<void> _processOrders(List<Order> orders) async {
     state = state.copyWith(isLoding: true, errorMassage: "", hintMassage: "");

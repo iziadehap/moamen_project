@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import 'app_colors.dart';
 
 class AppTheme {
@@ -38,7 +39,6 @@ class AppTheme {
         primary: AppColors.primaryBlue,
         secondary: AppColors.statusCyan,
         surface: AppColors.lightCard,
-        background: AppColors.lightBg,
         onSurface: AppColors.textBlack,
       ),
       // ... rest of lightTheme textTheme and inputDecorationTheme
@@ -69,7 +69,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.black.withOpacity(0.05)),
+          borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.05)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -122,7 +122,6 @@ class AppTheme {
         primary: AppColors.primaryBlue,
         secondary: AppColors.statusCyan,
         surface: AppColors.darkCard,
-        background: AppColors.midnightNavy,
         onSurface: AppColors.textWhite,
       ),
       textTheme: TextTheme(
@@ -152,7 +151,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

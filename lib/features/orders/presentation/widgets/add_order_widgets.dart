@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/theme/app_theme.dart';
+import 'package:moamen_project/core/utils/availability_utils.dart';
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
-import 'package:moamen_project/core/utils/availability_utils.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
@@ -72,7 +72,7 @@ class FormTextField extends StatelessWidget {
         ),
         prefixIcon: Icon(
           icon,
-          color: customTheme.primaryBlue.withOpacity(0.5),
+          color: customTheme.primaryBlue.withValues(alpha: 0.5),
           size: 20,
         ),
         filled: true,
@@ -84,7 +84,7 @@ class FormTextField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: customTheme.textPrimary.withOpacity(0.1),
+            color: customTheme.textPrimary.withValues(alpha: 0.1),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -123,7 +123,9 @@ class AvailabilityToggle extends StatelessWidget {
       decoration: BoxDecoration(
         color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+        border: Border.all(
+          color: customTheme.textPrimary.withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         children: [
@@ -131,7 +133,7 @@ class AvailabilityToggle extends StatelessWidget {
             children: [
               Icon(
                 Icons.calendar_month_rounded,
-                color: customTheme.primaryBlue.withOpacity(0.5),
+                color: customTheme.primaryBlue.withValues(alpha: 0.5),
               ),
               const SizedBox(width: 12),
               Text(
@@ -145,14 +147,16 @@ class AvailabilityToggle extends StatelessWidget {
               Switch(
                 value: isAllWeek,
                 onChanged: onChanged,
-                activeColor: customTheme.primaryBlue,
+                activeThumbColor: customTheme.primaryBlue,
               ),
             ],
           ),
           if (isAllWeek) ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Divider(color: customTheme.textPrimary.withOpacity(0.1)),
+              child: Divider(
+                color: customTheme.textPrimary.withValues(alpha: 0.1),
+              ),
             ),
             Row(
               children: [
@@ -241,7 +245,7 @@ class TimePickerField extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: customTheme.textPrimary.withOpacity(0.05),
+          color: customTheme.textPrimary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -292,9 +296,11 @@ class DailyScheduleItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: customTheme.cardBackground.withOpacity(0.5),
+        color: customTheme.cardBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+        border: Border.all(
+          color: customTheme.textPrimary.withValues(alpha: 0.1),
+        ),
       ),
       child: Row(
         children: [
@@ -393,7 +399,7 @@ Widget uplodePhotoWidget() {
                 color: customTheme.cardBackground,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: customTheme.primaryBlue.withOpacity(0.3),
+                  color: customTheme.primaryBlue.withValues(alpha: 0.3),
                 ),
               ),
               child: Center(
@@ -441,7 +447,9 @@ class _PhotoItem extends StatelessWidget {
           width: 100,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+            border: Border.all(
+              color: customTheme.textPrimary.withValues(alpha: 0.1),
+            ),
             image: DecorationImage(image: image, fit: BoxFit.cover),
           ),
         ),

@@ -1,17 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:moamen_project/core/theme/app_colors.dart';
 import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/utils/images.dart';
+import 'package:moamen_project/core/utils/supabase_text.dart';
+import 'package:moamen_project/features/adminDashbord/presentation/admin_dash.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/auth/presentation/login_screen.dart';
-import 'package:moamen_project/core/utils/supabase_text.dart';
-import 'package:icons_plus/icons_plus.dart';
+// import 'package:icons_plus/icons_plus.dart';
 import 'package:moamen_project/features/settings/data/settings_provider.dart';
-import 'package:moamen_project/features/adminDashbord/presentation/admin_dash.dart';
+
 import 'edit_profile_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -98,7 +100,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                             ],
                           ),
                           _LuxeHeaderButton(
-                            icon: HeroIcons.cog_6_tooth,
+                            icon: FaIcon(FontAwesomeIcons.gear),
                             onTap: () =>
                                 _showSettingsSheet(context, ref, customTheme),
                           ),
@@ -120,22 +122,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                           children: [
                             AnimatedBuilder(
                               animation: _glowAnimation,
-                              builder: (_, __) => Container(
+                              builder: (_, _) => Container(
                                 width: 138,
                                 height: 138,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.primaryBlue.withOpacity(
-                                        0.55,
+                                      color: AppColors.primaryBlue.withValues(
+                                        alpha: 0.55,
                                       ),
                                       blurRadius: _glowAnimation.value,
                                       spreadRadius: 6,
                                     ),
                                     BoxShadow(
-                                      color: AppColors.primaryPurple
-                                          .withOpacity(0.45),
+                                      color: AppColors.primaryPurple.withValues(
+                                        alpha: 0.45,
+                                      ),
                                       blurRadius: _glowAnimation.value * 0.75,
                                       spreadRadius: 16,
                                     ),
@@ -163,8 +166,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                                     context,
                                   ).colorScheme.surface,
                                   child: user?.imageUrl == null
-                                      ? const Icon(
-                                          HeroIcons.user,
+                                      ? FaIcon(
+                                          FontAwesomeIcons.user,
                                           size: 54,
                                           color: Colors.white24,
                                         )
@@ -237,8 +240,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                           _LuxeBadge(
                             label: isAdmin ? 'مدير النظام' : 'مستخدم',
                             icon: isAdmin
-                                ? HeroIcons.shield_check
-                                : HeroIcons.user,
+                                ? FaIcon(FontAwesomeIcons.shield, size: 20)
+                                : FaIcon(FontAwesomeIcons.user, size: 20),
                             color: isAdmin
                                 ? AppColors.primaryPurple
                                 : AppColors.primaryBlue,
@@ -339,7 +342,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                             },
 
                             label: '${user?.maxOrders ?? 0} طلبات',
-                            icon: HeroIcons.shopping_cart,
+                            icon: FaIcon(
+                              FontAwesomeIcons.shoppingCart,
+                              size: 20,
+                            ),
                             color: AppColors.primaryBlue,
                           ),
                         ],
@@ -356,7 +362,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                       _LuxeProfileCard(
                         title: 'تعديل الملف الشخصي',
                         subtitle: 'الاسم • الصورة • البيانات',
-                        icon: HeroIcons.user_circle,
+                        icon: FaIcon(FontAwesomeIcons.userCircle),
                         color: AppColors.primaryBlue,
                         onTap: () => Navigator.push(
                           context,
@@ -369,7 +375,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         _LuxeProfileCard(
                           title: 'لوحة التحكم',
                           subtitle: 'إدارة المستخدمين والطلبات',
-                          icon: HeroIcons.squares_2x2,
+                          icon: FaIcon(FontAwesomeIcons.dashboard),
                           color: AppColors.primaryPurple,
                           onTap: () => Navigator.push(
                             context,
@@ -381,7 +387,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                       _LuxeProfileCard(
                         title: 'تسجيل الخروج',
                         subtitle: 'الخروج الآمن',
-                        icon: HeroIcons.arrow_right_on_rectangle,
+                        icon: FaIcon(FontAwesomeIcons.arrowRightToBracket),
                         color: Colors.redAccent,
                         isLast: true,
                         onTap: () => _showLogoutDialog(context, ref),
@@ -483,13 +489,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               const SizedBox(height: 24),
               _LuxeSettingTile(
                 title: 'الوضع الليلي',
-                icon: isDark ? HeroIcons.moon : HeroIcons.sun,
+                icon: isDark
+                    ? FaIcon(FontAwesomeIcons.moon, size: 20)
+                    : FaIcon(FontAwesomeIcons.sun, size: 20),
                 color: AppColors.primaryPurple,
                 trailing: Switch(
                   value: isDark,
                   onChanged: (_) =>
                       ref.read(themeProvider.notifier).toggleTheme(),
-                  activeColor: AppColors.primaryPurple,
+                  activeThumbColor: AppColors.primaryPurple,
                 ),
               ),
             ],
@@ -503,7 +511,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 // ====================== COMPACT LUXE COMPONENTS ======================
 
 class _LuxeHeaderButton extends StatelessWidget {
-  final IconData icon;
+  final FaIcon icon;
   final VoidCallback onTap;
   const _LuxeHeaderButton({required this.icon, required this.onTap});
 
@@ -520,16 +528,16 @@ class _LuxeHeaderButton extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.primaryBlue.withOpacity(0.12),
-                AppColors.primaryPurple.withOpacity(0.12),
+                AppColors.primaryBlue.withValues(alpha: 0.12),
+                AppColors.primaryPurple.withValues(alpha: 0.12),
               ],
             ),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: AppColors.primaryPurple.withOpacity(0.25),
+              color: AppColors.primaryPurple.withValues(alpha: 0.25),
             ),
           ),
-          child: Icon(icon, color: customTheme.textPrimary, size: 22),
+          child: icon,
         ),
       ),
     );
@@ -539,7 +547,7 @@ class _LuxeHeaderButton extends StatelessWidget {
 class _LuxeBadge extends StatelessWidget {
   final VoidCallback onTap;
   final String label;
-  final IconData icon;
+  final FaIcon icon;
   final Color color;
   const _LuxeBadge({
     required this.label,
@@ -556,15 +564,18 @@ class _LuxeBadge extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [color.withOpacity(0.13), color.withOpacity(0.06)],
+            colors: [
+              color.withValues(alpha: 0.13),
+              color.withValues(alpha: 0.06),
+            ],
           ),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 15),
+            icon,
             const SizedBox(width: 7),
             Text(
               label,
@@ -584,7 +595,7 @@ class _LuxeBadge extends StatelessWidget {
 class _LuxeProfileCard extends StatefulWidget {
   final String title;
   final String subtitle;
-  final IconData icon;
+  final FaIcon icon;
   final Color color;
   final VoidCallback onTap;
   final bool isLast;
@@ -643,12 +654,12 @@ class _LuxeProfileCardState extends State<_LuxeProfileCard>
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: widget.color.withOpacity(0.11),
+                color: widget.color.withValues(alpha: 0.11),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withValues(alpha: 0.06),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               ),
@@ -661,10 +672,10 @@ class _LuxeProfileCardState extends State<_LuxeProfileCard>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: widget.color.withOpacity(0.1),
+                    color: widget.color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(widget.icon, color: widget.color, size: 26),
+                  child: widget.icon,
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -689,10 +700,9 @@ class _LuxeProfileCardState extends State<_LuxeProfileCard>
                     ],
                   ),
                 ),
-                Icon(
-                  HeroIcons.chevron_left,
-                  color: customTheme.textPrimary.withOpacity(0.35),
-                  size: 22,
+                FaIcon(
+                  FontAwesomeIcons.chevronLeft,
+                  color: customTheme.textPrimary.withValues(alpha: 0.35),
                 ),
               ],
             ),
@@ -705,7 +715,7 @@ class _LuxeProfileCardState extends State<_LuxeProfileCard>
 
 class _LuxeSettingTile extends StatelessWidget {
   final String title;
-  final IconData icon;
+  final FaIcon icon;
   final Color color;
   final Widget trailing;
 
@@ -722,19 +732,21 @@ class _LuxeSettingTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: customTheme.cardBackground.withOpacity(0.65),
+        color: customTheme.cardBackground.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+        border: Border.all(
+          color: customTheme.textPrimary.withValues(alpha: 0.1),
+        ),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(11),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: icon,
           ),
           const SizedBox(width: 16),
           Expanded(

@@ -7,6 +7,7 @@ import 'package:moamen_project/features/auth/presentation/controller/auth_provid
 import 'package:moamen_project/features/pricelist/data/priceList_model.dart';
 import 'package:moamen_project/features/pricelist/presentation/controller/priceList_provider.dart';
 import 'package:moamen_project/features/pricelist/presentation/screens/add_price_list_screen.dart';
+
 import '../../../../core/theme/app_theme.dart';
 
 class PriceDetailScreen extends ConsumerStatefulWidget {
@@ -19,7 +20,7 @@ class PriceDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
   final CarouselSliderController _carouselController =
       CarouselSliderController();
 
@@ -121,7 +122,7 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
   //       borderRadius: BorderRadius.circular(32),
   //       boxShadow: [
   //         BoxShadow(
-  //           color: Colors.black.withOpacity(0.3),
+  //           color: Colors.black.withValues(alpha: 0.3),
   //           blurRadius: 20,
   //           offset: const Offset(0, 10),
   //         ),
@@ -162,7 +163,7 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
   //                 gradient: LinearGradient(
   //                   begin: Alignment.topCenter,
   //                   end: Alignment.bottomCenter,
-  //                   colors: [Colors.transparent, Colors.black.withOpacity(0.5)],
+  //                   colors: [Colors.transparent, Colors.black.withValues(alpha: 0.5)],
   //                 ),
   //               ),
   //             ),
@@ -177,9 +178,9 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
   //                 vertical: 12,
   //               ),
   //               decoration: BoxDecoration(
-  //                 color: Colors.white.withOpacity(0.1),
+  //                 color: Colors.white.withValues(alpha: 0.1),
   //                 borderRadius: BorderRadius.circular(20),
-  //                 border: Border.all(color: Colors.white.withOpacity(0.2)),
+  //                 border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
   //               ),
   //               child: Row(
   //                 mainAxisSize: MainAxisSize.min,
@@ -221,7 +222,7 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
   //                       margin: const EdgeInsets.symmetric(horizontal: 4),
   //                       decoration: BoxDecoration(
   //                         borderRadius: BorderRadius.circular(4),
-  //                         color: Colors.white.withOpacity(
+  //                         color: Colors.white.withValues(alpha: 
   //                           _currentIndex == entry.key ? 0.9 : 0.4,
   //                         ),
   //                       ),
@@ -244,15 +245,15 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              customTheme.primaryBlue.withOpacity(0.3),
-              customTheme.primaryPurple.withOpacity(0.3),
+              customTheme.primaryBlue.withValues(alpha: 0.3),
+              customTheme.primaryPurple.withValues(alpha: 0.3),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: customTheme.primaryBlue.withOpacity(0.5),
+            color: customTheme.primaryBlue.withValues(alpha: 0.5),
             width: 2,
           ),
         ),
@@ -260,7 +261,7 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '${item.price.toStringAsFixed(0)}',
+              item.price.toStringAsFixed(0),
               style: GoogleFonts.cairo(
                 color: customTheme.textPrimary,
                 fontSize: 48,
@@ -303,7 +304,7 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
       decoration: BoxDecoration(
         color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.08)),
+        border: Border.all(color: customTheme.textPrimary.withValues(alpha: 0.08)),
       ),
       child: Text(
         text,
@@ -324,9 +325,9 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -403,9 +404,9 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
         Container(
           height: 56,
           decoration: BoxDecoration(
-            color: customTheme.errorColor.withOpacity(0.1),
+            color: customTheme.errorColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: customTheme.errorColor.withOpacity(0.3)),
+            border: Border.all(color: customTheme.errorColor.withValues(alpha: 0.3)),
           ),
           child: IconButton(
             onPressed: () => _showDeleteDialog(context, ref, customTheme),
@@ -424,9 +425,9 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
-        color: customTheme.background.withOpacity(0.5),
+        color: customTheme.background.withValues(alpha: 0.5),
         border: Border(
-          bottom: BorderSide(color: customTheme.textPrimary.withOpacity(0.05)),
+          bottom: BorderSide(color: customTheme.textPrimary.withValues(alpha: 0.05)),
         ),
       ),
       child: Row(
@@ -439,12 +440,12 @@ class _PriceDetailScreenState extends ConsumerState<PriceDetailScreen> {
               size: 18,
             ),
             style: IconButton.styleFrom(
-              backgroundColor: customTheme.textPrimary.withOpacity(0.05),
+              backgroundColor: customTheme.textPrimary.withValues(alpha: 0.05),
               padding: const EdgeInsets.all(12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: customTheme.textPrimary.withOpacity(0.1),
+                  color: customTheme.textPrimary.withValues(alpha: 0.1),
                 ),
               ),
             ),

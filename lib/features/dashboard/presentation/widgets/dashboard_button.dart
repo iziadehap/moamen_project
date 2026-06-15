@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../../../core/theme/app_colors.dart';
 
 class DashboardButton extends StatefulWidget {
@@ -68,13 +69,13 @@ class _DashboardButtonState extends State<DashboardButton>
             ),
             boxShadow: [
               BoxShadow(
-                color: themeColor.withOpacity(0.15),
+                color: themeColor.withValues(alpha: 0.15),
                 blurRadius: 25,
                 offset: const Offset(0, 12),
               ),
             ],
             border: Border.all(
-              color: Colors.white.withOpacity(0.08),
+              color: Colors.white.withValues(alpha: 0.08),
               width: 1.5,
             ),
           ),
@@ -89,7 +90,7 @@ class _DashboardButtonState extends State<DashboardButton>
                   height: 60,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: themeColor.withOpacity(0.1),
+                    color: themeColor.withValues(alpha: 0.1),
                   ),
                 ),
               ),
@@ -101,7 +102,7 @@ class _DashboardButtonState extends State<DashboardButton>
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [themeColor, themeColor.withOpacity(0.8)],
+                          colors: [themeColor, themeColor.withValues(alpha: 0.8)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -113,7 +114,7 @@ class _DashboardButtonState extends State<DashboardButton>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: themeColor.withOpacity(0.4),
+                            color: themeColor.withValues(alpha: 0.4),
                             blurRadius: 15,
                             offset: const Offset(0, 6),
                           ),
@@ -127,7 +128,7 @@ class _DashboardButtonState extends State<DashboardButton>
                       style: GoogleFonts.cairo(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white.withOpacity(0.95),
+                        color: Colors.white.withValues(alpha: 0.95),
                       ),
                     ),
                   ],

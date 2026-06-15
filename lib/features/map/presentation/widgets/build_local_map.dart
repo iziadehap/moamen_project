@@ -87,9 +87,9 @@
 //                   Polyline(
 //                     points: mapState.routePoints,
 //                     strokeWidth: 5,
-//                     color: AppColors.primaryBlue.withOpacity(0.8),
+//                     color: AppColors.primaryBlue.withValues(alpha: 0.8),
 //                     borderStrokeWidth: 2,
-//                     borderColor: AppColors.primaryBlue.withOpacity(0.3),
+//                     borderColor: AppColors.primaryBlue.withValues(alpha: 0.3),
 //                   ),
 //                 ],
 //               ),
@@ -99,8 +99,8 @@
 //                 circles: mapState.mapModel.publicPoints.map((circleOrder) {
 //                   return CircleMarker(
 //                     point: circleOrder.points,
-//                     color: AppColors.primaryPurple.withOpacity(0.1),
-//                     borderColor: AppColors.primaryPurple.withOpacity(0.4),
+//                     color: AppColors.primaryPurple.withValues(alpha: 0.1),
+//                     borderColor: AppColors.primaryPurple.withValues(alpha: 0.4),
 //                     borderStrokeWidth: 1.5,
 //                     useRadiusInMeter: true,
 //                     radius: 1000,

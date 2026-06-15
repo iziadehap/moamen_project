@@ -25,7 +25,7 @@ class _BuildImagesHederState extends State<BuildImagesHeder> {
 
   @override
   Widget build(BuildContext context) {
-    final CarouselSliderController _carouselController =
+    final CarouselSliderController carouselController =
         CarouselSliderController();
     return Container(
       height: 300,
@@ -34,7 +34,7 @@ class _BuildImagesHederState extends State<BuildImagesHeder> {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -57,7 +57,7 @@ class _BuildImagesHederState extends State<BuildImagesHeder> {
                 );
               },
               child: CarouselSlider(
-                carouselController: _carouselController,
+                carouselController: carouselController,
                 items: widget.photoUrls.map((url) {
                   return CachedNetworkImage(
                     imageUrl: url,
@@ -92,7 +92,7 @@ class _BuildImagesHederState extends State<BuildImagesHeder> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
+                    colors: [Colors.transparent, Colors.black.withValues(alpha: 0.4)],
                   ),
                 ),
               ),
@@ -108,10 +108,10 @@ class _BuildImagesHederState extends State<BuildImagesHeder> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
+                    color: Colors.white.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.25),
+                      color: Colors.white.withValues(alpha: 0.25),
                       width: 1,
                     ),
                   ),
@@ -148,7 +148,7 @@ class _BuildImagesHederState extends State<BuildImagesHeder> {
                   mainAxisSize: MainAxisSize.min,
                   children: widget.photoUrls.asMap().entries.map((entry) {
                     return GestureDetector(
-                      onTap: () => _carouselController.animateToPage(entry.key),
+                      onTap: () => carouselController.animateToPage(entry.key),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         width: currentIndex == entry.key ? 24 : 8,
@@ -156,7 +156,7 @@ class _BuildImagesHederState extends State<BuildImagesHeder> {
                         margin: const EdgeInsets.symmetric(horizontal: 4),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
-                          color: Colors.white.withOpacity(
+                          color: Colors.white.withValues(alpha: 
                             currentIndex == entry.key ? 0.95 : 0.35,
                           ),
                         ),

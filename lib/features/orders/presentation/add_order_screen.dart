@@ -3,17 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:moamen_project/core/theme/app_theme.dart';
+import 'package:moamen_project/core/utils/alx_places.dart';
+import 'package:moamen_project/core/utils/availability_utils.dart';
 import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/core/widgets/custom_snackbar.dart';
-import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
-import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
+import 'package:moamen_project/features/orders/data/models/order_model.dart';
+import 'package:moamen_project/features/orders/presentation/availability_settings_screen.dart';
+import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
 import 'package:moamen_project/features/orders/presentation/location_picker_screen.dart';
 import 'package:moamen_project/features/orders/presentation/widgets/add_order_widgets.dart';
-import 'package:moamen_project/core/utils/alx_places.dart';
-import 'package:moamen_project/core/utils/availability_utils.dart';
-import 'package:moamen_project/features/orders/presentation/availability_settings_screen.dart';
 
 // ─────────────────────────────────────────────
 // Main Screen
@@ -544,10 +544,10 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen>
           colors: [
             Theme.of(
               context,
-            ).extension<CustomThemeExtension>()!.errorColor.withOpacity(0.1),
+            ).extension<CustomThemeExtension>()!.errorColor.withValues(alpha: 0.1),
             Theme.of(
               context,
-            ).extension<CustomThemeExtension>()!.errorColor.withOpacity(0.05),
+            ).extension<CustomThemeExtension>()!.errorColor.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -556,7 +556,7 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen>
         border: Border.all(
           color: Theme.of(
             context,
-          ).extension<CustomThemeExtension>()!.errorColor.withOpacity(0.3),
+          ).extension<CustomThemeExtension>()!.errorColor.withValues(alpha: 0.3),
           width: 1.5,
         ),
       ),
@@ -1043,7 +1043,7 @@ class _OrderHeader extends StatelessWidget {
                   size: 20,
                 ),
                 style: IconButton.styleFrom(
-                  backgroundColor: customTheme.textPrimary.withOpacity(0.05),
+                  backgroundColor: customTheme.textPrimary.withValues(alpha: 0.05),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1200,7 +1200,7 @@ class _DropdownContainer extends StatelessWidget {
     decoration: BoxDecoration(
       color: customTheme.cardBackground,
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+      border: Border.all(color: customTheme.textPrimary.withValues(alpha: 0.1)),
     ),
     child: child,
   );
@@ -1314,7 +1314,7 @@ class _WorkerCard extends StatelessWidget {
     decoration: BoxDecoration(
       color: customTheme.cardBackground,
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: customTheme.primaryBlue.withOpacity(0.3)),
+      border: Border.all(color: customTheme.primaryBlue.withValues(alpha: 0.3)),
     ),
     child: Row(
       children: [
@@ -1388,7 +1388,7 @@ class _PlacesDropdownButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: customTheme.cardBackground,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+            border: Border.all(color: customTheme.textPrimary.withValues(alpha: 0.1)),
           ),
           child: Row(
             children: [
@@ -1396,7 +1396,7 @@ class _PlacesDropdownButton extends StatelessWidget {
                 isManualArea
                     ? Icons.edit_location_alt_rounded
                     : Icons.location_on_rounded,
-                color: customTheme.primaryBlue.withOpacity(0.7),
+                color: customTheme.primaryBlue.withValues(alpha: 0.7),
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1439,9 +1439,9 @@ class _MapPickerButton extends StatelessWidget {
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
-        color: customTheme.primaryBlue.withOpacity(0.1),
+        color: customTheme.primaryBlue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: customTheme.primaryBlue.withOpacity(0.3)),
+        border: Border.all(color: customTheme.primaryBlue.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1506,9 +1506,9 @@ class _AdvancedAvailabilityButton extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     width: double.infinity,
     decoration: BoxDecoration(
-      color: customTheme.primaryBlue.withOpacity(0.05),
+      color: customTheme.primaryBlue.withValues(alpha: 0.05),
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: customTheme.primaryBlue.withOpacity(0.2)),
+      border: Border.all(color: customTheme.primaryBlue.withValues(alpha: 0.2)),
     ),
     child: Material(
       color: Colors.transparent,
@@ -1599,13 +1599,13 @@ class _HeaderActionButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
           gradient: isDisabled ? null : customTheme.primaryGradient,
-          color: isDisabled ? customTheme.textSecondary.withOpacity(0.2) : null,
+          color: isDisabled ? customTheme.textSecondary.withValues(alpha: 0.2) : null,
           borderRadius: BorderRadius.circular(14),
           boxShadow: isDisabled
               ? []
               : [
                   BoxShadow(
-                    color: customTheme.primaryBlue.withOpacity(0.25),
+                    color: customTheme.primaryBlue.withValues(alpha: 0.25),
                     blurRadius: 12,
                     offset: const Offset(0, 5),
                   ),
@@ -1720,7 +1720,7 @@ class _PlacesPickerSheetState extends State<_PlacesPickerSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: widget.customTheme.textPrimary.withOpacity(0.2),
+              color: widget.customTheme.textPrimary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -1741,7 +1741,7 @@ class _PlacesPickerSheetState extends State<_PlacesPickerSheet> {
                   onPressed: () => Navigator.pop(context),
                   icon: Icon(
                     Icons.close,
-                    color: widget.customTheme.textPrimary.withOpacity(0.7),
+                    color: widget.customTheme.textPrimary.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -1763,7 +1763,7 @@ class _PlacesPickerSheetState extends State<_PlacesPickerSheet> {
                   color: widget.customTheme.primaryBlue,
                 ),
                 filled: true,
-                fillColor: widget.customTheme.textPrimary.withOpacity(0.05),
+                fillColor: widget.customTheme.textPrimary.withValues(alpha: 0.05),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
@@ -1771,7 +1771,7 @@ class _PlacesPickerSheetState extends State<_PlacesPickerSheet> {
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide(
-                    color: widget.customTheme.textPrimary.withOpacity(0.1),
+                    color: widget.customTheme.textPrimary.withValues(alpha: 0.1),
                   ),
                 ),
               ),
@@ -1798,7 +1798,7 @@ class _PlacesPickerSheetState extends State<_PlacesPickerSheet> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Divider(
-                      color: widget.customTheme.textPrimary.withOpacity(0.1),
+                      color: widget.customTheme.textPrimary.withValues(alpha: 0.1),
                     ),
                   ),
                   ..._filtered.map(
@@ -1849,13 +1849,13 @@ class _PlaceItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: isManual
-            ? customTheme.primaryBlue.withOpacity(0.1)
-            : customTheme.textPrimary.withOpacity(0.03),
+            ? customTheme.primaryBlue.withValues(alpha: 0.1)
+            : customTheme.textPrimary.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isManual
-              ? customTheme.primaryBlue.withOpacity(0.3)
-              : customTheme.textPrimary.withOpacity(0.1),
+              ? customTheme.primaryBlue.withValues(alpha: 0.3)
+              : customTheme.textPrimary.withValues(alpha: 0.1),
         ),
       ),
       child: ListTile(
@@ -1864,7 +1864,7 @@ class _PlaceItem extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: accent.withOpacity(0.15),
+            color: accent.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: accent, size: 20),
@@ -1886,7 +1886,7 @@ class _PlaceItem extends StatelessWidget {
         ),
         trailing: Icon(
           Icons.arrow_forward_ios_rounded,
-          color: accent.withOpacity(0.5),
+          color: accent.withValues(alpha: 0.5),
           size: 14,
         ),
       ),

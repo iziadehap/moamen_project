@@ -4,12 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/core/widgets/build_buttons.dart';
 import 'package:moamen_project/core/widgets/card_list.dart';
+import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/pricelist/data/priceList_model.dart';
 import 'package:moamen_project/features/pricelist/presentation/controller/priceList_provider.dart';
 import 'package:moamen_project/features/pricelist/presentation/screens/add_price_list_screen.dart';
 import 'package:moamen_project/features/pricelist/presentation/screens/price_detail_screen.dart';
-import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/pricelist/presentation/widgets/widgets.dart';
+
 import '../../../../core/theme/app_theme.dart';
 
 class PriceListScreen extends ConsumerStatefulWidget {
@@ -93,7 +94,7 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
   //     child: Container(
   //       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
   //       decoration: BoxDecoration(
-  //         color: AppColors.midnightNavy.withOpacity(0.8),
+  //         color: AppColors.midnightNavy.withValues(alpha: 0.8),
   //         border: const Border(top: BorderSide(color: Colors.white10)),
   //       ),
   //       child: SizedBox(
@@ -152,7 +153,7 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
   ) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-      decoration: BoxDecoration(color: customTheme.background.withOpacity(0.5)),
+      decoration: BoxDecoration(color: customTheme.background.withValues(alpha: 0.5)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -179,10 +180,10 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: customTheme.primaryBlue.withOpacity(0.1),
+                        color: customTheme.primaryBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: customTheme.primaryBlue.withOpacity(0.2),
+                          color: customTheme.primaryBlue.withValues(alpha: 0.2),
                         ),
                       ),
                       child: Text(
@@ -257,7 +258,7 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
                 )
               : null,
           filled: true,
-          fillColor: customTheme.textPrimary.withOpacity(0.05),
+          fillColor: customTheme.textPrimary.withValues(alpha: 0.05),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
@@ -265,7 +266,7 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(
-              color: customTheme.textPrimary.withOpacity(0.1),
+              color: customTheme.textPrimary.withValues(alpha: 0.1),
             ),
           ),
           focusedBorder: OutlineInputBorder(
@@ -355,7 +356,7 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
               _searchQuery.isNotEmpty
                   ? Icons.search_off_rounded
                   : Icons.receipt_long_outlined,
-              color: customTheme.textSecondary.withOpacity(0.3),
+              color: customTheme.textSecondary.withValues(alpha: 0.3),
               size: 80,
             ),
             const SizedBox(height: 16),

@@ -7,9 +7,9 @@ import 'package:moamen_project/core/utils/app_config_data.dart';
 import 'package:moamen_project/core/utils/fake_email.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/core/widgets/custom_snackbar.dart';
+import 'package:moamen_project/core/widgets/open_phone_number.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/controller/admin_provider.dart';
 import 'package:moamen_project/features/auth/data/models/user_model.dart';
-import 'package:moamen_project/core/widgets/open_phone_number.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 
 class UserDetailsScreen extends ConsumerStatefulWidget {
@@ -86,7 +86,7 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
                             (isAdmin
                                     ? customTheme.primaryPurple
                                     : customTheme.primaryBlue)
-                                .withOpacity(0.2),
+                                .withValues(alpha: 0.2),
                         radius: 40,
                         child: Icon(
                           isAdmin
@@ -191,10 +191,10 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: customTheme.cardBackground.withOpacity(0.5),
+                  color: customTheme.cardBackground.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: customTheme.textPrimary.withOpacity(0.05),
+                    color: customTheme.textPrimary.withValues(alpha: 0.05),
                   ),
                 ),
                 child: Column(
@@ -226,9 +226,9 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
                             isActive = val;
                           });
                         },
-                        activeColor: customTheme.statusGreen,
+                        activeThumbColor: customTheme.statusGreen,
                       ),
-                      Divider(color: customTheme.textPrimary.withOpacity(0.1)),
+                      Divider(color: customTheme.textPrimary.withValues(alpha: 0.1)),
                     ],
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
@@ -272,7 +272,7 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
                           }
                         }
                       },
-                      activeColor: customTheme.primaryPurple,
+                      activeThumbColor: customTheme.primaryPurple,
                     ),
                   ],
                 ),
@@ -292,7 +292,7 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: customTheme.primaryBlue.withOpacity(0.3),
+                    color: customTheme.primaryBlue.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 5),
                   ),
@@ -593,9 +593,9 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: isOutline ? color.withOpacity(0.1) : color.withOpacity(0.2),
+        color: isOutline ? color.withValues(alpha: 0.1) : color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
-        border: isOutline ? Border.all(color: color.withOpacity(0.3)) : null,
+        border: isOutline ? Border.all(color: color.withValues(alpha: 0.3)) : null,
       ),
       child: Text(
         label,
@@ -632,7 +632,7 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
                   icon: const Icon(Icons.remove, size: 16),
                   label: Text('إزالة', style: GoogleFonts.cairo(fontSize: 12)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: customTheme.errorColor.withOpacity(0.2),
+                    backgroundColor: customTheme.errorColor.withValues(alpha: 0.2),
                     foregroundColor: customTheme.errorColor,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(
@@ -651,7 +651,7 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
                   icon: const Icon(Icons.add, size: 16),
                   label: Text('إضافة', style: GoogleFonts.cairo(fontSize: 12)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: customTheme.primaryBlue.withOpacity(0.2),
+                    backgroundColor: customTheme.primaryBlue.withValues(alpha: 0.2),
                     foregroundColor: customTheme.primaryBlue,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(
@@ -673,10 +673,10 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: customTheme.textPrimary.withOpacity(0.03),
+            color: customTheme.textPrimary.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: customTheme.textPrimary.withOpacity(0.08),
+              color: customTheme.textPrimary.withValues(alpha: 0.08),
             ),
           ),
           child: Column(
@@ -716,7 +716,7 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: customTheme.errorColor.withOpacity(0.1),
+                          color: customTheme.errorColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Icon(
@@ -730,7 +730,7 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
                 ),
               ],
               const SizedBox(height: 4),
-              Divider(color: customTheme.textPrimary.withOpacity(0.1)),
+              Divider(color: customTheme.textPrimary.withValues(alpha: 0.1)),
               const SizedBox(height: 4),
               Text(
                 'الإجمالي الجديد: $newOrders',
@@ -899,10 +899,10 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: customTheme.textPrimary.withOpacity(0.03),
+            color: customTheme.textPrimary.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: customTheme.textPrimary.withOpacity(0.08),
+              color: customTheme.textPrimary.withValues(alpha: 0.08),
             ),
           ),
           //win is phone add underline bule
@@ -951,7 +951,7 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: customTheme.textPrimary.withOpacity(0.1),
+            color: customTheme.textPrimary.withValues(alpha: 0.1),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -959,7 +959,7 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
           borderSide: BorderSide(color: customTheme.primaryBlue),
         ),
         filled: true,
-        fillColor: customTheme.textPrimary.withOpacity(0.05),
+        fillColor: customTheme.textPrimary.withValues(alpha: 0.05),
       ),
     );
   }

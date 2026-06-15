@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/services/connectivity/connectivity_service.dart';
 import 'package:moamen_project/core/services/location/location_service.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../core/theme/app_theme.dart';
 import '../../auth/presentation/login_screen.dart';
 import '../../dashboard/presentation/dashboard_screen.dart';
-import 'riverpod/splash_state.dart';
 import 'riverpod/splash_notifier.dart';
+import 'riverpod/splash_state.dart';
 
 /// ==================== UI ====================
 class SplashScreen extends ConsumerWidget {
@@ -100,7 +101,7 @@ class SplashScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: customTheme.primaryBlue.withOpacity(0.2),
+                color: customTheme.primaryBlue.withValues(alpha: 0.2),
                 blurRadius: 30,
                 spreadRadius: 5,
               ),
@@ -143,10 +144,10 @@ class SplashScreen extends ConsumerWidget {
           margin: const EdgeInsets.symmetric(horizontal: 24),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: customTheme.cardBackground.withOpacity(0.5),
+            color: customTheme.cardBackground.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
-              color: customTheme.textPrimary.withOpacity(0.05),
+              color: customTheme.textPrimary.withValues(alpha: 0.05),
             ),
           ),
           child: Column(
@@ -160,7 +161,7 @@ class SplashScreen extends ConsumerWidget {
                 customTheme,
               ),
               Divider(
-                color: customTheme.textPrimary.withOpacity(0.05),
+                color: customTheme.textPrimary.withValues(alpha: 0.05),
                 height: 32,
               ),
               _buildStatusRow(
@@ -231,7 +232,7 @@ class SplashScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: customTheme.errorColor.withOpacity(0.1),
+              color: customTheme.errorColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -339,9 +340,11 @@ class SplashScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: customTheme.textPrimary.withOpacity(0.05),
+        color: customTheme.textPrimary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+        border: Border.all(
+          color: customTheme.textPrimary.withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -427,12 +430,12 @@ class SplashScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: checked
                 ? activeColor
-                : customTheme.textPrimary.withOpacity(0.1),
+                : customTheme.textPrimary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
             boxShadow: checked
                 ? [
                     BoxShadow(
-                      color: activeColor.withOpacity(0.5),
+                      color: activeColor.withValues(alpha: 0.5),
                       blurRadius: 10,
                     ),
                   ]
@@ -464,7 +467,7 @@ class SplashScreen extends ConsumerWidget {
             color: customTheme.cardBackground,
             shape: BoxShape.circle,
             border: Border.all(
-              color: customTheme.textPrimary.withOpacity(0.05),
+              color: customTheme.textPrimary.withValues(alpha: 0.05),
             ),
           ),
           child: Icon(icon, color: customTheme.textPrimary, size: 20),

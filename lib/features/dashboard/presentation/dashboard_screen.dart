@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:icons_plus/icons_plus.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
+// import 'package:icons_plus/icons_plus.dart';
 import 'package:moamen_project/features/map/presentation/map_screen.dart';
 import 'package:moamen_project/features/orders/presentation/orders_screen.dart';
 import 'package:moamen_project/features/settings/presentation/profile_screen.dart';
-import 'package:moamen_project/core/theme/app_theme.dart';
+
 import '../../pricelist/presentation/screens/price_list_screen.dart';
 import 'controller/nav_notifier.dart';
 
@@ -33,7 +35,7 @@ class DashboardScreen extends ConsumerWidget {
           color: customTheme.cardBackground,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),
@@ -44,7 +46,7 @@ class DashboardScreen extends ConsumerWidget {
           onTap: (index) => ref.read(navIndexProvider.notifier).state = index,
           backgroundColor: customTheme.cardBackground,
           selectedItemColor: customTheme.primaryBlue,
-          unselectedItemColor: customTheme.textSecondary.withOpacity(0.5),
+          unselectedItemColor: customTheme.textSecondary.withValues(alpha: 0.5),
           type: BottomNavigationBarType.fixed,
           selectedLabelStyle: GoogleFonts.cairo(
             fontWeight: FontWeight.bold,
@@ -53,23 +55,23 @@ class DashboardScreen extends ConsumerWidget {
           unselectedLabelStyle: GoogleFonts.cairo(fontSize: 12),
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(HeroIcons.shopping_bag),
-              activeIcon: Icon(HeroIcons.shopping_bag),
+              icon: FaIcon(FontAwesomeIcons.shoppingBag),
+              activeIcon: FaIcon(FontAwesomeIcons.shoppingBag),
               label: 'الطلبات',
             ),
             BottomNavigationBarItem(
-              icon: Icon(HeroIcons.banknotes),
-              activeIcon: Icon(HeroIcons.banknotes),
+              icon: FaIcon(FontAwesomeIcons.moneyBill),
+              activeIcon: FaIcon(FontAwesomeIcons.moneyBill),
               label: 'الأسعار',
             ),
             BottomNavigationBarItem(
-              icon: Icon(HeroIcons.map),
-              activeIcon: Icon(HeroIcons.map),
+              icon: FaIcon(FontAwesomeIcons.map),
+              activeIcon: FaIcon(FontAwesomeIcons.map),
               label: 'الخريطة',
             ),
             BottomNavigationBarItem(
-              icon: Icon(HeroIcons.user),
-              activeIcon: Icon(HeroIcons.user),
+              icon: FaIcon(FontAwesomeIcons.user),
+              activeIcon: FaIcon(FontAwesomeIcons.user),
               label: 'الحساب',
             ),
           ],

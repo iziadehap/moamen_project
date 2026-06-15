@@ -49,7 +49,7 @@ Widget contant_widget(
         Text(
           order.description,
           style: GoogleFonts.cairo(
-            color: customTheme.textSecondary.withOpacity(0.9),
+            color: customTheme.textSecondary.withValues(alpha: 0.9),
             fontSize: 13,
             height: 1.4,
           ),
@@ -86,7 +86,7 @@ Widget _buildMetaDataItem({
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.08),
+      color: color.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(10),
     ),
     child: Row(
@@ -100,7 +100,7 @@ Widget _buildMetaDataItem({
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.cairo(
-              color: customTheme.textPrimary.withOpacity(0.9),
+              color: customTheme.textPrimary.withValues(alpha: 0.9),
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
@@ -138,9 +138,9 @@ class StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.15), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.15), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -153,7 +153,7 @@ class StatusChip extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.5),
+                  color: color.withValues(alpha: 0.5),
                   blurRadius: 4,
                   spreadRadius: 1,
                 ),
@@ -207,9 +207,9 @@ class PriorityBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.2), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -257,7 +257,7 @@ class OrderHeader extends StatelessWidget {
           end: Alignment.bottomCenter,
           colors: [
             customTheme.background,
-            customTheme.background.withOpacity(0.0),
+            customTheme.background.withValues(alpha: 0.0),
           ],
         ),
       ),
@@ -276,14 +276,14 @@ class OrderHeader extends StatelessWidget {
                       size: 18,
                     ),
                     style: IconButton.styleFrom(
-                      backgroundColor: customTheme.textPrimary.withOpacity(
-                        0.05,
+                      backgroundColor: customTheme.textPrimary.withValues(
+                        alpha: 0.05,
                       ),
                       padding: const EdgeInsets.all(12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                         side: BorderSide(
-                          color: customTheme.textPrimary.withOpacity(0.1),
+                          color: customTheme.textPrimary.withValues(alpha: 0.1),
                         ),
                       ),
                     ),
@@ -347,12 +347,12 @@ class OrderHeader extends StatelessWidget {
             //   onPressed: onAdd,
             //   icon: const Icon(Icons.add, color: Colors.white),
             //   style: IconButton.styleFrom(
-            //     backgroundColor: AppColors.primaryBlue.withOpacity(0.1),
+            //     backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
             //     padding: const EdgeInsets.all(12),
             //     shape: RoundedRectangleBorder(
             //       borderRadius: BorderRadius.circular(16),
             //       side: BorderSide(
-            //         color: AppColors.primaryBlue.withOpacity(0.2),
+            //         color: AppColors.primaryBlue.withValues(alpha: 0.2),
             //       ),
             //     ),
             //   ),
@@ -364,11 +364,11 @@ class OrderHeader extends StatelessWidget {
           //   onPressed: onRefresh,
           //   icon: const Icon(Icons.refresh_rounded, color: Colors.white),
           //   style: IconButton.styleFrom(
-          //     backgroundColor: AppColors.primaryBlue.withOpacity(0.1),
+          //     backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
           //     padding: const EdgeInsets.all(12),
           //     shape: RoundedRectangleBorder(
           //       borderRadius: BorderRadius.circular(16),
-          //       side: BorderSide(color: AppColors.primaryBlue.withOpacity(0.2)),
+          //       side: BorderSide(color: AppColors.primaryBlue.withValues(alpha: 0.2)),
           //     ),
           //   ),
           // ),
@@ -432,7 +432,7 @@ class OrderFilterBar extends StatelessWidget {
             onSelected: (selected) {
               if (selected) onFilterSelected(filter);
             },
-            backgroundColor: customTheme.textPrimary.withOpacity(0.05),
+            backgroundColor: customTheme.textPrimary.withValues(alpha: 0.05),
             selectedColor: isSelected ? chipColor : null,
             checkmarkColor: isSelected
                 ? (chipColor.computeLuminance() > 0.5
@@ -460,9 +460,11 @@ class AddOrderButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       decoration: BoxDecoration(
-        color: customTheme.background.withOpacity(0.8),
+        color: customTheme.background.withValues(alpha: 0.8),
         border: Border(
-          top: BorderSide(color: customTheme.textPrimary.withOpacity(0.1)),
+          top: BorderSide(
+            color: customTheme.textPrimary.withValues(alpha: 0.1),
+          ),
         ),
       ),
       child: SizedBox(
@@ -521,14 +523,16 @@ class StatusInfoDialog extends StatelessWidget {
         backgroundColor: customTheme.cardBackground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: customTheme.textPrimary.withOpacity(0.1)),
+          side: BorderSide(
+            color: customTheme.textPrimary.withValues(alpha: 0.1),
+          ),
         ),
         title: Row(
           children: [
             Icon(Icons.info_outline_rounded, color: customTheme.primaryBlue),
             const SizedBox(width: 12),
             Text(
-              'حالات الاوردر‏',
+              'حالات الاوردر',
               style: GoogleFonts.cairo(
                 color: customTheme.textPrimary,
                 fontWeight: FontWeight.bold,
@@ -557,7 +561,7 @@ class StatusInfoDialog extends StatelessWidget {
                       color: color,
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.5),
+                          color: color.withValues(alpha: 0.5),
                           blurRadius: 4,
                           spreadRadius: 1,
                         ),

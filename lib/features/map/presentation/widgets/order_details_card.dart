@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:icons_plus/icons_plus.dart';
+// import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:moamen_project/core/theme/app_colors.dart';
 import 'package:moamen_project/core/widgets/open_phone_number.dart';
@@ -25,10 +26,10 @@ class OrderDetailsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.darkCard,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -79,18 +80,17 @@ class OrderDetailsCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withOpacity(0.1),
+                    color: AppColors.primaryBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppColors.primaryBlue.withOpacity(0.2),
+                      color: AppColors.primaryBlue.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        HeroIcons.photo,
+                      FaIcon(
+                        FontAwesomeIcons.image,
                         color: AppColors.primaryBlue,
-                        size: 14,
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -110,16 +110,19 @@ class OrderDetailsCard extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Divider
-          Divider(color: Colors.white.withOpacity(0.05), height: 1),
+          Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
           const SizedBox(height: 24),
 
           // Description Section
-          _SectionHeader(title: 'التفاصيل:', icon: HeroIcons.document_text),
+          _SectionHeader(
+            title: 'التفاصيل:',
+            icon: FaIcon(FontAwesomeIcons.fileText),
+          ),
           const SizedBox(height: 12),
           Text(
             order.description,
             style: GoogleFonts.cairo(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 15,
               height: 1.6,
             ),
@@ -129,16 +132,21 @@ class OrderDetailsCard extends StatelessWidget {
           // Contact Section
           if (!isPublicOnly &&
               (order.contactName != null || order.contactPhone != null)) ...[
-            _SectionHeader(title: 'معلومات التواصل:', icon: HeroIcons.user),
+            _SectionHeader(
+              title: 'معلومات التواصل:',
+              icon: FaIcon(FontAwesomeIcons.user),
+            ),
             const SizedBox(height: 12),
             OpenPhoneNumber(
               phone: order.contactPhone ?? '',
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.02),
+                  color: Colors.white.withValues(alpha: 0.02),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.05)),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -148,10 +156,9 @@ class OrderDetailsCard extends StatelessWidget {
                         gradient: AppColors.primaryGradient,
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Icon(
-                        HeroIcons.phone,
+                      child: FaIcon(
+                        FontAwesomeIcons.phone,
                         color: Colors.white,
-                        size: 20,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -178,11 +185,7 @@ class OrderDetailsCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(
-                      HeroIcons.chevron_left,
-                      color: Colors.white12,
-                      size: 16,
-                    ),
+                    FaIcon(FontAwesomeIcons.chevronLeft, color: Colors.white12),
                   ],
                 ),
               ),
@@ -191,19 +194,22 @@ class OrderDetailsCard extends StatelessWidget {
           ],
 
           // Location Section
-          _SectionHeader(title: 'الموقع والعنوان:', icon: HeroIcons.map_pin),
+          _SectionHeader(
+            title: 'الموقع والعنوان:',
+            icon: FaIcon(FontAwesomeIcons.mapPin),
+          ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.02),
+              color: Colors.white.withValues(alpha: 0.02),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child: Column(
               children: [
                 _buildInfoRow(
-                  HeroIcons.building_office_2,
+                  FaIcon(FontAwesomeIcons.building),
                   'المنطقة:',
                   order.publicArea,
                   color: AppColors.statusCyan,
@@ -216,7 +222,7 @@ class OrderDetailsCard extends StatelessWidget {
                     child: Divider(color: Colors.white10, height: 1),
                   ),
                   _buildInfoRow(
-                    HeroIcons.map,
+                    FaIcon(FontAwesomeIcons.map),
                     'العنوان الكامل:',
                     order.fullAddress!,
                     color: AppColors.primaryPurple,
@@ -237,7 +243,7 @@ class OrderDetailsCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primaryBlue.withOpacity(0.2),
+                    color: AppColors.primaryBlue.withValues(alpha: 0.2),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
@@ -271,11 +277,7 @@ class OrderDetailsCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Icon(
-                      HeroIcons.arrow_left,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                    FaIcon(FontAwesomeIcons.arrowLeft, color: Colors.white),
                   ],
                 ),
               ),
@@ -312,9 +314,9 @@ class OrderDetailsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -327,7 +329,7 @@ class OrderDetailsCard extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.5),
+                  color: color.withValues(alpha: 0.5),
                   blurRadius: 6,
                   spreadRadius: 1,
                 ),
@@ -350,35 +352,35 @@ class OrderDetailsCard extends StatelessWidget {
 
   Widget _buildPriorityBadge(OrderPriority priority) {
     Color color;
-    IconData icon;
+    FaIcon icon;
     String text;
 
     switch (priority) {
       case OrderPriority.urgent:
         color = Colors.red;
-        icon = HeroIcons.megaphone;
+        icon = FaIcon(FontAwesomeIcons.exclamationTriangle);
         text = 'عاجل جداً';
         break;
       case OrderPriority.high:
         color = Colors.deepOrange;
-        icon = HeroIcons.exclamation_triangle;
+        icon = FaIcon(FontAwesomeIcons.exclamationTriangle);
         text = 'عاجل';
         break;
       case OrderPriority.medium:
         color = Colors.orange;
-        icon = HeroIcons.clock;
+        icon = FaIcon(FontAwesomeIcons.clock);
         text = 'متوسط';
         break;
       case OrderPriority.low:
         color = AppColors.statusGreen;
-        icon = HeroIcons.check_circle;
+        icon = FaIcon(FontAwesomeIcons.circleCheck);
         text = 'عادي';
         break;
     }
 
     return Row(
       children: [
-        Icon(icon, color: color, size: 18),
+        icon,
         const SizedBox(width: 8),
         Text(
           text,
@@ -393,7 +395,7 @@ class OrderDetailsCard extends StatelessWidget {
   }
 
   Widget _buildInfoRow(
-    IconData icon,
+    FaIcon icon,
     String label,
     String value, {
     Color color = Colors.white,
@@ -404,10 +406,10 @@ class OrderDetailsCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: color, size: 20),
+          child: icon,
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -442,7 +444,7 @@ class OrderDetailsCard extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-  final IconData icon;
+  final FaIcon icon;
 
   const _SectionHeader({required this.title, required this.icon});
 
@@ -450,7 +452,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: AppColors.textGrey, size: 16),
+        icon,
         const SizedBox(width: 10),
         Text(
           title,

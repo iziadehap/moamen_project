@@ -5,15 +5,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/core/widgets/card_list.dart';
+import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
+import 'package:moamen_project/features/map/presentation/controller/map_provider.dart';
+import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/orders/presentation/add_order_screen.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
-import 'package:moamen_project/features/orders/data/models/order_model.dart';
-import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_state.dart';
 import 'package:moamen_project/features/orders/presentation/order_detail_screen.dart';
 import 'package:moamen_project/features/orders/presentation/widgets/order_filter.dart';
 import 'package:moamen_project/features/orders/presentation/widgets/widgets.dart';
-import 'package:moamen_project/features/map/presentation/controller/map_provider.dart';
+
 import '../../../core/theme/app_theme.dart';
 
 class OrdersScreen extends ConsumerStatefulWidget {
@@ -138,9 +139,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     CustomThemeExtension customTheme,
   ) {
     if (state.isLoading && !state.hasFetched) {
-      return Center(
-        child: AnimationWidget.loadingAnimation(24),
-      );
+      return Center(child: AnimationWidget.loadingAnimation(24));
     }
 
     if (state.isError) {
@@ -318,7 +317,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
             _searchQuery.isNotEmpty
                 ? Icons.search_off_rounded
                 : Icons.filter_list_off_rounded,
-            color: customTheme.textSecondary.withOpacity(0.3),
+            color: customTheme.textSecondary.withValues(alpha: 0.3),
             size: 80,
           ),
           const SizedBox(height: 16),
@@ -363,7 +362,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                 )
               : null,
           filled: true,
-          fillColor: customTheme.textPrimary.withOpacity(0.05),
+          fillColor: customTheme.textPrimary.withValues(alpha: 0.05),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
@@ -371,7 +370,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(
-              color: customTheme.textPrimary.withOpacity(0.1),
+              color: customTheme.textPrimary.withValues(alpha: 0.1),
             ),
           ),
           focusedBorder: OutlineInputBorder(
@@ -400,15 +399,15 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: customTheme.cardBackground.withOpacity(0.95),
+            color: customTheme.cardBackground.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: customTheme.errorColor.withOpacity(0.3),
+              color: customTheme.errorColor.withValues(alpha: 0.3),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -419,7 +418,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: customTheme.errorColor.withOpacity(0.1),
+                  color: customTheme.errorColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

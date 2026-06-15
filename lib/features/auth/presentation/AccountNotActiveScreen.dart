@@ -28,13 +28,13 @@ class NotActiveScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: customTheme.statusOrange.withOpacity(0.2),
+                    color: customTheme.statusOrange.withValues(alpha: 0.2),
                     blurRadius: 30,
                     spreadRadius: 5,
                   ),
                 ],
                 border: Border.all(
-                  color: customTheme.statusOrange.withOpacity(0.3),
+                  color: customTheme.statusOrange.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -87,11 +87,11 @@ class NotActiveScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: customTheme.accentGradient.colors[0].withOpacity(
-                          0.3,
+                        color: customTheme.accentGradient.colors[0].withValues(
+                          alpha: 0.3,
                         ),
                       ),
-                      color: customTheme.cardBackground.withOpacity(0.5),
+                      color: customTheme.cardBackground.withValues(alpha: 0.5),
                     ),
                     child: MaterialButton(
                       onPressed: () {

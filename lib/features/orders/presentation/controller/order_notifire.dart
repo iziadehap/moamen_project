@@ -1,11 +1,13 @@
 import 'dart:io';
+
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:moamen_project/core/error/failure.dart';
 import 'package:moamen_project/core/utils/app_config_data.dart';
-import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/core/utils/images.dart';
+import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,6 +21,7 @@ class OrderNotifier extends Notifier<OrderState> {
   final _supabase = Supabase.instance.client;
 
   Future<void> fetchOrders() async {
+    debugPrint('DEBUG: fatchOrder');
     state = state.copyWith(isLoading: true, isError: false);
 
     try {
@@ -28,10 +31,17 @@ class OrderNotifier extends Notifier<OrderState> {
           .order(SupabaseOrdersCulomns.createdAt, ascending: false);
 
       // print('response $response');
-
       final List<Order> orders = (response as List<dynamic>)
           .map((order) => Order.fromJson(order as Map<String, dynamic>))
           .toList();
+      // for (var order in orders) {
+      //   debugPrint('loop');
+      //   if (order.billUrl != null || order.price != null) {
+      //     debugPrint(order.billUrl);
+      //     debugPrint(order.price.toString());
+      //     debugPrint('========================');
+      //   }
+      // }
 
       // change priority
       var ordersWithPriority = await updatePriority(orders);
@@ -166,32 +176,65 @@ class OrderNotifier extends Notifier<OrderState> {
     }
   }
 
-  Future<void> completeOrder(String orderId) async {
+  Future<bool> completeOrder({
+    required String orderId,
+    required File? billFile,
+    required bool isFromCam,
+    required int price,
+  }) async {
     state = state.copyWith(isLoading: true, isError: false);
+    debugPrint('complete order call');
 
     try {
-      await _supabase
+      String? billUrl;
+      if (billFile != null) {
+        final compressedFile = await ImageUtils.compressImage(billFile);
+        billUrl = await ImageUtils.uploadPhoto(
+          supabase: _supabase,
+          file: compressedFile,
+          bucket: SupabaseTables.BillPhotosBucket,
+        );
+
+        if (billUrl == null) {
+          state = state.copyWith(
+            isLoading: false,
+            isError: true,
+            errorMessage: 'فشل رفع صورة الفاتورة',
+          );
+          return false;
+        }
+      }
+
+      final responce = await _supabase
           .from(SupabaseTables.orders)
           .update({
             SupabaseOrdersCulomns.status: OrderStatus.completed.name,
             SupabaseOrdersCulomns.updatedAt: DateTime.now().toIso8601String(),
+            SupabaseOrdersCulomns.billUrl: billUrl,
+            SupabaseOrdersCulomns.isFromCam: isFromCam,
+            SupabaseOrdersCulomns.price: price,
           })
-          .eq(SupabaseOrdersCulomns.id, orderId);
+          .eq(SupabaseOrdersCulomns.id, orderId)
+          .select();
 
-      // عدّل الطلب محليًا بدل fetchOrders()
+      debugPrint('the responce form db is $responce');
+
+      // update local data
       final updatedOrders = state.orders.map((order) {
         if (order.id == orderId) {
-          print('order completed');
-
           return order.copyWith(
             status: OrderStatus.completed,
             updatedAt: DateTime.now(),
+            billUrl: billUrl,
+            isFromCam: isFromCam,
+            price: price,
           );
         }
         return order;
       }).toList();
 
       state = state.copyWith(isLoading: false, orders: updatedOrders);
+      return true;
     } catch (e) {
       print('error in complete order $e');
       state = state.copyWith(
@@ -199,6 +242,7 @@ class OrderNotifier extends Notifier<OrderState> {
         isError: true,
         errorMessage: e.toString(),
       );
+      return false;
     }
   }
 
@@ -378,15 +422,13 @@ class OrderNotifier extends Notifier<OrderState> {
       final dbResponse = await _supabase
           .from(SupabaseTables.orders)
           .delete()
-          .eq(SupabaseOrdersCulomns.id, orderId)  
+          .eq(SupabaseOrdersCulomns.id, orderId)
           .select();
 
       print('DB Delete Response: $dbResponse');
 
       if ((dbResponse as List).isEmpty) {
-        print(
-          'Error: Order NOT deleted from database.',
-        );
+        print('Error: Order NOT deleted from database.');
         state = state.copyWith(
           isLoading: false,
           isError: true,

@@ -1,5 +1,5 @@
-import 'package:bcrypt/bcrypt.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
 class Cash {
@@ -8,10 +8,10 @@ class Cash {
   Future<bool> save(dynamic data, String key) async {
     try {
       await box.put(key, data);
-      print('cash saved');
+      debugPrint('cash saved');
       return true;
     } catch (e) {
-      print('cash save failed');
+      debugPrint('cash save failed');
       return false;
     }
   }
@@ -19,10 +19,10 @@ class Cash {
   Future<dynamic> get(String key) async {
     try {
       final data = box.get(key);
-      print('cash get failed');
+      debugPrint('cash get failed');
       return data;
     } catch (e) {
-      print('cash get failed');
+      debugPrint('cash get failed');
       return null;
     }
   }
@@ -30,10 +30,10 @@ class Cash {
   Future<bool> delete(String key) async {
     try {
       await box.delete(key);
-      print('cash deleted');
+      debugPrint('cash deleted');
       return true;
     } catch (e) {
-      print('cash delete failed');
+      debugPrint('cash delete failed');
       return false;
     }
   }

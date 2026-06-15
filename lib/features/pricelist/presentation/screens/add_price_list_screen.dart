@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/core/widgets/custom_snackbar.dart';
+
 import '../../../../core/theme/app_theme.dart';
 import '../../data/priceList_model.dart';
 import '../controller/priceList_provider.dart';
@@ -242,7 +243,9 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                             color: customTheme.cardBackground,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: customTheme.textPrimary.withOpacity(0.05),
+                              color: customTheme.textPrimary.withValues(
+                                alpha: 0.05,
+                              ),
                             ),
                           ),
                           child: Row(
@@ -308,11 +311,11 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                                     ? customTheme.primaryGradient
                                     : LinearGradient(
                                         colors: [
-                                          customTheme.textSecondary.withOpacity(
-                                            0.2,
+                                          customTheme.textSecondary.withValues(
+                                            alpha: 0.2,
                                           ),
-                                          customTheme.textSecondary.withOpacity(
-                                            0.1,
+                                          customTheme.textSecondary.withValues(
+                                            alpha: 0.1,
                                           ),
                                         ],
                                         begin: Alignment.centerLeft,
@@ -323,7 +326,7 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                                     ? [
                                         BoxShadow(
                                           color: customTheme.primaryBlue
-                                              .withOpacity(0.4),
+                                              .withValues(alpha: 0.4),
                                           blurRadius: 20,
                                           offset: const Offset(0, 10),
                                         ),
@@ -340,14 +343,14 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
                                   ),
                                 ),
                                 child: priceState.isLoading
-                                    ?  Center(
+                                    ? Center(
                                         child: SizedBox(
                                           height: 24,
                                           width: 24,
                                           child:
                                               AnimationWidget.loadingAnimation(
                                                 24,
-                                              )
+                                              ),
                                         ),
                                       )
                                     : Text(
@@ -400,7 +403,9 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: customTheme.textPrimary.withOpacity(0.3)),
+        hintStyle: TextStyle(
+          color: customTheme.textPrimary.withValues(alpha: 0.3),
+        ),
         filled: true,
         fillColor: customTheme.cardBackground,
         prefixIcon: Icon(icon, color: customTheme.textSecondary),
@@ -411,7 +416,7 @@ class _AddPriceListScreenState extends ConsumerState<AddPriceListScreen> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: customTheme.textPrimary.withOpacity(0.05),
+            color: customTheme.textPrimary.withValues(alpha: 0.05),
           ),
         ),
         focusedBorder: OutlineInputBorder(

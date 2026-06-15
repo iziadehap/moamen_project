@@ -123,7 +123,7 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
             onPressed: () =>
                 ref.read(adminProvider.notifier).fetchTransactions(),
             style: IconButton.styleFrom(
-              backgroundColor: customTheme.primaryBlue.withOpacity(0.15),
+              backgroundColor: customTheme.primaryBlue.withValues(alpha: 0.15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -190,16 +190,16 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
         decoration: BoxDecoration(
-          color: customTheme.cardBackground.withOpacity(0.7),
+          color: customTheme.cardBackground.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(7),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 16),
@@ -248,7 +248,7 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
         itemCount: types.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final (val, label, color) = types[i];
           final selected = _selectedType == val;
@@ -259,13 +259,13 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
                 color: selected
-                    ? color.withOpacity(0.2)
+                    ? color.withValues(alpha: 0.2)
                     : customTheme.cardBackground,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: selected
                       ? color
-                      : customTheme.textPrimary.withOpacity(0.07),
+                      : customTheme.textPrimary.withValues(alpha: 0.07),
                   width: selected ? 1.5 : 1,
                 ),
               ),
@@ -310,7 +310,7 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
           Icon(
             Icons.receipt_long_outlined,
             size: 64,
-            color: customTheme.textSecondary.withOpacity(0.4),
+            color: customTheme.textSecondary.withValues(alpha: 0.4),
           ),
           const SizedBox(height: 12),
           Text(
@@ -335,7 +335,7 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
             Icon(
               Icons.error_outline_rounded,
               size: 52,
-              color: customTheme.errorColor.withOpacity(0.7),
+              color: customTheme.errorColor.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 12),
             Text(
@@ -392,9 +392,9 @@ class _TransactionCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: customTheme.cardBackground.withOpacity(0.55),
+          color: customTheme.cardBackground.withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: cfg.color.withOpacity(0.15)),
+          border: Border.all(color: cfg.color.withValues(alpha: 0.15)),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
@@ -409,13 +409,13 @@ class _TransactionCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: cfg.color.withOpacity(0.3),
+                        color: cfg.color.withValues(alpha: 0.3),
                         width: 1.5,
                       ),
                     ),
                     child: CircleAvatar(
                       radius: 24,
-                      backgroundColor: cfg.color.withOpacity(0.1),
+                      backgroundColor: cfg.color.withValues(alpha: 0.1),
                       backgroundImage: transaction.userProfile?.imageUrl != null
                           ? NetworkImage(transaction.userProfile!.imageUrl!)
                           : null,
@@ -490,15 +490,17 @@ class _TransactionCard extends StatelessWidget {
                           Icon(
                             Icons.admin_panel_settings_rounded,
                             size: 10,
-                            color: customTheme.primaryPurple.withOpacity(0.6),
+                            color: customTheme.primaryPurple.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               'بواسطة: ${transaction.adminProfile!.name ?? "أدمن"}',
                               style: GoogleFonts.cairo(
-                                color: customTheme.primaryPurple.withOpacity(
-                                  0.6,
+                                color: customTheme.primaryPurple.withValues(
+                                  alpha: 0.6,
                                 ),
                                 fontSize: 9,
                               ),
@@ -522,9 +524,11 @@ class _TransactionCard extends StatelessWidget {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: cfg.color.withOpacity(0.12),
+                      color: cfg.color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: cfg.color.withOpacity(0.3)),
+                      border: Border.all(
+                        color: cfg.color.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Text(
                       '${isPositive ? '+' : '-'}${transaction.amount.abs()}',
@@ -542,19 +546,21 @@ class _TransactionCard extends StatelessWidget {
                       Text(
                         '${transaction.balanceBefore}',
                         style: GoogleFonts.cairo(
-                          color: customTheme.textSecondary.withOpacity(0.7),
+                          color: customTheme.textSecondary.withValues(
+                            alpha: 0.7,
+                          ),
                           fontSize: 10,
                         ),
                       ),
                       Icon(
                         Icons.arrow_right_rounded,
                         size: 14,
-                        color: customTheme.textSecondary.withOpacity(0.4),
+                        color: customTheme.textSecondary.withValues(alpha: 0.4),
                       ),
                       Text(
                         '${transaction.balanceAfter}',
                         style: GoogleFonts.cairo(
-                          color: customTheme.textPrimary.withOpacity(0.9),
+                          color: customTheme.textPrimary.withValues(alpha: 0.9),
                           fontWeight: FontWeight.bold,
                           fontSize: 10,
                         ),

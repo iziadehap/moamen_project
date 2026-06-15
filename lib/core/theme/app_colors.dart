@@ -36,7 +36,7 @@ class AppColors {
   // Shadows
   static List<BoxShadow> glowShadow = [
     BoxShadow(
-      color: primaryBlue.withOpacity(0.3),
+      color: primaryBlue.withValues(alpha: 0.3),
       blurRadius: 20,
       offset: const Offset(0, 5),
     ),

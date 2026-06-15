@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:moamen_project/core/services/connectivity/connectivity_widget.dart';
 import 'package:moamen_project/core/services/location/location_widget.dart';
-import 'core/theme/app_theme.dart';
+
 import 'core/services/supabase_service.dart';
+import 'core/theme/app_theme.dart';
+import 'features/settings/data/settings_provider.dart';
 import 'features/splash/presentation/splash_screen.dart';
 import 'features/splash/presentation/update_screen.dart';
-import 'features/settings/data/settings_provider.dart';
 // flutter build apk --split-per-abi
+// dev acc
+// phone number: 01234567890
+// password: asdfghjkl
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

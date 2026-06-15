@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:moamen_project/core/theme/app_colors.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/utils/fake_email.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/core/widgets/open_phone_number.dart';
-import 'package:moamen_project/features/auth/data/models/user_model.dart';
 import 'package:moamen_project/features/adminDashbord/presentation/user_details_screen.dart';
-import 'package:moamen_project/core/theme/app_theme.dart';
+import 'package:moamen_project/features/auth/data/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserCard extends ConsumerWidget {
@@ -27,9 +27,9 @@ class UserCard extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: customTheme.cardBackground.withOpacity(0.7),
+        color: customTheme.cardBackground.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.15)),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: InkWell(
         onTap: () {
@@ -55,13 +55,13 @@ class UserCard extends ConsumerWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         width: 1.5,
                       ),
                     ),
                     child: CircleAvatar(
                       radius: 24,
-                      backgroundColor: color.withOpacity(0.1),
+                      backgroundColor: color.withValues(alpha: 0.1),
                       backgroundImage: user.imageUrl != null
                           ? NetworkImage(user.imageUrl!)
                           : null,
@@ -172,9 +172,9 @@ class UserCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         isAdmin ? 'مدير' : 'عميل',
@@ -195,7 +195,7 @@ class UserCard extends ConsumerWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 12, color: customTheme.textSecondary.withOpacity(0.6)),
+        Icon(icon, size: 12, color: customTheme.textSecondary.withValues(alpha: 0.6)),
         const SizedBox(width: 4),
         Text(
           label,

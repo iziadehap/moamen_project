@@ -1,15 +1,14 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:moamen_project/core/theme/app_theme.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/core/widgets/custom_snackbar.dart';
 import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
+
 import 'riverpod/setting_provider.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -262,8 +261,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      customTheme.primaryBlue.withOpacity(0.25),
-                      customTheme.primaryBlue.withOpacity(0.0),
+                      customTheme.primaryBlue.withValues(alpha: 0.25),
+                      customTheme.primaryBlue.withValues(alpha: 0.0),
                     ],
                   ),
                 ),
@@ -277,8 +276,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      customTheme.primaryBlue.withOpacity(0.8),
-                      customTheme.primaryBlue.withOpacity(0.3),
+                      customTheme.primaryBlue.withValues(alpha: 0.8),
+                      customTheme.primaryBlue.withValues(alpha: 0.3),
                     ],
                   ),
                 ),
@@ -291,7 +290,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
                         ? Icon(
                             Icons.person_rounded,
                             size: 56,
-                            color: customTheme.textSecondary.withOpacity(0.25),
+                            color: customTheme.textSecondary.withValues(alpha: 0.25),
                           )
                         : null,
                   ),
@@ -309,7 +308,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
                       gradient: LinearGradient(
                         colors: [
                           customTheme.primaryBlue,
-                          customTheme.primaryBlue.withOpacity(0.7),
+                          customTheme.primaryBlue.withValues(alpha: 0.7),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -321,7 +320,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: customTheme.primaryBlue.withOpacity(0.4),
+                          color: customTheme.primaryBlue.withValues(alpha: 0.4),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -376,14 +375,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: _isNameFocused
-                    ? customTheme.primaryBlue.withOpacity(0.6)
-                    : customTheme.textPrimary.withOpacity(0.08),
+                    ? customTheme.primaryBlue.withValues(alpha: 0.6)
+                    : customTheme.textPrimary.withValues(alpha: 0.08),
                 width: _isNameFocused ? 1.5 : 1,
               ),
               boxShadow: _isNameFocused
                   ? [
                       BoxShadow(
-                        color: customTheme.primaryBlue.withOpacity(0.12),
+                        color: customTheme.primaryBlue.withValues(alpha: 0.12),
                         blurRadius: 20,
                         spreadRadius: 2,
                       ),
@@ -402,7 +401,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
               decoration: InputDecoration(
                 hintText: 'أدخل اسمك هنا',
                 hintStyle: GoogleFonts.cairo(
-                  color: customTheme.textSecondary.withOpacity(0.35),
+                  color: customTheme.textSecondary.withValues(alpha: 0.35),
                   fontSize: 14,
                 ),
                 border: InputBorder.none,
@@ -414,7 +413,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
                   Icons.person_outline_rounded,
                   color: _isNameFocused
                       ? customTheme.primaryBlue
-                      : customTheme.textSecondary.withOpacity(0.5),
+                      : customTheme.textSecondary.withValues(alpha: 0.5),
                   size: 22,
                 ),
               ),
@@ -450,7 +449,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
                 ? []
                 : [
                     BoxShadow(
-                      color: customTheme.primaryBlue.withOpacity(0.35),
+                      color: customTheme.primaryBlue.withValues(alpha: 0.35),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -529,9 +528,9 @@ class _GlassButtonState extends State<_GlassButton> {
         padding: const EdgeInsets.all(10),
         transform: Matrix4.identity()..scale(_pressed ? 0.93 : 1.0),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(13),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
         ),
         child: widget.child,
       ),
@@ -578,9 +577,9 @@ class _AnimatedBadgeState extends State<_AnimatedBadge>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: widget.color.withOpacity(0.12),
+          color: widget.color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: widget.color.withOpacity(0.3)),
+          border: Border.all(color: widget.color.withValues(alpha: 0.3)),
         ),
         child: Text(
           widget.label,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../../../core/theme/app_colors.dart';
 
 class DashboardCard extends StatefulWidget {
@@ -65,12 +66,12 @@ class _DashboardCardState extends State<DashboardCard>
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: widget.color.withOpacity(0.1),
+                color: widget.color.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
             ],
-            border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1),
           ),
           child: Row(
             children: [
@@ -79,14 +80,14 @@ class _DashboardCardState extends State<DashboardCard>
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [widget.color, widget.color.withOpacity(0.7)],
+                    colors: [widget.color, widget.color.withValues(alpha: 0.7)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: widget.color.withOpacity(0.3),
+                      color: widget.color.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -121,7 +122,7 @@ class _DashboardCardState extends State<DashboardCard>
               // Arrow Icon (RTL handled by Directionality if needed, but usually icons are static)
               Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 size: 16,
               ),
             ],

@@ -399,17 +399,17 @@
 //       padding: const EdgeInsets.all(20),
 //       decoration: BoxDecoration(
 //         color: isDark
-//             ? Colors.white.withOpacity(0.07)
-//             : Colors.white.withOpacity(0.75),
+//             ? Colors.white.withValues(alpha: 0.07)
+//             : Colors.white.withValues(alpha: 0.75),
 //         borderRadius: BorderRadius.circular(20),
 //         border: Border.all(
 //           color: isDark
-//               ? Colors.white.withOpacity(0.08)
-//               : Colors.black.withOpacity(0.06),
+//               ? Colors.white.withValues(alpha: 0.08)
+//               : Colors.black.withValues(alpha: 0.06),
 //         ),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withOpacity(isDark ? 0.25 : 0.06),
+//             color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
 //             blurRadius: 20,
 //             offset: const Offset(0, 6),
 //           ),
@@ -438,7 +438,7 @@
 //         Container(
 //           padding: const EdgeInsets.all(7),
 //           decoration: BoxDecoration(
-//             color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+//             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
 //             borderRadius: BorderRadius.circular(10),
 //           ),
 //           child: Icon(
@@ -492,8 +492,8 @@
 //             color: selected
 //                 ? accent
 //                 : (isDark
-//                     ? Colors.white.withOpacity(0.08)
-//                     : Colors.black.withOpacity(0.05)),
+//                     ? Colors.white.withValues(alpha: 0.08)
+//                     : Colors.black.withValues(alpha: 0.05)),
 //             borderRadius: BorderRadius.circular(14),
 //             border: Border.all(
 //               color: selected
@@ -559,10 +559,10 @@
 //         padding: const EdgeInsets.symmetric(vertical: 14),
 //         decoration: BoxDecoration(
 //           color: selected
-//               ? accent.withOpacity(0.15)
+//               ? accent.withValues(alpha: 0.15)
 //               : (isDark
-//                   ? Colors.white.withOpacity(0.06)
-//                   : Colors.black.withOpacity(0.04)),
+//                   ? Colors.white.withValues(alpha: 0.06)
+//                   : Colors.black.withValues(alpha: 0.04)),
 //           borderRadius: BorderRadius.circular(14),
 //           border: Border.all(
 //             color: selected ? accent : Colors.transparent,
@@ -625,10 +625,10 @@
 //           padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 4),
 //           decoration: BoxDecoration(
 //             color: selected
-//                 ? accent.withOpacity(0.15)
+//                 ? accent.withValues(alpha: 0.15)
 //                 : (isDark
-//                     ? Colors.white.withOpacity(0.06)
-//                     : Colors.black.withOpacity(0.04)),
+//                     ? Colors.white.withValues(alpha: 0.06)
+//                     : Colors.black.withValues(alpha: 0.04)),
 //             borderRadius: BorderRadius.circular(12),
 //             border: Border.all(
 //               color: selected ? accent : Colors.transparent,
@@ -685,13 +685,13 @@
 //         padding: const EdgeInsets.all(10),
 //         decoration: BoxDecoration(
 //           color: isDark
-//               ? Colors.white.withOpacity(0.1)
-//               : Colors.black.withOpacity(0.06),
+//               ? Colors.white.withValues(alpha: 0.1)
+//               : Colors.black.withValues(alpha: 0.06),
 //           borderRadius: BorderRadius.circular(12),
 //           border: Border.all(
 //             color: isDark
-//                 ? Colors.white.withOpacity(0.1)
-//                 : Colors.black.withOpacity(0.06),
+//                 ? Colors.white.withValues(alpha: 0.1)
+//                 : Colors.black.withValues(alpha: 0.06),
 //           ),
 //         ),
 //         child: Icon(

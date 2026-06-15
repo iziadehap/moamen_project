@@ -1,9 +1,12 @@
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:moamen_project/core/theme/app_theme.dart';
+import 'package:moamen_project/core/utils/availability_utils.dart';
+import 'package:moamen_project/core/utils/order_status_helper.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
 import 'package:moamen_project/core/widgets/animation_widget.dart';
 import 'package:moamen_project/core/widgets/build_images_heder.dart';
@@ -14,10 +17,9 @@ import 'package:moamen_project/features/auth/presentation/controller/auth_provid
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/orders/presentation/add_order_screen.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
-import 'package:moamen_project/core/utils/availability_utils.dart';
-import 'package:moamen_project/core/utils/order_status_helper.dart';
-import 'package:moamen_project/core/theme/app_theme.dart';
+
 import 'location_picker_screen.dart';
+import 'complete_order_screen.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
   final Order order;
@@ -34,15 +36,23 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // _confettiController = ConfettiController(
-    //   duration: const Duration(seconds: 3),
-    // );
   }
 
   @override
   void dispose() {
-    // _confettiController.dispose();
     super.dispose();
+  }
+
+  void _showFullScreenBillImage(String billUrl) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (context, animation, secondaryAnimation) => FullScreenBillViewer(imageUrl: billUrl),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
   }
 
   @override
@@ -112,6 +122,19 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                               ),
                             ],
                             const SizedBox(height: 32),
+                            
+                            // Show Price Section
+                            if (currentOrder.price != null) ...[
+                              _buildPriceSection(currentOrder, customTheme),
+                              const SizedBox(height: 32),
+                            ],
+                            
+                            // Show Bill Section
+                            if (currentOrder.billUrl != null && currentOrder.billUrl!.isNotEmpty) ...[
+                              _buildBillSection(currentOrder, customTheme),
+                              const SizedBox(height: 32),
+                            ],
+                            
                             if (isAdmin || isAlreadyMine) ...[
                               _buildImages(currentOrder.photoUrls),
                               const SizedBox(height: 32),
@@ -120,11 +143,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                             _buildSectionTitle('المعلومات العامة', customTheme),
                             const SizedBox(height: 16),
                             _buildInfoCard([
-                              // _buildInfoRow(
-                              //   Icons.category_rounded,
-                              //   'نوع الاوردر',
-                              //   _orderTypeArabic(order.orderType),
-                              // ),
                               _buildInfoRow(
                                 Icons.priority_high_rounded,
                                 'الأولوية',
@@ -137,6 +155,27 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                                 currentOrder.publicArea,
                                 customTheme,
                               ),
+                              if (currentOrder.createdAt != null)
+                                _buildInfoRow(
+                                  Icons.calendar_today_rounded,
+                                  'تاريخ الإنشاء',
+                                  _formatDate(currentOrder.createdAt!),
+                                  customTheme,
+                                ),
+                              if (currentOrder.acceptedAt != null)
+                                _buildInfoRow(
+                                  Icons.check_circle_outline_rounded,
+                                  'تاريخ القبول',
+                                  _formatDate(currentOrder.acceptedAt!),
+                                  customTheme,
+                                ),
+                              if (currentOrder.workerId != null && isAdmin)
+                                _buildInfoRow(
+                                  Icons.person_outline_rounded,
+                                  'رقم العامل',
+                                  currentOrder.workerId!,
+                                  customTheme,
+                                ),
                             ], customTheme),
 
                             const SizedBox(height: 32),
@@ -228,6 +267,155 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     );
   }
 
+  Widget _buildPriceSection(Order order, CustomThemeExtension customTheme) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            customTheme.successColor.withValues(alpha: 0.1),
+            customTheme.primaryBlue.withValues(alpha: 0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: customTheme.successColor.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: customTheme.successColor.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.payments_outlined,
+              color: customTheme.successColor,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'سعر الاوردر',
+                  style: GoogleFonts.cairo(
+                    color: customTheme.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${order.price} جنيه',
+                  style: GoogleFonts.cairo(
+                    color: customTheme.successColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (order.isFromCam)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: customTheme.primaryBlue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.camera_alt_rounded,
+                    color: customTheme.primaryBlue,
+                    size: 12,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'من الكاميرا',
+                    style: GoogleFonts.cairo(
+                      color: customTheme.primaryBlue,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBillSection(Order order, CustomThemeExtension customTheme) {
+    return GestureDetector(
+      onTap: () => _showFullScreenBillImage(order.billUrl!),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: customTheme.cardBackground,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: customTheme.primaryBlue.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: customTheme.primaryBlue.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.receipt_long_rounded,
+                color: customTheme.primaryBlue,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'فاتورة الاوردر',
+                    style: GoogleFonts.cairo(
+                      color: customTheme.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'اضغط لعرض الفاتورة',
+                    style: GoogleFonts.cairo(
+                      color: customTheme.primaryBlue,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: customTheme.primaryBlue,
+              size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildCongratulation() {
     final height = MediaQuery.of(context).size.height;
     return IgnorePointer(
@@ -290,11 +478,11 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       height: 60,
       decoration: BoxDecoration(
         gradient: isDisabled ? null : buttonGradient,
-        color: isDisabled ? Colors.grey.withOpacity(0.1) : null,
+        color: isDisabled ? Colors.grey.withValues(alpha: 0.1) : null,
         borderRadius: BorderRadius.circular(18),
         boxShadow: isDisabled ? [] : [],
         border: isDisabled
-            ? Border.all(color: customTheme.textPrimary.withOpacity(0.1))
+            ? Border.all(color: customTheme.textPrimary.withValues(alpha: 0.1))
             : null,
       ),
       child: ElevatedButton(
@@ -305,13 +493,24 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
 
                 if (isAlreadyMine &&
                     currentOrder.status == OrderStatus.accepted) {
-                  // Show confirmation dialog before completion
-                  _showCompleteConfirmation(
+                  final completed = await Navigator.push<bool>(
                     context,
-                    ref,
-                    currentOrder,
-                    customTheme,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          CompleteOrderScreen(order: currentOrder),
+                    ),
                   );
+
+                  if (!mounted) return;
+
+                  if (completed == true) {
+                    setState(() {
+                      congratolation = true;
+                    });
+                    await Future.delayed(const Duration(seconds: 2));
+                    if (!mounted) return;
+                    navigator.pop();
+                  }
                 } else {
                   // Accept Order Logic
                   final success = await ref
@@ -407,7 +606,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         decoration: BoxDecoration(
           color: customTheme.cardBackground,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+          border: Border.all(color: customTheme.textPrimary.withValues(alpha: 0.1)),
         ),
         child: Center(
           child: Text(
@@ -438,10 +637,10 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+          border: Border.all(color: customTheme.textPrimary.withValues(alpha: 0.1)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
+              color: Colors.black.withValues(alpha: isDarkMode ? 0.3 : 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -465,6 +664,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                       : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
                   subdomains: const ['a', 'b', 'c', 'd'],
                   userAgentPackageName: 'com.moamen.project',
+                  retinaMode: RetinaMode.isHighDensity(context),
                   errorTileCallback: (tile, error, stackTrace) {
                     debugPrint('فشل تحميل مربع الخريطة: $error');
                   },
@@ -493,7 +693,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withOpacity(0.3)],
+                    colors: [Colors.transparent, Colors.black.withValues(alpha: 0.3)],
                   ),
                 ),
               ),
@@ -505,10 +705,10 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: customTheme.background.withOpacity(0.8),
+                  color: customTheme.background.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: customTheme.textPrimary.withOpacity(0.1),
+                    color: customTheme.textPrimary.withValues(alpha: 0.1),
                   ),
                 ),
                 child: Row(
@@ -562,7 +762,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   size: 20,
                 ),
                 style: IconButton.styleFrom(
-                  backgroundColor: customTheme.textPrimary.withOpacity(0.05),
+                  backgroundColor: customTheme.textPrimary.withValues(alpha: 0.05),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -580,7 +780,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ],
           ),
           Spacer(),
-          // sdfsaf
           if (isAdmin)
             // show edit button
             Container(
@@ -615,139 +814,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     );
   }
 
-  void _showCompleteConfirmation(
-    BuildContext context,
-    WidgetRef ref,
-    Order currentOrder,
-    CustomThemeExtension customTheme,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: AlertDialog(
-          backgroundColor: customTheme.cardBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: customTheme.textPrimary.withOpacity(0.1)),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: customTheme.successColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.task_alt_rounded,
-                  color: customTheme.successColor,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'تأكيد الإتمام',
-                style: GoogleFonts.cairo(
-                  color: customTheme.textPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            'هل أنت متأكد من أنك قمت بإتمام هذا الاوردر؟ سيتم تغيير الحالة إلى مكتمل.',
-            style: GoogleFonts.cairo(
-              color: customTheme.textSecondary,
-              fontSize: 14,
-            ),
-          ),
-          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'إلغاء',
-                style: GoogleFonts.cairo(
-                  color: customTheme.textSecondary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              decoration: BoxDecoration(
-                gradient: customTheme.primaryGradient,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ElevatedButton(
-                onPressed: () async {
-                  final navigator = Navigator.of(context);
-
-                  // Close dialog first
-                  navigator.pop();
-
-                  await ref
-                      .read(orderProvider.notifier)
-                      .completeOrder(currentOrder.id);
-
-                  final newState = ref.read(orderProvider);
-                  if (!newState.isError) {
-                    // Play confetti
-                    setState(() {
-                      congratolation = true;
-                    });
-                    // playCongratulation();
-                    // _confettiController.play();
-
-                    showCustomSnackBar(
-                      context,
-                      customTheme: customTheme,
-                      message: 'تم إتمام الاوردر بنجاح! شكراً لك.',
-                      icon: Icons.check,
-                      color: customTheme.successColor,
-                    );
-
-                    // Wait a bit for the animation to be seen
-                    await Future.delayed(const Duration(seconds: 2));
-
-                    // Close details screen
-                    if (context.mounted) {
-                      navigator.pop();
-                    }
-                  } else {
-                    showCustomSnackBar(
-                      context,
-                      customTheme: customTheme,
-                      message: 'فشل إتمام الاوردر: ${newState.errorMessage}',
-                      icon: Icons.error,
-                      isError: true,
-                      color: customTheme.errorColor,
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'نعم، أتممته',
-                  style: GoogleFonts.cairo(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildStatusBatch(
     OrderStatus status,
@@ -759,9 +825,9 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         text,
@@ -807,7 +873,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       decoration: BoxDecoration(
         color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.1)),
+        border: Border.all(color: customTheme.textPrimary.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: children
@@ -831,7 +897,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       children: [
         Icon(
           icon,
-          color: customTheme.primaryGradient.colors[0].withOpacity(0.5),
+          color: customTheme.primaryGradient.colors[0].withValues(alpha: 0.5),
           size: 20,
         ),
         const SizedBox(width: 12),
@@ -929,7 +995,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       decoration: BoxDecoration(
         color: customTheme.cardBackground,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: customTheme.textPrimary.withOpacity(0.08)),
+        border: Border.all(color: customTheme.textPrimary.withValues(alpha: 0.08)),
       ),
       child: Column(
         children: [
@@ -946,14 +1012,14 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                       (isAvailable
                               ? customTheme.successColor
                               : customTheme.errorColor)
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color:
                         (isAvailable
                                 ? customTheme.successColor
                                 : customTheme.errorColor)
-                            .withOpacity(0.3),
+                            .withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -1015,10 +1081,10 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: customTheme.textPrimary.withOpacity(0.03),
+                color: customTheme.textPrimary.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: customTheme.textPrimary.withOpacity(0.05),
+                  color: customTheme.textPrimary.withValues(alpha: 0.05),
                 ),
               ),
               child: Row(
@@ -1026,7 +1092,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: customTheme.primaryGradient.colors[0].withOpacity(
+                      color: customTheme.primaryGradient.colors[0].withValues(alpha: 
                         0.1,
                       ),
                       shape: BoxShape.circle,
@@ -1066,13 +1132,13 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: customTheme.primaryGradient.colors[0].withOpacity(
+                      color: customTheme.primaryGradient.colors[0].withValues(alpha: 
                         0.08,
                       ),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: customTheme.primaryGradient.colors[0]
-                            .withOpacity(0.2),
+                            .withValues(alpha: 0.2),
                       ),
                     ),
                     child: Text(
@@ -1132,5 +1198,83 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       case OrderPriority.urgent:
         return 'عاجل جداً';
     }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+}
+
+// Full Screen Bill Viewer Widget
+class FullScreenBillViewer extends StatelessWidget {
+  final String imageUrl;
+
+  const FullScreenBillViewer({
+    super.key,
+    required this.imageUrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
+    
+    return Scaffold(
+      backgroundColor: Colors.black.withValues(alpha: 0.95),
+      body: Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                ),
+                errorWidget: (context, url, error) => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      color: customTheme.errorColor,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'فشل في تحميل الصورة',
+                      style: TextStyle(
+                        color: customTheme.errorColor,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            right: 16,
+            child: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.close_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
