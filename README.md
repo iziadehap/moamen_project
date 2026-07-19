@@ -63,7 +63,7 @@ This system solves these problems by centralizing order management, worker dispa
 - Workers can view and accept available orders
 - Worker capacity limits to prevent overload
 
-### 🗺 Interactive Map System
+### Interactive Map System
 
 - Display pickup locations on a map
 - Show worker GPS location
