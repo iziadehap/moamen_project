@@ -1,4 +1,4 @@
-# Scrap Collection Operations System ♻️
+# Scrap Collection Operations System 
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.10+-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
 [![Riverpod](https://img.shields.io/badge/State--Management-Riverpod-02569B?logo=riverpod&logoColor=white)](https://riverpod.dev/)
@@ -12,7 +12,7 @@ The application replaces manual coordination methods (phone calls, spreadsheets,
 
 ---
 
-# 🚀 Project Overview
+# Project Overview
 
 This system is designed to support the daily logistics workflow of scrap collection companies.
 
@@ -28,7 +28,7 @@ The platform focuses on **real-time coordination, operational visibility, and ef
 
 ---
 
-# ⚠️ Problem Statement
+# Problem Statement
 
 Many scrap collection businesses rely on informal communication such as:
 
@@ -49,15 +49,15 @@ This system solves these problems by centralizing order management, worker dispa
 
 ---
 
-# ✨ Key Features
+# Key Features
 
-### 📦 Order Management
+### Order Management
 
 - Create and manage scrap pickup requests
 - Track order status (pending, accepted, completed)
 - Automatic priority updates based on waiting time
 
-### 👥 Worker Dispatch
+### Worker Dispatch
 
 - Assign field workers to pickup orders
 - Workers can view and accept available orders
@@ -70,24 +70,24 @@ This system solves these problems by centralizing order management, worker dispa
 - Calculate road-based routes using OSRM
 - Sort orders based on road distance
 
-### 🔐 Role-Based Access Control
+### Role-Based Access Control
 
 - Separate roles for **admin** and **field workers**
 - Secure database access using Supabase **Row Level Security**
 
-### 💰 Transaction Logging
+### Transaction Logging
 
 - Record operational transactions
 - Track financial adjustments and service usage
 
-### ⏰ Worker Availability
+### Worker Availability
 
 - Weekly availability configuration
 - Prevent assignments outside working hours
 
 ---
 
-# 🏛 System Architecture
+# System Architecture
 
 The project follows a **Feature-First Modular Architecture** designed to keep the codebase maintainable and scalable.
 
@@ -120,7 +120,7 @@ This separation allows the project to scale while keeping the code organized.
 
 ---
 
-# 🗺 Map & Location System
+# Map & Location System
 
 A central part of the application is the **map-based operational dashboard**.
 
@@ -136,7 +136,7 @@ This allows workers to identify nearby pickups and navigate efficiently.
 
 ---
 
-# 🧠 Engineering Highlights
+# Engineering Highlights
 
 - Feature-first Flutter architecture
 - Reactive state management with Riverpod
@@ -148,7 +148,7 @@ This allows workers to identify nearby pickups and navigate efficiently.
 
 ---
 
-# 🛠 Tech Stack
+# Tech Stack
 
 ### Mobile
 
@@ -184,7 +184,7 @@ Flutter (Material 3)
 
 ---
 
-# 🔐 Security & Authentication
+# Security & Authentication
 
 Security is implemented using Supabase authentication and database policies.
 
@@ -197,7 +197,7 @@ Key mechanisms include:
 
 ---
 
-# 📸 Screenshots
+# Screenshots
 
 | Login                                            | Orders                                                  | PriceList                                               | OrderDetils                                              |
 | ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- |
@@ -205,7 +205,7 @@ Key mechanisms include:
 
 ---
 
-# 📈 Future Improvements
+# Future Improvements
 
 Possible future enhancements include:
 
@@ -217,7 +217,7 @@ Possible future enhancements include:
 
 ---
 
-# 👨‍💻 Author
+# Author
 
 GitHub
 [https://github.com/iziadehap](https://github.com/iziadehap)
@@ -227,6 +227,6 @@ LinkedIn
 
 ---
 
-# 📄 License
+# License
 
 This project is shared for **portfolio and demonstration purposes**.
