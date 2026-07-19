@@ -1,92 +1,66 @@
-# Scrap Collection Operations System 
-
-[![Flutter](https://img.shields.io/badge/Flutter-3.10+-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
-[![Riverpod](https://img.shields.io/badge/State--Management-Riverpod-02569B?logo=riverpod&logoColor=white)](https://riverpod.dev/)
+# Jihagz — حجز
+[![Flutter](https://img.shields.io/badge/Flutter-3.8+-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
+[![GetX](https://img.shields.io/badge/State--Management-GetX-02569B?logo=flutter&logoColor=white)](https://pub.dev/packages/get)
 [![Supabase](https://img.shields.io/badge/Backend-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 [![Architecture](https://img.shields.io/badge/Architecture-Feature--First-orange)](#system-architecture)
 
-**Scrap Collection Operations System** is a real-world mobile operations platform built for scrap collection businesses.
-It digitizes the workflow of receiving scrap pickup requests, assigning field workers, and tracking operations using a map-based interface.
+**Jihagz** is a real-world sports logistics and booking platform built to centralize the exploration and reservation of sports fields. It digitizes the fragmented process of finding and booking sports venues (Football pitches, Padel courts, and Tennis courts) into a single, unified mobile interface.
 
-The application replaces manual coordination methods (phone calls, spreadsheets, messaging apps) with a centralized system used by administrators and field workers.
+The application replaces informal coordination methods (direct phone calls, scattered social media messages, and manual availability checks) with an automated, location-aware platform used by athletes and venue owners.
 
 ---
-
 # Project Overview
 
-This system is designed to support the daily logistics workflow of scrap collection companies.
+This system is designed to streamline the athletic booking ecosystem by removing the friction of finding open field slots.  
+The application manages the entire exploration and submission lifecycle:
 
-The application manages the entire pickup lifecycle:
+1. Users discover nearby sports venues.
+2. Real-time proximity calculations show the closest options.
+3. Users can submit unlisted venues for admin approval.
+4. Detailed venue information and reviews help users make informed decisions.
 
-1. Customers submit scrap pickup requests.
-2. Administrators manage incoming orders.
-3. Field workers accept pickup tasks.
-4. Workers navigate to pickup locations via an interactive map.
-5. Orders are tracked until completion.
-
-The platform focuses on **real-time coordination, operational visibility, and efficient worker dispatching**.
+The platform focuses on **high operational visibility, crisp map-based delivery, and rapid booking alternatives**.
 
 ---
-
 # Problem Statement
 
-Many scrap collection businesses rely on informal communication such as:
+Many athletes and sports enthusiasts rely on informal, decentralized methods to book courts:
+- Direct phone calls to venue handlers
+- Disorganized WhatsApp coordination  
+- Unpredictable manual scheduling checks
 
-- Phone calls
-- WhatsApp messages
-- Paper notes
-- Manual order tracking
+This leads to several common challenges:
+- Lack of visibility into real-time slot availability
+- High friction when a target field is fully booked
+- Disorganized venue metadata (pricing, contact info, locations)
+- Travel inefficiencies due to lack of distance calculations
 
-This leads to several operational challenges:
-
-- Delays in assigning orders to workers
-- Limited visibility of active pickups
-- Difficulty tracking worker availability
-- Disorganized customer data
-- Inefficient travel routes between pickups
-
-This system solves these problems by centralizing order management, worker dispatching, and location tracking in one application.
+**Jihagz** eliminates these bottlenecks by centralizing stadium discovery, proximity calculations, and venue tracking in one app.
 
 ---
-
 # Key Features
 
-### Order Management
+### Sports Exploration Engine
+- Categorized browsing (Football, Padel, Tennis, etc.)
+- Advanced venue profiles with photo galleries and pricing
 
-- Create and manage scrap pickup requests
-- Track order status (pending, accepted, completed)
-- Automatic priority updates based on waiting time
+### Proximity & Mapping System
+- Automatic GPS location detection
+- Dynamic distance calculation showing top closest venues
+- Visual map integration with precise coordinates
 
-### Worker Dispatch
+### User Lifecycle & Social Proof
+- Secure SSO authentication
+- User profiling and onboarding
+- Crowdsourced ratings and reviews
 
-- Assign field workers to pickup orders
-- Workers can view and accept available orders
-- Worker capacity limits to prevent overload
+### Decentralized Venue Ingestion
+- Users can submit missing sports venues with photos and location markers
 
-### Interactive Map System
-
-- Display pickup locations on a map
-- Show worker GPS location
-- Calculate road-based routes using OSRM
-- Sort orders based on road distance
-
-### Role-Based Access Control
-
-- Separate roles for **admin** and **field workers**
-- Secure database access using Supabase **Row Level Security**
-
-### Transaction Logging
-
-- Record operational transactions
-- Track financial adjustments and service usage
-
-### Worker Availability
-
-- Weekly availability configuration
-- Prevent assignments outside working hours
+### Performance & Caching
+- Local persistence caching for fast loading and offline support
 
 ---
-
 # System Architecture
 
 The project follows a **Feature-First Modular Architecture** designed to keep the codebase maintainable and scalable.
@@ -94,139 +68,78 @@ The project follows a **Feature-First Modular Architecture** designed to keep th
 ### Architecture Layers
 
 **Presentation Layer**
-
-- Flutter UI components
-- Riverpod state management
-- Feature-based screen modules
+- Flutter UI with Material 3
+- GetX for state management and routing
 
 **Domain Layer**
-
-- Business models (Orders, Profiles, Transactions)
-- Application logic representation
+- Business models and core application logic
 
 **Data Layer**
-
 - Supabase PostgreSQL backend
-- Repository-based data access
-- Local caching using Hive
-
-**Service Layer**
-
-- Location tracking
-- Routing service integration
-- Network connectivity monitoring
+- SharedPreferences for local caching
 
 This separation allows the project to scale while keeping the code organized.
 
 ---
-
 # Map & Location System
 
-A central part of the application is the **map-based operational dashboard**.
-
-Capabilities include:
-
-- Real-time worker GPS tracking
-- Order markers displayed on the map
-- Road-distance routing using **OSRM**
-- Map marker clustering for performance
-- Edge indicators for off-screen orders
-
-This allows workers to identify nearby pickups and navigate efficiently.
+A central part of the application is the **proximity and mapping system**:
+- Automatic client-side GPS detection
+- Real-time distance calculations
+- Top 3 closest venues recommendation
+- Interactive map with venue pinpoints
 
 ---
-
 # Engineering Highlights
-
-- Feature-first Flutter architecture
-- Reactive state management with Riverpod
-- Real-time backend synchronization with Supabase
-- Role-based access control using PostgreSQL RLS
-- Map-based order visualization
-- Cached routing requests to reduce external API usage
-- Modular services for location and routing
+- Clean feature-first architecture
+- Reactive state management with GetX
+- Secure Supabase backend integration
+- Client-side geospatial calculations
+- Modular and scalable codebase
 
 ---
-
 # Tech Stack
 
 ### Mobile
-
 Flutter (Material 3)
 
-### State Management
-
-- flutter_riverpod
-- state_notifier
+### State Management & Routing
+GetX
 
 ### Backend
+Supabase + PostgreSQL
 
-- Supabase
-- PostgreSQL
-
-### Local Storage
-
-- Hive CE
-- SharedPreferences
-- flutter_secure_storage
-
-### Mapping
-
+### Geospatial & Mapping
 - flutter_map
-- latlong2
-- OSRM API
+- location
 
-### UI/UX
-
-- Google Fonts (Cairo)
-- Lottie
-- Shimmer
+### Storage
+SharedPreferences
 
 ---
-
-# Security & Authentication
-
-Security is implemented using Supabase authentication and database policies.
-
-Key mechanisms include:
-
-- Secure user authentication
-- Role-based access control
-- PostgreSQL **Row Level Security**
-- Encrypted token storage using `flutter_secure_storage`
-
----
-
 # Screenshots
 
-| Login                                            | Orders                                                  | PriceList                                               | OrderDetils                                              |
-| ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- |
-| ![](app%20screenshot/Screenshot_20260310_133824.jpg) | ![](app%20screenshot/Screenshot_20260310_133839.jpg) | ![](app%20screenshot/Screenshot_20260310_133851.jpg) | ![](app%20screenshot/Screenshot_20260310_133906.jpg) |
+| Authentication | Field Exploration | Stadium Details | Add Missing Place |
+| ---------------- | ---------------- | ---------------- | ---------------- |
+| ![](jihagz/screenshots/Screenshot_1784500552.png) | ![](jihagz/screenshots/Screenshot_1784500558.png) | ![](jihagz/screenshots/Screenshot_1784500563.png) | ![](jihagz/screenshots/Screenshot_1784500572.png) |
 
 ---
-
 # Future Improvements
 
-Possible future enhancements include:
-
-- Push notifications for new pickup assignments
-- Advanced route optimization algorithms
-- Worker performance analytics
-- Web-based admin dashboard
-- Multi-city operational support
+- Direct slot booking system
+- Advanced search and filtering
+- Interactive map filters
+- Click-to-call and WhatsApp integration
 
 ---
-
 # Author
 
-GitHub
+**GitHub**  
 [https://github.com/iziadehap](https://github.com/iziadehap)
 
-LinkedIn
+**LinkedIn**  
 [linkedin.com/in/iziadehap](https://linkedin.com/in/iziadehap)
 
 ---
-
 # License
-
 This project is shared for **portfolio and demonstration purposes**.
